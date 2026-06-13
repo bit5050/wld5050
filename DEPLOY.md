@@ -7,7 +7,7 @@ Complete these steps **in order**. Skipping a step is the most common reason Wor
 ## Phase 1 — World ID Developer Portal
 
 1. Open [World Developer Portal](https://developer.worldcoin.org).
-2. Create app **`app_wld5050`** (or change `APP_ID` in `wld5050-contracts/contracts/WLD5050.sol` to match your app id, then redeploy).
+2. Use the same **App ID** in the portal and in `WLD5050.sol` `APP_ID` (must match `NEXT_PUBLIC_WLD_APP_ID`).
 3. Register actions:
    - `create-raffle` — required for raffle creation
    - `enter-raffle-{id}` — one action per raffle for ticket purchase (dynamic in the app)
@@ -44,7 +44,9 @@ Copy the printed contract address into:
 Set **all** of these in Vercel → Settings → Environment Variables:
 
 ```
-NEXT_PUBLIC_WLD_APP_ID=app_wld5050
+NEXT_PUBLIC_WLD_APP_ID=app_…          # must match contract APP_ID
+WORLD_RP_ID=rp_…                       # server only — not in contract
+WORLD_RP_SIGNING_KEY=0x…
 NEXT_PUBLIC_PRIVY_APP_ID=…
 NEXT_PUBLIC_WLD5050_CONTRACT=0x…
 NEXT_PUBLIC_CHAIN_ID=480

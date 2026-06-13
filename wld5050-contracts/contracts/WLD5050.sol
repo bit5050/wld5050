@@ -133,9 +133,9 @@ contract WLD5050 is IReceiver, IERC165, Ownable, ReentrancyGuard {
     // World ID: Orb-verified humans only (not Device-verified)
     uint256 public constant WORLD_GROUP_ID   = 1;
 
-    // World ID app identifier — registered in World Developer Portal
-    // Replace with your actual app_id before deploying
-    string  public constant APP_ID           = "app_wld5050";
+    // World ID app identifier — must match NEXT_PUBLIC_WLD_APP_ID in Developer Portal
+    string  public constant APP_ID           = "app_c35299664a4b822ecab303d0564cd15b";
+    // RP ID (rp_…) is server-only (WORLD_RP_ID) for IDKit v4 proof requests — not stored on-chain
 
     // Max raffle name length
     uint256 public constant MAX_NAME_LENGTH  = 64;
