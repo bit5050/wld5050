@@ -6,17 +6,17 @@ import VerifiedBadge from '@/components/ui/VerifiedBadge'
 import HeroBackground from '@/components/sections/hero-background'
 
 const stats = [
+  { value: '$10.00 USDC', label: 'Create your own raffle' },
   { value: '$2.50', label: 'per ticket' },
   { value: '50%', label: 'to winner' },
   { value: '50%', label: 'to creator' },
-  { value: '0', label: 'claiming steps' },
 ] as const
 
 function StatItem({ value, label }: { value: string; label: string }) {
   return (
-    <span className="inline-flex flex-col gap-0.5 shrink-0">
-      <span className="font-mono text-[15px] font-bold tracking-tight text-black">{value}</span>
-      <span className="font-body text-[11px] text-[#9E9E9E] uppercase tracking-widest">{label}</span>
+    <span className="inline-flex flex-col gap-1 shrink-0">
+      <span className="font-mono text-[22.5px] font-bold tracking-tight text-black">{value}</span>
+      <span className="font-body text-[16.5px] text-[#9E9E9E] uppercase tracking-widest">{label}</span>
     </span>
   )
 }
@@ -27,7 +27,7 @@ export default function HeroSection() {
       <HeroBackground />
 
       <div className="relative z-10 mx-auto max-w-[1120px] px-6 py-16 sm:px-10 lg:px-14 lg:py-20">
-        <div className="max-w-[640px]">
+        <div className="max-w-[720px]">
           <BlurFade blur="0px" delay={0} inView>
             <p className="font-mono text-[11px] text-[#9E9E9E] tracking-[0.2em] uppercase mb-5">
               World Chain · Chainlink CRE · ENS
@@ -36,19 +36,22 @@ export default function HeroSection() {
 
           <BlurFade blur="0px" delay={0.06} inView>
             <h1 className="font-display text-[40px] font-bold leading-[1.12] tracking-tight mb-5 sm:text-[44px] lg:text-[48px]">
-              Fair raffles.
+              World Coin 50/50 Raffles.
               <br />
               <span className="text-[#9E9E9E]">No bots. No bias.</span>
               <br />
-              No middlemen.
+              Verified Human.
+              <br />
+              No middlemen. <span className="text-[#9E9E9E]">Chainlink CRE.</span>
+              <br />
+              <span className="text-[#9E9E9E]">ENS.</span>
             </h1>
           </BlurFade>
 
           <BlurFade blur="0px" delay={0.12} inView>
             <p className="font-body text-[14px] text-[#616161] leading-relaxed max-w-[520px] mb-8 lg:text-[15px]">
-              Create a 50/50 raffle or buy a ticket. World ID guarantees one entry per verified
-              human. Chainlink CRE selects the winner and pays out automatically — no claiming, no
-              waiting.
+              Create a 50/50 raffle or buy tickets. World ID guarantees verified human raffles.
+              Chainlink CRE selects the winner and pays out automatically no claiming, no waiting.
             </p>
           </BlurFade>
 
@@ -82,7 +85,7 @@ export default function HeroSection() {
                   <span key={label} className="inline-flex items-end gap-5">
                     {index > 0 && (
                       <span
-                        className="font-mono text-[13px] text-[#9E9E9E] pb-0.5 select-none"
+                        className="font-mono text-[19.5px] text-[#9E9E9E] pb-1 select-none"
                         aria-hidden
                       >
                         |
