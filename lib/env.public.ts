@@ -10,8 +10,8 @@ export const publicEnv = {
   chainId: Number(process.env.NEXT_PUBLIC_CHAIN_ID ?? '480'),
 } as const
 
-/** Privy app IDs start with `cl` and are not placeholder values. */
+/** Privy app IDs are alphanumeric (legacy `cl…`, newer `cm…`, etc.). */
 export function isValidPrivyAppId(appId: string): boolean {
   if (!appId || appId.includes('xxxx')) return false
-  return /^cl[a-z0-9]+$/i.test(appId)
+  return /^[a-z0-9]{20,}$/i.test(appId)
 }
