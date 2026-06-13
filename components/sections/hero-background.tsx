@@ -13,7 +13,6 @@ const codeLines = [
   'ProveKit → ZK winner index verified',
   'Chainlink Confidential AI → fairness attestation',
   'Privy → embedded wallet · gasless ERC-4337',
-  'Blink → one-tap USDC deposit',
   'bit5050.eth → operator',
   'settle() → 50% winner · 50% creator',
   'no claim() → USDC pushed atomically',
