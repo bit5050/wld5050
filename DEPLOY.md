@@ -116,5 +116,7 @@ Optional: run `npm run mint-winner` listener for ENS subnames (separate script).
 | RP context 503 | Set `WORLD_RP_ID` + `WORLD_RP_SIGNING_KEY` on Vercel |
 | World ID verify fails on-chain | App id must match contract `APP_ID`; action must be `create-raffle` or `enter-raffle-{id}` |
 | Create/buy tx reverts | Redeployed contract? USDC approved? Wallet on World Chain (480)? |
+| `NonExistentRoot` / proof revert on create | World ID proof expired — verify again **immediately** before submit (do not verify early) |
+| Vercel hits old contract (`0x6F77…`) | Set `NEXT_PUBLIC_WLD5050_CONTRACT=0x98cB5B…` on Vercel and **redeploy** |
 | Raffle never settles | CRE workflow deployed + active? Contract address in workflow config? |
 | Settlement > 30s | CRE not active or wrong contract in workflow config |

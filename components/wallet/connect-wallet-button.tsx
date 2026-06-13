@@ -7,12 +7,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import ENSName from '@/components/ens/ENSName'
 import { isValidPrivyAppId, publicEnv } from '@/lib/env.public'
 import { cn } from '@/lib/utils'
-
-function truncateAddress(address: string) {
-  return `${address.slice(0, 6)}…${address.slice(-4)}`
-}
 
 function DisabledConnectButton() {
   return (
@@ -53,7 +50,7 @@ function ConnectWalletButtonInner() {
             'font-mono text-[12px] font-medium text-black transition-colors hover:border-black',
           )}
         >
-          {truncateAddress(address)}
+          <ENSName address={address} />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="min-w-[140px]">
           <DropdownMenuItem

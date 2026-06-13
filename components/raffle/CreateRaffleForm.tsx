@@ -61,6 +61,7 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
   const [endDate, setEndDate] = useState(toDateValue(defaultEnd))
   const [endTime, setEndTime] = useState(toTimeValue(defaultEnd))
   const [worldIdResult, setWorldIdResult] = useState<IDKitResult | null>(null)
+  const [verifiedAt, setVerifiedAt] = useState<number | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   const {
@@ -74,7 +75,10 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
   } = useCreateRaffleTx()
 
   const verified = worldIdResult !== null
-  const canSubmit = verified && name.trim().length > 0 && Boolean(address) && Boolean(contractAddress)
+  const proofStale =
+    verifiedAt !== null && Date.now() - verifiedAt > 2 * 60 * 1000
+  const formReady = name.trim().length > 0 && Boolean(address) && Boolean(contractAddress)
+  const canSubmit = formReady && verified && !proofStale
 
   useEffect(() => {
     if (isSuccess) router.refresh()
@@ -142,12 +146,12 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
         ))}
       </div>
 
-      {/* Wallet + World ID */}
+      {/* Wallet */}
       <div className="mb-6 space-y-3">
         {!address ? (
           <div className="rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] px-4 py-4">
             <p className="font-body text-[13px] text-[#616161] mb-3">
-              Connect your wallet with Privy before verifying with World ID.
+              Connect your wallet with Privy before creating a raffle.
             </p>
             <ConnectWalletButton />
           </div>
@@ -161,31 +165,6 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
             </p>
           </div>
         ) : null}
-
-        {!verified ? (
-          <div className="rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-black px-4 py-4">
-            <p className="font-display text-[14px] font-semibold text-white mb-1">
-              World ID not verified
-            </p>
-            <p className="font-body text-[12px] text-[#9E9E9E] mb-4">
-              Verify with World ID to create a raffle. One verified human per creator session.
-            </p>
-            <WorldIdVerifyButton
-              action={worldIdAction}
-              signal={address}
-              onVerified={(result) => {
-                setWorldIdResult(result)
-                toast.success('World ID verified — ready to create')
-              }}
-              onError={(message) => toast.error(message)}
-              disabled={!address}
-            />
-          </div>
-        ) : (
-          <div className="flex items-center gap-2 rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] px-4 py-3">
-            <VerifiedBadge label="World ID verified — ready to create" />
-          </div>
-        )}
       </div>
 
       {/* Form fields */}
@@ -314,6 +293,50 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
         </ul>
       </div>
 
+      {/* World ID — verify immediately before submit */}
+      {!isSuccess ? (
+        <div className="mb-6 space-y-3">
+          {!verified || proofStale ? (
+            <div className="rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-black px-4 py-4">
+              <p className="font-display text-[14px] font-semibold text-white mb-1">
+                {proofStale ? 'World ID proof expired' : 'Verify with World ID'}
+              </p>
+              <p className="font-body text-[12px] text-[#9E9E9E] mb-4">
+                {proofStale
+                  ? 'Your proof root is no longer valid on-chain. Verify again, then submit right away.'
+                  : 'Fill in raffle details first, then verify immediately before paying. Proofs expire quickly.'}
+              </p>
+              <WorldIdVerifyButton
+                action={worldIdAction}
+                signal={address}
+                onVerified={(result) => {
+                  setWorldIdResult(result)
+                  setVerifiedAt(Date.now())
+                  toast.success('World ID verified — submit now')
+                }}
+                onError={(message) => toast.error(message)}
+                disabled={!formReady}
+                label={proofStale ? 'Re-verify with World ID' : 'Verify with World ID'}
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3 rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <VerifiedBadge label="World ID verified — submit now" />
+              <button
+                type="button"
+                onClick={() => {
+                  setWorldIdResult(null)
+                  setVerifiedAt(null)
+                }}
+                className="font-body text-[12px] text-[#616161] underline underline-offset-2 hover:text-black"
+              >
+                Re-verify
+              </button>
+            </div>
+          )}
+        </div>
+      ) : null}
+
       {/* Actions */}
       {isSuccess && txHash ? (
         <div className="rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] px-4 py-4 text-center">
@@ -326,7 +349,7 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
             Browse raffles
           </Link>
         </div>
-      ) : verified ? (
+      ) : verified && !proofStale ? (
         <button
           type="button"
           disabled={!canSubmit || isPending || submitting}

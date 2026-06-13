@@ -3,7 +3,7 @@
 import { useCallback, useState } from 'react'
 import type { IDKitResult } from '@worldcoin/idkit'
 import { useWallets } from '@privy-io/react-auth'
-import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
+import { usePublicClient, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { toast } from 'sonner'
 import {
   PAYMENT_TOKEN_USDC,
@@ -13,12 +13,46 @@ import {
   wld5050WriteAbi,
 } from '@/lib/contracts/wld5050'
 import { computeRaffleDurationSeconds, getContractAddress } from '@/lib/contracts/raffle-tx'
+import { friendlyTxError } from '@/lib/contracts/decode-tx-error'
 import { erc20Abi } from '@/lib/contracts/wld5050'
 import { extractLegacyOrbProof } from '@/lib/worldid/proof'
 import { WORLD_ID_CREATE_ACTION } from '@/lib/worldid/actions'
 
+async function ensureUsdcAllowance(
+  publicClient: ReturnType<typeof usePublicClient>,
+  owner: `0x${string}`,
+  spender: `0x${string}`,
+  required: bigint,
+  writeContractAsync: (variables: {
+    address: `0x${string}`
+    abi: typeof erc20Abi
+    functionName: 'approve'
+    args: [`0x${string}`, bigint]
+  }) => Promise<`0x${string}`>,
+) {
+  if (!publicClient) return
+
+  const allowance = await publicClient.readContract({
+    address: USDC_ADDRESS,
+    abi: erc20Abi,
+    functionName: 'allowance',
+    args: [owner, spender],
+  })
+
+  if (allowance >= required) return
+
+  toast.message('Approve USDC…')
+  await writeContractAsync({
+    address: USDC_ADDRESS,
+    abi: erc20Abi,
+    functionName: 'approve',
+    args: [spender, required],
+  })
+}
+
 export function useCreateRaffleTx() {
   const { wallets } = useWallets()
+  const publicClient = usePublicClient()
   const address = wallets[0]?.address as `0x${string}` | undefined
   const contractAddress = getContractAddress()
   const [pendingHash, setPendingHash] = useState<`0x${string}` | undefined>()
@@ -41,26 +75,29 @@ export function useCreateRaffleTx() {
       const duration = computeRaffleDurationSeconds(params.endDate, params.endTime)
       const { root, nullifierHash, proof } = extractLegacyOrbProof(params.worldIdResult)
 
-      toast.message('Approve USDC creation fee…')
-      await writeContractAsync({
-        address: USDC_ADDRESS,
-        abi: erc20Abi,
-        functionName: 'approve',
-        args: [contractAddress, PLATFORM_FEE_USDC_RAW],
-      })
+      await ensureUsdcAllowance(
+        publicClient,
+        address,
+        contractAddress,
+        PLATFORM_FEE_USDC_RAW,
+        writeContractAsync,
+      )
 
       toast.message('Creating raffle on World Chain…')
-      const hash = await writeContractAsync({
-        address: contractAddress,
-        abi: wld5050WriteAbi,
-        functionName: 'createRaffle',
-        args: [params.name.trim(), duration, PAYMENT_TOKEN_USDC, root, nullifierHash, [...proof]],
-      })
-
-      setPendingHash(hash)
-      return hash
+      try {
+        const hash = await writeContractAsync({
+          address: contractAddress,
+          abi: wld5050WriteAbi,
+          functionName: 'createRaffle',
+          args: [params.name.trim(), duration, PAYMENT_TOKEN_USDC, root, nullifierHash, [...proof]],
+        })
+        setPendingHash(hash)
+        return hash
+      } catch (error) {
+        throw new Error(friendlyTxError(error))
+      }
     },
-    [address, contractAddress, writeContractAsync],
+    [address, contractAddress, publicClient, writeContractAsync],
   )
 
   return {
@@ -76,6 +113,7 @@ export function useCreateRaffleTx() {
 
 export function useBuyTicketTx(raffleId: number) {
   const { wallets } = useWallets()
+  const publicClient = usePublicClient()
   const address = wallets[0]?.address as `0x${string}` | undefined
   const contractAddress = getContractAddress()
   const [pendingHash, setPendingHash] = useState<`0x${string}` | undefined>()
@@ -92,26 +130,29 @@ export function useBuyTicketTx(raffleId: number) {
 
       const { root, nullifierHash, proof } = extractLegacyOrbProof(worldIdResult)
 
-      toast.message('Approve USDC ticket payment…')
-      await writeContractAsync({
-        address: USDC_ADDRESS,
-        abi: erc20Abi,
-        functionName: 'approve',
-        args: [contractAddress, TICKET_PRICE_USDC_RAW],
-      })
+      await ensureUsdcAllowance(
+        publicClient,
+        address,
+        contractAddress,
+        TICKET_PRICE_USDC_RAW,
+        writeContractAsync,
+      )
 
       toast.message('Buying ticket on World Chain…')
-      const hash = await writeContractAsync({
-        address: contractAddress,
-        abi: wld5050WriteAbi,
-        functionName: 'buyTicket',
-        args: [BigInt(raffleId), root, nullifierHash, [...proof]],
-      })
-
-      setPendingHash(hash)
-      return hash
+      try {
+        const hash = await writeContractAsync({
+          address: contractAddress,
+          abi: wld5050WriteAbi,
+          functionName: 'buyTicket',
+          args: [BigInt(raffleId), root, nullifierHash, [...proof]],
+        })
+        setPendingHash(hash)
+        return hash
+      } catch (error) {
+        throw new Error(friendlyTxError(error))
+      }
     },
-    [address, contractAddress, raffleId, writeContractAsync],
+    [address, contractAddress, publicClient, raffleId, writeContractAsync],
   )
 
   return {
