@@ -10,6 +10,7 @@ import VerifiedBadge from '@/components/ui/VerifiedBadge'
 import ConnectWalletButton from '@/components/wallet/connect-wallet-button'
 import WorldIdVerifyButton from '@/components/worldid/world-id-verify-button'
 import ENSName from '@/components/ens/ENSName'
+import ShareRaffleButtons from '@/components/raffle/ShareRaffleButtons'
 import { useBuyTicketTx } from '@/hooks/use-raffle-transactions'
 import { useRaffle } from '@/hooks/use-raffle-data'
 import { worldIdEnterRaffleAction } from '@/lib/worldid/actions'
@@ -126,6 +127,10 @@ export default function RafflePage({ params }: { params: { id: string } }) {
             </p>
           </div>
         ))}
+      </div>
+
+      <div className="mb-8 rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] p-4">
+        <ShareRaffleButtons raffleId={raffleId} raffleName={raffle.name} />
       </div>
 
       <div className="mb-8">

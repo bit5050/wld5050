@@ -19,6 +19,7 @@ type Props = {
   raffleName: string
   txHash?: string
   className?: string
+  showTitle?: boolean
 }
 
 function ShareButton({
@@ -48,7 +49,13 @@ function ShareButton({
   )
 }
 
-export default function ShareRaffleButtons({ raffleId, raffleName, txHash, className }: Props) {
+export default function ShareRaffleButtons({
+  raffleId,
+  raffleName,
+  txHash,
+  className,
+  showTitle = true,
+}: Props) {
   const [copied, setCopied] = useState(false)
   const raffleUrl = useMemo(() => getRaffleUrl(raffleId), [raffleId])
   const shareMessage = useMemo(
@@ -88,9 +95,11 @@ export default function ShareRaffleButtons({ raffleId, raffleName, txHash, class
   return (
     <div className={cn('space-y-4', className)}>
       <div>
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#9E9E9E] mb-2">
-          Share this raffle
-        </p>
+        {showTitle ? (
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#9E9E9E] mb-2">
+            Share this raffle
+          </p>
+        ) : null}
         <div className="flex items-center gap-2 rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] px-3 py-2.5">
           <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-[#616161]">
             {raffleUrl}

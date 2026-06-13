@@ -13,6 +13,7 @@ import {
 import { BlurFade } from '@/components/ui/blur-fade'
 import HeroBackground from '@/components/sections/hero-background'
 import ConnectWalletButton from '@/components/wallet/connect-wallet-button'
+import ShareRaffleDialog from '@/components/raffle/ShareRaffleDialog'
 import { useDashboardData } from '@/hooks/use-dashboard-data'
 import { formatUSDC } from '@/lib/format'
 import type { DashboardRaffleItem } from '@/lib/dashboard/types'
@@ -124,6 +125,11 @@ function RaffleList({
                 <span className="font-mono text-[11px] text-[#616161]">
                   {formatPool(item.poolAmount, item.token)} pool
                 </span>
+                <ShareRaffleDialog
+                  raffleId={item.id}
+                  raffleName={item.name}
+                  variant="icon"
+                />
                 <Link
                   href={`/raffle/${item.id}`}
                   className="text-[#9E9E9E] hover:text-black transition-colors"

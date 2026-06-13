@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Raffle, TICKET_PRICE } from '@/types'
 import { formatCountdown } from '@/lib/format'
 import ENSName from '@/components/ens/ENSName'
+import ShareRaffleDialog from '@/components/raffle/ShareRaffleDialog'
 
 interface Props {
   raffle: Raffle
@@ -84,12 +85,19 @@ export default function RaffleCard({ raffle, compact = false }: Props) {
               style={{ width: `${Math.min((tickets / 500) * 100, 100)}%` }} />
           </div>
         </div>
-        <Link href={`/raffle/${raffle.id}`} className="mt-auto">
-          <button className={`w-full font-medium bg-black text-white rounded-[7px] hover:opacity-80 transition-opacity ${compact ? 'text-[13px] py-2.5' : 'text-[14px] py-3'}`}>
-            Buy ticket{' '}
-            <span className="font-mono opacity-70">$2.50</span>
-          </button>
-        </Link>
+        <div className="mt-auto space-y-2">
+          <Link href={`/raffle/${raffle.id}`}>
+            <button className={`w-full font-medium bg-black text-white rounded-[7px] hover:opacity-80 transition-opacity ${compact ? 'text-[13px] py-2.5' : 'text-[14px] py-3'}`}>
+              Buy ticket{' '}
+              <span className="font-mono opacity-70">$2.50</span>
+            </button>
+          </Link>
+          <ShareRaffleDialog
+            raffleId={raffle.id}
+            raffleName={raffle.name}
+            triggerClassName={compact ? 'py-2 text-[12px]' : undefined}
+          />
+        </div>
       </div>
     </div>
   )

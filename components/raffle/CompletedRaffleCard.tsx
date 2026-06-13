@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import ENSName from '@/components/ens/ENSName'
+import ShareRaffleDialog from '@/components/raffle/ShareRaffleDialog'
 import VerifiedBadge from '@/components/ui/VerifiedBadge'
 import type { CompletedRaffle } from '@/types'
 
@@ -67,14 +68,22 @@ export default function CompletedRaffleCard({ raffle, compact = false }: Props) 
           <p className="font-mono text-[10px] font-bold text-black truncate">{raffle.winnerSubname}</p>
         </div>
 
-        <Link href={`/results#round-${raffle.raffleId}`} className="mt-auto">
-          <button
-            type="button"
-            className={`w-full rounded-[7px] border-[0.5px] border-[#E0E0E0] bg-white font-medium text-black transition-colors hover:border-black ${compact ? 'py-2.5 text-[13px]' : 'py-3 text-[14px]'}`}
-          >
-            View settlement →
-          </button>
-        </Link>
+        <div className="mt-auto space-y-2">
+          <Link href={`/raffle/${raffle.raffleId}`}>
+            <button
+              type="button"
+              className={`w-full rounded-[7px] border-[0.5px] border-[#E0E0E0] bg-white font-medium text-black transition-colors hover:border-black ${compact ? 'py-2.5 text-[13px]' : 'py-3 text-[14px]'}`}
+            >
+              View raffle →
+            </button>
+          </Link>
+          <ShareRaffleDialog
+            raffleId={raffle.raffleId}
+            raffleName={raffle.raffleName}
+            txHash={raffle.txHash || undefined}
+            triggerClassName={compact ? 'py-2 text-[12px]' : undefined}
+          />
+        </div>
       </div>
     </div>
   )
