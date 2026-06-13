@@ -2,10 +2,9 @@ import HeroSection from '@/components/sections/HeroSection'
 import HowItWorksSection from '@/components/sections/HowItWorksSection'
 import CreateRaffleSection from '@/components/sections/CreateRaffleSection'
 import ActiveRafflesSection from '@/components/sections/ActiveRafflesSection'
+import CompletedRafflesSection from '@/components/sections/CompletedRafflesSection'
 import TrustSection from '@/components/sections/TrustSection'
-import DividerLabel from '@/components/ui/DividerLabel'
-import WinnerCard from '@/components/raffle/WinnerCard'
-import { Raffle, Settlement } from '@/types'
+import { CompletedRaffle, Raffle } from '@/types'
 
 const MOCK_RAFFLES: Raffle[] = [
   {
@@ -91,42 +90,57 @@ const MOCK_RAFFLES: Raffle[] = [
   },
 ]
 
-const MOCK_SETTLEMENT: Settlement = {
-  raffleId: 41,
-  winner: '0x9876543210987654321098765432109876543210',
-  winnerEns: 'alice.eth',
-  winnerSubname: 'winner-round41.wld5050.eth',
-  winnerPrize: 312.5,
-  creatorPayout: 312.5,
-  txHash: '0x9a3cd12f',
-  blockNumber: 28419203,
-  creSteps: [
-    { label: 'CRE cron triggered', detail: 'Round #41 deadline passed', mono: 'block #28,419,203', status: 'done' },
-    { label: 'AgentKit verified', detail: 'agent.wld5050.eth confirmed human-backed by bit5050.eth', status: 'done' },
-    { label: 'AI attestation', detail: 'Round assessed fair', mono: '0xf3a1...b2c4', status: 'done' },
-    { label: 'Randomness', detail: 'DON consensus 15/15 nodes · winner index 187', status: 'done' },
-    { label: 'Settlement complete', detail: '$312.50 → alice.eth · $312.50 → bit5050.eth', mono: 'tx 0x9a3c...d12f', status: 'done' },
-  ],
-}
+const MOCK_COMPLETED_RAFFLES: CompletedRaffle[] = [
+  {
+    raffleId: 41,
+    raffleName: 'ETHGlobal NYC Community Pot',
+    ticketsSold: 250,
+    winner: '0x9876543210987654321098765432109876543210',
+    winnerEns: 'alice.eth',
+    winnerSubname: 'winner-round41.wld5050.eth',
+    winnerPrize: 312.5,
+    creatorPayout: 312.5,
+    txHash: '0x9a3cd12f',
+    blockNumber: 28419203,
+    creSteps: [],
+  },
+  {
+    raffleId: 40,
+    raffleName: 'Weekend Builder Fund',
+    ticketsSold: 168,
+    winner: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd',
+    winnerEns: 'bit5050.eth',
+    winnerSubname: 'winner-round40.wld5050.eth',
+    winnerPrize: 210.0,
+    creatorPayout: 210.0,
+    txHash: '0x8b2ac91e',
+    blockNumber: 28418801,
+    creSteps: [],
+  },
+  {
+    raffleId: 39,
+    raffleName: 'ZK Hackathon Prize Split',
+    ticketsSold: 96,
+    winner: '0x2222222222222222222222222222222222222222',
+    winnerEns: 'agent.wld5050.eth',
+    winnerSubname: 'winner-round39.wld5050.eth',
+    winnerPrize: 120.0,
+    creatorPayout: 120.0,
+    txHash: '0x7c1bd80a',
+    blockNumber: 28418112,
+    creSteps: [],
+  },
+]
 
 export default function HomePage() {
   return (
     <>
       <HeroSection />
+      <CreateRaffleSection />
       <HowItWorksSection />
       <TrustSection />
-      <CreateRaffleSection />
       <ActiveRafflesSection raffles={MOCK_RAFFLES} />
-
-      <DividerLabel text="Completed Raffle Results" />
-      <section className="px-6 py-6">
-        <div className="flex items-baseline justify-between mb-5">
-          <span className="font-display text-[13px] font-medium uppercase tracking-widest text-[#9E9E9E]">
-            Round 41 — settled
-          </span>
-        </div>
-        <WinnerCard settlement={MOCK_SETTLEMENT} />
-      </section>
+      <CompletedRafflesSection raffles={MOCK_COMPLETED_RAFFLES} />
     </>
   )
 }

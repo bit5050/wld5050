@@ -13,13 +13,15 @@ interface Props {
 export default function RaffleCard({ raffle, compact = false }: Props) {
   const [tickets, setTickets] = useState(raffle.ticketsSold)
   const [animate, setAnimate] = useState(false)
-  const [countdown, setCountdown] = useState(formatCountdown(raffle.endTime))
+  const [countdown, setCountdown] = useState<string | null>(null)
 
   const prizePool  = (tickets * TICKET_PRICE).toFixed(2)
   const yourShare  = (tickets * TICKET_PRICE / 2).toFixed(2)
 
   useEffect(() => {
-    const t = setInterval(() => setCountdown(formatCountdown(raffle.endTime)), 30000)
+    const update = () => setCountdown(formatCountdown(raffle.endTime))
+    update()
+    const t = setInterval(update, 30000)
     return () => clearInterval(t)
   }, [raffle.endTime])
 
@@ -57,7 +59,7 @@ export default function RaffleCard({ raffle, compact = false }: Props) {
                 </span>
               </p>
               <p>
-                Ends in <strong className="text-black font-mono">{countdown}</strong>
+                Ends in <strong className="text-black font-mono">{countdown ?? '…'}</strong>
               </p>
             </>
           ) : (
@@ -69,7 +71,7 @@ export default function RaffleCard({ raffle, compact = false }: Props) {
                 </span>
               </span>
               <span className="text-gray-300 mx-1">·</span>
-              <span>Ends in <strong className="text-black">{countdown}</strong></span>
+              <span>Ends in <strong className="text-black">{countdown ?? '…'}</strong></span>
             </>
           )}
         </div>

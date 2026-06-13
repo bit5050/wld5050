@@ -23,6 +23,11 @@ export interface Settlement {
   creSteps: CREStep[]
 }
 
+export interface CompletedRaffle extends Settlement {
+  raffleName: string
+  ticketsSold: number
+}
+
 export interface CREStep {
   label: string
   detail: string

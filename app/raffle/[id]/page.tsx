@@ -13,11 +13,13 @@ export default function RafflePage({ params }: { params: { id: string } }) {
 
   const prizePool  = (tickets * TICKET_PRICE).toFixed(2)
   const yourShare  = (tickets * TICKET_PRICE / 2).toFixed(2)
-  const [countdown, setCountdown] = useState(formatCountdown(endTime))
+  const [countdown, setCountdown] = useState<string | null>(null)
 
   useEffect(() => {
+    const update = () => setCountdown(formatCountdown(endTime))
+    update()
     const t = setInterval(() => {
-      setCountdown(formatCountdown(endTime))
+      update()
       if (Math.random() > 0.5) setTickets(n => n + 1)
     }, 3000)
     return () => clearInterval(t)
@@ -44,7 +46,7 @@ export default function RafflePage({ params }: { params: { id: string } }) {
           <span className="font-mono text-black font-medium">bit5050.eth</span>
         </span>
         <span className="text-gray-300">·</span>
-        <span>Ends in <strong className="text-black">{countdown}</strong></span>
+        <span>Ends in <strong className="text-black">{countdown ?? '…'}</strong></span>
       </div>
 
       {/* STATS */}
