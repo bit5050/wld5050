@@ -35,14 +35,14 @@ Every hex address in the UI is resolved via `/api/ens` before display.
 
 ## Getting Started
 \`\`\`bash
-cp env.example .env.local   # fill in your keys locally
+# Create .env.local locally — see Environment Variables below (do not commit)
 npm install
 npm run dev
 \`\`\`
 
 ## Environment Variables
 
-Copy `env.example` → `.env.local`. **Never commit `.env.local`** — this repo is public.
+Create `.env.local` locally with the variables below. **Never commit `.env.local`** — this repo is public.
 
 | Variable | Scope | Notes |
 |---|---|---|

@@ -1,0 +1,25 @@
+{
+  "name": "wld5050-contracts",
+  "version": "1.0.0",
+  "description": "WLD5050 smart contracts — World Chain, Chainlink CRE, ENS",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "deploy:mainnet": "npx hardhat run scripts/deploy.ts --network worldchain-mainnet",
+    "resolve:ens": "npx ts-node scripts/resolveEns.ts",
+    "workflow:simulate": "cre workflow simulate"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.2",
+    "viem": "^2.21.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.13.0",
+    "hardhat": "^2.22.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.0"
+  }
+}
