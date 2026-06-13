@@ -17,6 +17,7 @@ import {
   type DashboardRaffleItem,
   type DashboardRaffleStatus,
 } from '@/lib/dashboard/types'
+import { resolveEnsToAddress } from '@/lib/ens/resolve'
 
 function mapStatus(
   contractStatus: number,
@@ -74,28 +75,9 @@ export async function fetchDashboardData(
     return { ...emptyDashboardData, balances }
   }
 
-  const settledLogs = await publicClient.getContractEvents({
-    address: contractAddress,
-    abi: wld5050Abi,
-    eventName: 'RaffleSettled',
-    args: { winner: userAddress },
-    fromBlock: 'earliest',
-    toBlock: 'latest',
-  })
-
   const winMap = new Map<number, { token: PaymentToken; prize: number }>()
   let usdcWon = 0
   let wldWon = 0
-
-  for (const log of settledLogs) {
-    const token = paymentTokenFromIndex(Number(log.args.token ?? 0))
-    const rawPrize = log.args.winnerPrize ?? BigInt(0)
-    const prize = formatRawTokenAmount(rawPrize, token)
-    const raffleId = Number(log.args.raffleId ?? 0)
-    winMap.set(raffleId, { token, prize })
-    if (token === 'USDC') usdcWon += prize
-    else wldWon += prize
-  }
 
   const created: DashboardRaffleItem[] = []
   const won: DashboardRaffleItem[] = []
@@ -129,9 +111,22 @@ export async function fetchDashboardData(
     const ticketsSold = Number(details[3])
     const endTime = Number(details[4])
     const statusCode = Number(details[5])
+    const winnerSubname = details[7]
     const isEnded = state[6]
+    const totalRevenue = state[5] as bigint
     const status = mapStatus(statusCode, isEnded)
     const poolAmount = poolFromTickets(ticketsSold, token)
+
+    if (statusCode === 1) {
+      const subname = winnerSubname || `winner-round${id}.wld5050.eth`
+      const winner = await resolveEnsToAddress(subname)
+      if (winner?.toLowerCase() === userAddress.toLowerCase()) {
+        const prize = formatRawTokenAmount(totalRevenue / BigInt(2), token)
+        winMap.set(id, { token, prize })
+        if (token === 'USDC') usdcWon += prize
+        else wldWon += prize
+      }
+    }
 
     const isCreator = creator.toLowerCase() === userAddress.toLowerCase()
     const ticketsHeld = entries.filter(

@@ -1,5 +1,6 @@
 import type { Address, PublicClient } from 'viem'
 import { publicEnv } from '@/lib/env.public'
+import { resolveEnsToAddress } from '@/lib/ens/resolve'
 import {
   formatRawTokenAmount,
   isValidContractAddress,
@@ -65,10 +66,27 @@ function getContractAddress(): Address | null {
   return isValidContractAddress(address) ? (address as Address) : null
 }
 
+async function resolveWinnerAddress(
+  raffleId: number,
+  creator: Address,
+  winnerSubname: string,
+): Promise<Address> {
+  const subname = winnerSubname || `winner-round${raffleId}.wld5050.eth`
+  const resolved = await resolveEnsToAddress(subname)
+  return resolved ?? creator
+}
+
+export type FetchRafflesOptions = {
+  /** When false, skips settled raffle enrichment (faster for buy-tickets). */
+  includeCompleted?: boolean
+}
+
 export async function fetchRafflesFromContract(
   publicClient: PublicClient = getPublicClient(),
   contractAddress: Address | null = getContractAddress(),
+  options: FetchRafflesOptions = {},
 ): Promise<RaffleListData> {
+  const { includeCompleted = true } = options
   if (!contractAddress) {
     return { active: [], completed: [] }
   }
@@ -82,43 +100,6 @@ export async function fetchRafflesFromContract(
   const total = Number(raffleCount)
   if (total === 0) {
     return { active: [], completed: [] }
-  }
-
-  const settledLogs = await publicClient.getContractEvents({
-    address: contractAddress,
-    abi: wld5050Abi,
-    eventName: 'RaffleSettled',
-    fromBlock: 'earliest',
-    toBlock: 'latest',
-  })
-
-  const settlementById = new Map<
-    number,
-    {
-      winner: Address
-      winnerPrize: number
-      creatorPayout: number
-      token: PaymentToken
-      txHash: string
-      blockNumber: number
-      aiAttestationHash: string
-      winnerSubname: string
-    }
-  >()
-
-  for (const log of settledLogs) {
-    const raffleId = Number(log.args.raffleId ?? 0)
-    const token = paymentTokenFromIndex(Number(log.args.token ?? 0))
-    settlementById.set(raffleId, {
-      winner: (log.args.winner ?? '0x0000000000000000000000000000000000000000') as Address,
-      winnerPrize: formatRawTokenAmount(log.args.winnerPrize ?? BigInt(0), token),
-      creatorPayout: formatRawTokenAmount(log.args.creatorPayout ?? BigInt(0), token),
-      token,
-      txHash: log.transactionHash ?? '',
-      blockNumber: Number(log.blockNumber ?? 0),
-      aiAttestationHash: (log.args.aiAttestationHash ?? ZERO_HASH) as string,
-      winnerSubname: log.args.winnerSubname ?? '',
-    })
   }
 
   const active: Raffle[] = []
@@ -148,30 +129,33 @@ export async function fetchRafflesFromContract(
     const aiAttestationHash = details[6] as string
     const winnerSubname = details[7]
     const isEnded = state[6]
+    const totalRevenue = state[5] as bigint
+    const token = paymentTokenFromIndex(Number(state[1]))
     const status = mapRaffleStatus(statusCode, isEnded)
 
-    if (statusCode === 1) {
-      const settlement = settlementById.get(id)
-      const winnerPrize = settlement?.winnerPrize ?? 0
-      const creatorPayout = settlement?.creatorPayout ?? 0
+    if (statusCode === 1 && includeCompleted) {
+      const winnerPrize = formatRawTokenAmount(totalRevenue / BigInt(2), token)
+      const creatorPayout = formatRawTokenAmount(totalRevenue - totalRevenue / BigInt(2), token)
+      const winner = await resolveWinnerAddress(id, creator, winnerSubname)
+
       completed.push({
         raffleId: id,
         raffleName: name,
         ticketsSold,
-        winner: settlement?.winner ?? creator,
+        winner,
         winnerEns: null,
-        winnerSubname: settlement?.winnerSubname || winnerSubname,
+        winnerSubname: winnerSubname || `winner-round${id}.wld5050.eth`,
         winnerPrize,
         creatorPayout,
-        txHash: settlement?.txHash ?? '',
-        blockNumber: settlement?.blockNumber ?? 0,
+        txHash: '',
+        blockNumber: 0,
         creSteps: buildCreSteps(
           id,
-          settlement?.blockNumber ?? 0,
-          settlement?.aiAttestationHash || aiAttestationHash,
+          0,
+          aiAttestationHash,
           winnerPrize,
           creatorPayout,
-          settlement?.winnerSubname || winnerSubname,
+          winnerSubname || `winner-round${id}.wld5050.eth`,
         ),
       })
       continue

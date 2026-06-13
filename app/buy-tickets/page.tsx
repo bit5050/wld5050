@@ -5,7 +5,9 @@ import { fetchRafflesFromContract } from '@/lib/contracts/fetch-raffles'
 export const revalidate = 30
 
 export default async function BuyTicketsPage() {
-  const { active } = await fetchRafflesFromContract()
+  const { active } = await fetchRafflesFromContract(undefined, undefined, {
+    includeCompleted: false,
+  })
 
   return (
     <div className="px-6 py-10">
