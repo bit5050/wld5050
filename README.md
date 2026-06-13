@@ -46,8 +46,10 @@ Create `.env.local` locally with the variables below. **Never commit `.env.local
 
 | Variable | Scope | Notes |
 |---|---|---|
-| `NEXT_PUBLIC_WLD_APP_ID` | Browser | World ID app id (public by design) |
-| `NEXT_PUBLIC_WLD_ACTION` | Browser | World ID verification action |
+| `NEXT_PUBLIC_WLD_APP_ID` | Browser | World ID app id — must match contract `APP_ID` |
+| `NEXT_PUBLIC_WLD_ACTION` | Browser | Legacy default; app uses `create-raffle` / `enter-raffle-{id}` |
+| `WORLD_RP_ID` | Server only | World ID 4 RP id for IDKit signing |
+| `WORLD_RP_SIGNING_KEY` | Server only | RP signing key hex — never expose to browser |
 | `NEXT_PUBLIC_PRIVY_APP_ID` | Browser | Privy app id (public by design) |
 | `NEXT_PUBLIC_WLD5050_CONTRACT` | Browser | Deployed contract address |
 | `NEXT_PUBLIC_CHAIN_ID` | Browser | World Chain id (`480`) |
@@ -55,6 +57,8 @@ Create `.env.local` locally with the variables below. **Never commit `.env.local
 | `WORLD_CHAIN_RPC_URL` | Server only | On-chain reads / tx prep |
 | `PRIVY_APP_SECRET` | Server only | Privy webhooks / server auth |
 | `CHAINLINK_CRE_API_KEY` | Server only | CRE automation |
+
+See **`DEPLOY.md`** for the full ordered checklist (World ID → contract → Vercel → CRE 30s workflow).
 
 **Rule:** anything with a private key, RPC API key, or app secret must **not** use the `NEXT_PUBLIC_` prefix and must **not** be imported in Client Components. Use `lib/env.server.ts` on the server and `lib/env.public.ts` in the browser.
 
