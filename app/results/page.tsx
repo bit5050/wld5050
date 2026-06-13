@@ -1,32 +1,40 @@
+import Link from 'next/link'
 import WinnerCard from '@/components/raffle/WinnerCard'
-import { Settlement } from '@/types'
+import { fetchRafflesFromContract, toSettlement } from '@/lib/contracts/fetch-raffles'
 
-const MOCK_SETTLEMENT: Settlement = {
-  raffleId: 41,
-  winner: '0x9876543210987654321098765432109876543210',
-  winnerEns: 'alice.eth',
-  winnerSubname: 'winner-round41.wld5050.eth',
-  winnerPrize: 312.5,
-  creatorPayout: 312.5,
-  txHash: '0x9a3cd12f',
-  blockNumber: 28419203,
-  creSteps: [
-    { label: 'CRE cron triggered', detail: 'Round #41 deadline passed', mono: 'block #28,419,203', status: 'done' },
-    { label: 'AgentKit verified', detail: 'agent.wld5050.eth confirmed human-backed by bit5050.eth', status: 'done' },
-    { label: 'AI attestation', detail: 'Round assessed fair', mono: '0xf3a1...b2c4', status: 'done' },
-    { label: 'Randomness', detail: 'DON consensus 15/15 nodes · winner index 187', status: 'done' },
-    { label: 'Settlement complete', detail: '$312.50 → alice.eth · $312.50 → bit5050.eth', mono: 'tx 0x9a3c...d12f', status: 'done' },
-  ],
-}
+export const revalidate = 30
 
-export default function ResultsPage() {
+export default async function ResultsPage() {
+  const { completed } = await fetchRafflesFromContract()
+
   return (
     <div className="px-6 py-10">
       <h1 className="font-display text-[28px] font-semibold tracking-tight mb-1">Results</h1>
       <p className="text-[13px] text-gray-600 mb-8 max-w-[480px]">
         Past raffle settlements verified and paid automatically by Chainlink CRE.
       </p>
-      <WinnerCard settlement={MOCK_SETTLEMENT} />
+      {completed.length === 0 ? (
+        <div className="rounded-[10px] border border-gray-200 px-5 py-8 text-center">
+          <p className="text-[14px] text-gray-600">No settled raffles yet.</p>
+        </div>
+      ) : (
+        <div className="space-y-8">
+          {completed.map((raffle) => (
+            <div key={raffle.raffleId} id={`round-${raffle.raffleId}`}>
+              <p className="mb-3 font-mono text-[11px] uppercase tracking-widest text-gray-400">
+                {raffle.raffleName}
+              </p>
+              <WinnerCard settlement={toSettlement(raffle)} />
+            </div>
+          ))}
+        </div>
+      )}
+      <Link
+        href="/"
+        className="inline-block mt-8 text-[12px] text-gray-400 hover:text-black transition-colors"
+      >
+        ← Back to home
+      </Link>
     </div>
   )
 }

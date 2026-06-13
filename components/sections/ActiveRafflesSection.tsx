@@ -36,11 +36,19 @@ export default function ActiveRafflesSection({ raffles }: Props) {
         </BlurFade>
 
         <BlurFade blur="0px" delay={0.08} inView inViewMargin="-80px">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
-            {raffles.map((raffle) => (
-              <RaffleCard key={raffle.id} raffle={raffle} compact />
-            ))}
-          </div>
+          {raffles.length === 0 ? (
+            <div className="rounded-[10px] border-[0.5px] border-[#E0E0E0] px-5 py-10 text-center">
+              <p className="font-body text-[14px] text-[#616161]">
+                No active raffles on-chain yet. Be the first to create one.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+              {raffles.map((raffle) => (
+                <RaffleCard key={raffle.id} raffle={raffle} compact />
+              ))}
+            </div>
+          )}
         </BlurFade>
 
         <BlurFade blur="0px" delay={0.16} inView inViewMargin="-80px">

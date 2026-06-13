@@ -1,8 +1,9 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { IDKitResult } from '@worldcoin/idkit'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import VerifiedBadge from '@/components/ui/VerifiedBadge'
 import ConnectWalletButton from '@/components/wallet/connect-wallet-button'
@@ -47,6 +48,7 @@ function formatDateTime(date: string, time: string) {
 }
 
 export default function CreateRaffleForm({ variant = 'section' }: Props) {
+  const router = useRouter()
   const defaultEnd = useMemo(() => {
     const d = new Date()
     d.setMinutes(d.getMinutes() + 5)
@@ -73,6 +75,10 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
 
   const verified = worldIdResult !== null
   const canSubmit = verified && name.trim().length > 0 && Boolean(address) && Boolean(contractAddress)
+
+  useEffect(() => {
+    if (isSuccess) router.refresh()
+  }, [isSuccess, router])
 
   return (
     <div

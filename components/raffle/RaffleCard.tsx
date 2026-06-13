@@ -11,12 +11,11 @@ interface Props {
 }
 
 export default function RaffleCard({ raffle, compact = false }: Props) {
-  const [tickets, setTickets] = useState(raffle.ticketsSold)
-  const [animate, setAnimate] = useState(false)
   const [countdown, setCountdown] = useState<string | null>(null)
 
-  const prizePool  = (tickets * TICKET_PRICE).toFixed(2)
-  const yourShare  = (tickets * TICKET_PRICE / 2).toFixed(2)
+  const tickets = raffle.ticketsSold
+  const prizePool = (tickets * TICKET_PRICE).toFixed(2)
+  const yourShare = (tickets * TICKET_PRICE / 2).toFixed(2)
 
   useEffect(() => {
     const update = () => setCountdown(formatCountdown(raffle.endTime))
@@ -24,18 +23,6 @@ export default function RaffleCard({ raffle, compact = false }: Props) {
     const t = setInterval(update, 30000)
     return () => clearInterval(t)
   }, [raffle.endTime])
-
-  useEffect(() => {
-    if (raffle.status !== 'ACTIVE') return
-    const t = setInterval(() => {
-      if (Math.random() > 0.5) {
-        setAnimate(true)
-        setTimeout(() => setAnimate(false), 350)
-        setTickets(n => n + 1)
-      }
-    }, 3000)
-    return () => clearInterval(t)
-  }, [raffle.status])
 
   return (
     <div className={`border-[0.5px] border-[#E0E0E0] rounded-[10px] overflow-hidden bg-white flex flex-col ${compact ? 'h-full' : ''}`}>
@@ -77,7 +64,7 @@ export default function RaffleCard({ raffle, compact = false }: Props) {
         </div>
         <div className={`grid gap-2 mb-3 ${compact ? 'grid-cols-3' : 'grid-cols-3 gap-3 mb-4'}`}>
           {[
-            { label: 'Tickets sold', value: <span className={`font-mono font-bold tracking-tight transition-opacity ${compact ? 'text-[14px]' : 'text-[16px]'} ${animate ? 'opacity-0' : 'opacity-100'}`}>{tickets}</span> },
+            { label: 'Tickets sold', value: <span className={`font-mono font-bold tracking-tight text-black ${compact ? 'text-[14px]' : 'text-[16px]'}`}>{tickets}</span> },
             { label: 'Prize pool',   value: <span className={`font-mono font-bold tracking-tight text-black ${compact ? 'text-[14px]' : 'text-[16px]'}`}>${prizePool}</span> },
             { label: 'Your share',   value: <span className={`font-mono font-bold tracking-tight ${compact ? 'text-[14px]' : 'text-[16px]'}`}>${yourShare}</span> },
           ].map(({ label, value }) => (

@@ -31,7 +31,7 @@ export default function WinnerCard({ settlement: s }: Props) {
             {[
               { label: 'Winner received', value: `$${s.winnerPrize.toFixed(2)}` },
               { label: 'Creator received', value: `$${s.creatorPayout.toFixed(2)}` },
-              { label: 'Tickets sold', value: String(Math.round((s.winnerPrize * 2) / 2.5)) },
+              { label: 'Tickets sold', value: String(s.ticketsSold) },
             ].map(({ label, value }) => (
               <div key={label} className="bg-gray-50 rounded-[7px] border border-gray-100 px-3 py-3">
                 <div className="text-[10px] text-gray-400 uppercase tracking-widest mb-1">{label}</div>

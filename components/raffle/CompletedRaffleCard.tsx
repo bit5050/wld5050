@@ -67,7 +67,7 @@ export default function CompletedRaffleCard({ raffle, compact = false }: Props) 
           <p className="font-mono text-[10px] font-bold text-black truncate">{raffle.winnerSubname}</p>
         </div>
 
-        <Link href="/results" className="mt-auto">
+        <Link href={`/results#round-${raffle.raffleId}`} className="mt-auto">
           <button
             type="button"
             className={`w-full rounded-[7px] border-[0.5px] border-[#E0E0E0] bg-white font-medium text-black transition-colors hover:border-black ${compact ? 'py-2.5 text-[13px]' : 'py-3 text-[14px]'}`}

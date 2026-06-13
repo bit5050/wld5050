@@ -1,7 +1,7 @@
 {
   "schedule": "*/30 * * * * *",
-  "wld5050Contract": "{{.WLD5050_CONTRACT_ADDRESS}}",
+  "wld5050Contract": "0x98cB5B000F557C9A07FD724BB7a846486bD24C5C",
   "chainSelectorName": "ethereum-mainnet-worldchain-1",
-  "agentKitEndpoint": "https://wld5050.com/trigger-draw",
-  "confidentialAiUrl": "{{.CHAINLINK_CONFIDENTIAL_AI_URL}}"
+  "agentKitEndpoint": "https://wld5050.com/api/trigger-draw",
+  "confidentialAiUrl": ""
 }

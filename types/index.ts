@@ -18,6 +18,7 @@ export interface Settlement {
   winnerSubname: string
   winnerPrize: number
   creatorPayout: number
+  ticketsSold: number
   txHash: string
   blockNumber: number
   creSteps: CREStep[]

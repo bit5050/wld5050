@@ -1,28 +1,37 @@
 /**
  * WLD5050 CRE settlement workflow — polls every 30 seconds for expired raffles.
  *
- * Simulate from wld5050-contracts/:
- *   cre workflow simulate wld5050-settlement --target staging-settings
+ * From wld5050-contracts/:
+ *   cre workflow simulate workflow --target production-settings --non-interactive --trigger-index 0
  */
 import {
   CronCapability,
-  EVMClientCapability,
-  HTTPClientCapability,
+  EVMClient,
+  HTTPClient,
   handler,
   Runner,
   identical,
   ConsensusAggregationByFields,
   type CronPayload,
   type Runtime,
+  LAST_FINALIZED_BLOCK_NUMBER,
+  encodeCallMsg,
+  prepareReportRequest,
+  json,
+  ok,
 } from '@chainlink/cre-sdk'
 import {
+  bytesToHex,
   decodeFunctionResult,
   encodeAbiParameters,
   encodeFunctionData,
   keccak256,
   parseAbi,
   parseAbiParameters,
+  zeroAddress,
   zeroHash,
+  type Address,
+  type Hex,
 } from 'viem'
 
 type Config = {
@@ -43,13 +52,23 @@ type RaffleState = {
   status: number
 }
 
-const LAST_FINALIZED_BLOCK = 0n
 const TOKEN_LABELS = ['USDC', 'WLD'] as const
 
 const wld5050Abi = parseAbi([
   'function getExpiredRaffles() view returns (uint256[])',
   'function getRaffleState(uint256 raffleId) view returns (address creator, uint8 token, uint256 ticketsSold, uint256 ticketPrice, uint256 endTime, uint256 totalRevenue, bool isEnded, uint8 status)',
 ])
+
+function getEvmClient(config: Config): EVMClient {
+  const selector =
+    EVMClient.SUPPORTED_CHAIN_SELECTORS[
+      config.chainSelectorName as keyof typeof EVMClient.SUPPORTED_CHAIN_SELECTORS
+    ]
+  if (!selector) {
+    throw new Error(`Unsupported chain selector: ${config.chainSelectorName}`)
+  }
+  return new EVMClient(selector)
+}
 
 function winnerIndex(
   raffleId: number,
@@ -69,18 +88,18 @@ function winnerIndex(
 function encodeSettlementReport(
   raffleId: number,
   winnerIndexValue: number,
-  aiHash: `0x${string}`,
-): `0x${string}` {
+  aiHash: Hex,
+): Hex {
   return encodeAbiParameters(
     parseAbiParameters('uint256 raffleId, uint256 winnerIndex, bytes32 aiAttestationHash'),
     [BigInt(raffleId), BigInt(winnerIndexValue), aiHash],
   )
 }
 
-async function readExpiredRaffleIds(
+function readExpiredRaffleIds(
   runtime: Runtime<Config>,
-  evmClient: EVMClientCapability,
-): Promise<number[]> {
+  evmClient: EVMClient,
+): number[] {
   const data = encodeFunctionData({
     abi: wld5050Abi,
     functionName: 'getExpiredRaffles',
@@ -88,26 +107,33 @@ async function readExpiredRaffleIds(
 
   const result = evmClient
     .callContract(runtime, {
-      toAddress: runtime.config.wld5050Contract,
-      chainSelectorName: runtime.config.chainSelectorName,
-      callMsg: { data, blockNumber: LAST_FINALIZED_BLOCK },
+      call: encodeCallMsg({
+        from: zeroAddress,
+        to: runtime.config.wld5050Contract as Address,
+        data,
+      }),
+      blockNumber: LAST_FINALIZED_BLOCK_NUMBER,
     })
     .result()
+
+  if (!result.data?.length) {
+    return []
+  }
 
   const ids = decodeFunctionResult({
     abi: wld5050Abi,
     functionName: 'getExpiredRaffles',
-    data: result.data as `0x${string}`,
+    data: bytesToHex(result.data) as Hex,
   }) as readonly bigint[]
 
   return ids.map((id) => Number(id))
 }
 
-async function readRaffleState(
+function readRaffleState(
   runtime: Runtime<Config>,
-  evmClient: EVMClientCapability,
+  evmClient: EVMClient,
   raffleId: number,
-): Promise<RaffleState> {
+): RaffleState {
   const data = encodeFunctionData({
     abi: wld5050Abi,
     functionName: 'getRaffleState',
@@ -116,26 +142,20 @@ async function readRaffleState(
 
   const result = evmClient
     .callContract(runtime, {
-      toAddress: runtime.config.wld5050Contract,
-      chainSelectorName: runtime.config.chainSelectorName,
-      callMsg: { data, blockNumber: LAST_FINALIZED_BLOCK },
+      call: encodeCallMsg({
+        from: zeroAddress,
+        to: runtime.config.wld5050Contract as Address,
+        data,
+      }),
+      blockNumber: LAST_FINALIZED_BLOCK_NUMBER,
     })
     .result()
 
   const decoded = decodeFunctionResult({
     abi: wld5050Abi,
     functionName: 'getRaffleState',
-    data: result.data as `0x${string}`,
-  }) as readonly [
-    `0x${string}`,
-    number,
-    bigint,
-    bigint,
-    bigint,
-    bigint,
-    boolean,
-    number,
-  ]
+    data: bytesToHex(result.data) as Hex,
+  }) as readonly [Address, number, bigint, bigint, bigint, bigint, boolean, number]
 
   return {
     raffleId,
@@ -150,54 +170,65 @@ async function readRaffleState(
 
 function writeSettlement(
   runtime: Runtime<Config>,
-  evmClient: EVMClientCapability,
+  evmClient: EVMClient,
   raffleId: number,
   winnerIndexValue: number,
-  aiHash: `0x${string}`,
+  aiHash: Hex,
 ): string {
   const reportPayload = encodeSettlementReport(raffleId, winnerIndexValue, aiHash)
-  const signedReport = runtime.report(reportPayload)
+  const signedReport = runtime.report(prepareReportRequest(reportPayload)).result()
 
   const tx = evmClient
     .writeReport(runtime, {
-      toAddress: runtime.config.wld5050Contract,
-      chainSelectorName: runtime.config.chainSelectorName,
+      receiver: runtime.config.wld5050Contract,
       report: signedReport,
-      gasLimit: 1_500_000n,
+      gasConfig: { gasLimit: '1500000' },
     })
     .result()
 
-  return tx.txHash
+  if (!tx.txHash) return 'unknown'
+  return typeof tx.txHash === 'string' ? tx.txHash : bytesToHex(tx.txHash)
 }
 
 function agentKitApproved(
   runtime: Runtime<Config>,
-  httpClient: HTTPClientCapability,
+  httpClient: HTTPClient,
   raffle: RaffleState,
 ): boolean {
   const tokenLabel = TOKEN_LABELS[raffle.token] ?? 'UNKNOWN'
 
-  const fetchAgentKit = (url: string, body: string): { ok: boolean } => {
-    const response = fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body,
-    })
-    return { ok: response.ok }
-  }
-
   try {
-    const result = httpClient
-      .sendRequest(runtime, fetchAgentKit, ConsensusAggregationByFields<{ ok: boolean }>({
-        ok: identical,
-      }))(runtime.config.agentKitEndpoint, JSON.stringify({
-        raffleId: raffle.raffleId,
-        creator: raffle.creator,
-        token: tokenLabel,
-      }))
-      .result()
+    const approved = httpClient
+      .sendRequest(
+        runtime,
+        (sendRequester, ...args: unknown[]) => {
+          const endpoint = args[0] as string
+          const body = args[1] as string
+          const response = sendRequester
+            .sendRequest({
+              url: endpoint,
+              method: 'POST',
+              body,
+              headers: { 'Content-Type': 'application/json' },
+            })
+            .result()
 
-    return result.ok
+          if (!ok(response)) return { approved: false }
+          const payload = json(response) as { ok?: boolean }
+          return { approved: payload.ok === true }
+        },
+        ConsensusAggregationByFields<{ approved: boolean }>({ approved: identical }),
+      )(
+        runtime.config.agentKitEndpoint,
+        JSON.stringify({
+          raffleId: raffle.raffleId,
+          creator: raffle.creator,
+          token: tokenLabel,
+        }),
+      )
+      .result().approved
+
+    return approved
   } catch {
     runtime.log(`Raffle #${raffle.raffleId}: AgentKit unavailable — proceeding for demo`)
     return true
@@ -211,8 +242,8 @@ const onCronTrigger = (runtime: Runtime<Config>, payload: CronPayload): string =
     ? BigInt(payload.scheduledExecutionTime.seconds)
     : BigInt(Math.floor(runtime.now().getTime() / 1000))
 
-  const evmClient = new EVMClientCapability()
-  const httpClient = new HTTPClientCapability()
+  const evmClient = getEvmClient(runtime.config)
+  const httpClient = new HTTPClient()
 
   const expiredIds = readExpiredRaffleIds(runtime, evmClient)
   runtime.log(`Expired raffles: ${expiredIds.length}`)

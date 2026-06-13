@@ -9,7 +9,9 @@ import { formatCountdown } from '@/lib/format'
 import VerifiedBadge from '@/components/ui/VerifiedBadge'
 import ConnectWalletButton from '@/components/wallet/connect-wallet-button'
 import WorldIdVerifyButton from '@/components/worldid/world-id-verify-button'
+import ENSName from '@/components/ens/ENSName'
 import { useBuyTicketTx } from '@/hooks/use-raffle-transactions'
+import { useRaffle } from '@/hooks/use-raffle-data'
 import { worldIdEnterRaffleAction } from '@/lib/worldid/actions'
 
 export default function RafflePage({ params }: { params: { id: string } }) {
@@ -19,37 +21,68 @@ export default function RafflePage({ params }: { params: { id: string } }) {
     [raffleId],
   )
 
-  const [tickets, setTickets] = useState(247)
+  const { raffle, isLoading, error, hasContract } = useRaffle(raffleId)
   const [worldIdResult, setWorldIdResult] = useState<IDKitResult | null>(null)
   const [entered, setEntered] = useState(false)
-  const endTime = Math.floor(Date.now() / 1000) + 42120
+  const [countdown, setCountdown] = useState<string | null>(null)
 
   const { address, contractAddress, buyTicket, isPending, isSuccess, txHash } =
     useBuyTicketTx(raffleId)
 
   const verified = worldIdResult !== null
+  const tickets = raffle?.ticketsSold ?? 0
   const prizePool = (tickets * TICKET_PRICE).toFixed(2)
   const yourShare = ((tickets * TICKET_PRICE) / 2).toFixed(2)
-  const [countdown, setCountdown] = useState<string | null>(null)
+  const isLive = raffle?.status === 'ACTIVE'
 
   useEffect(() => {
     if (isSuccess) setEntered(true)
   }, [isSuccess])
 
   useEffect(() => {
-    const update = () => setCountdown(formatCountdown(endTime))
+    if (!raffle) return
+    const update = () => setCountdown(formatCountdown(raffle.endTime))
     update()
-    const t = setInterval(() => {
-      update()
-      if (Math.random() > 0.5) setTickets((n) => n + 1)
-    }, 3000)
+    const t = setInterval(update, 30000)
     return () => clearInterval(t)
-  }, [endTime])
+  }, [raffle])
+
+  if (isLoading) {
+    return (
+      <div className="px-6 py-10">
+        <p className="text-[13px] text-gray-500">Loading raffle from contract…</p>
+      </div>
+    )
+  }
+
+  if (!hasContract) {
+    return (
+      <div className="px-6 py-10">
+        <p className="text-[13px] text-gray-500">
+          Set NEXT_PUBLIC_WLD5050_CONTRACT to view raffles on-chain.
+        </p>
+      </div>
+    )
+  }
+
+  if (!raffle || error) {
+    return (
+      <div className="px-6 py-10">
+        <Link
+          href="/buy-tickets"
+          className="mb-6 inline-block text-[12px] text-gray-400 transition-colors hover:text-black"
+        >
+          ← All raffles
+        </Link>
+        <p className="text-[13px] text-gray-600">{error ?? 'Raffle not found.'}</p>
+      </div>
+    )
+  }
 
   return (
     <div className="px-6 py-10">
       <Link
-        href="/"
+        href="/buy-tickets"
         className="mb-6 inline-block text-[12px] text-gray-400 transition-colors hover:text-black"
       >
         ← All raffles
@@ -57,20 +90,24 @@ export default function RafflePage({ params }: { params: { id: string } }) {
 
       <div className="mb-2 flex items-start justify-between">
         <h1 className="font-display text-[26px] font-semibold leading-tight tracking-tight">
-          ETHGlobal NYC Community Pot
+          {raffle.name}
         </h1>
         <span className="ml-4 mt-1 flex-none rounded-full border border-black px-2.5 py-1 font-mono text-[10px]">
-          ● Live
+          {isLive ? '● Live' : `● ${raffle.status}`}
         </span>
       </div>
       <div className="mb-8 flex items-center gap-2 text-[12px] text-gray-600">
         <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-500" />
         <span>
-          Created by <span className="font-mono font-medium text-black">bit5050.eth</span>
+          Created by{' '}
+          <span className="font-medium text-black">
+            <ENSName address={raffle.creator} fallback={raffle.creatorEns ?? undefined} />
+          </span>
         </span>
         <span className="text-gray-300">·</span>
         <span>
-          Ends in <strong className="text-black">{countdown ?? '…'}</strong>
+          {isLive ? 'Ends in' : 'Ended'}{' '}
+          <strong className="text-black">{countdown ?? '…'}</strong>
         </span>
       </div>
 
@@ -111,7 +148,16 @@ export default function RafflePage({ params }: { params: { id: string } }) {
         </div>
       </div>
 
-      {entered ? (
+      {!isLive ? (
+        <div className="rounded-[10px] border border-gray-200 p-5 text-center">
+          <p className="text-[13px] text-gray-600">
+            This raffle is no longer active.{' '}
+            <Link href="/results" className="text-black underline underline-offset-2">
+              View results
+            </Link>
+          </p>
+        </div>
+      ) : entered ? (
         <div className="rounded-[10px] border border-gray-200 p-5 text-center">
           <VerifiedBadge label="You're entered — good luck" />
           {txHash ? (

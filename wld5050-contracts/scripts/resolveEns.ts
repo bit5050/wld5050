@@ -4,14 +4,23 @@
  * Run: npm run resolve:ens
  * Optional: ENS_NAME=wld5050.eth ETH_MAINNET_RPC_URL=...
  */
+import * as dotenv from "dotenv"
 import { createPublicClient, http } from "viem"
 import { mainnet } from "viem/chains"
 
+dotenv.config()
+
 async function main() {
   const ensName = process.env.ENS_NAME ?? "wld5050.eth"
-  const rpcUrl =
-    process.env.ETH_MAINNET_RPC_URL ??
-    "https://eth-mainnet.g.alchemy.com/v2/demo"
+  const rpcUrl = process.env.ETH_MAINNET_RPC_URL
+
+  if (!rpcUrl?.trim()) {
+    console.error(
+      "Missing ETH_MAINNET_RPC_URL in wld5050-contracts/.env\n" +
+        "Add your Ethereum mainnet RPC (Alchemy/Infura) — the public Alchemy demo endpoint is rate-limited."
+    )
+    process.exit(1)
+  }
 
   const client = createPublicClient({
     chain: mainnet,
