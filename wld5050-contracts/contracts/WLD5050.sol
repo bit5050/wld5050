@@ -8,7 +8,7 @@ pragma solidity ^0.8.20;
 //  ┌─────────────────────────────────────────────────────────────────────────┐
 //  │  INTEGRATION MAP                                                        │
 //  │                                                                         │
-//  │  World ID 4.0    → IWorldID.verifyProof()   1 ticket per human         │
+//  │  World ID 4.0    → IWorldID.verifyProof()   1 human per create & ticket   │
 //  │  Chainlink CRE   → IReceiver.onReport()     automated settlement        │
 //  │  ENS             → winnerSubname emitted     frontend mints subname      │
 //  └─────────────────────────────────────────────────────────────────────────┘
@@ -124,9 +124,8 @@ contract WLD5050 is IReceiver, IERC165, Ownable, ReentrancyGuard {
     uint256 public constant PLATFORM_FEE_WLD  = 10 ether;     // 10.00 WLD
     uint256 public constant TICKET_PRICE_WLD  =  2.5 ether;   //  2.50 WLD
 
-    // Duration: min 1 hour, max 7 days
-    uint256 public constant MIN_DURATION     = 1 hours;
-    uint256 public constant MAX_DURATION     = 7 days;
+    // Duration: any positive length (1 minute demo → 1 year+ long-running raffles)
+    uint256 public constant MIN_DURATION     = 1;
 
     // Emergency refund: callable 48h after round end if CRE hasn't settled
     uint256 public constant EMERGENCY_WINDOW = 48 hours;
@@ -195,28 +194,48 @@ contract WLD5050 is IReceiver, IERC165, Ownable, ReentrancyGuard {
     //  STEP 1 — CREATE RAFFLE
     // ─────────────────────────────────────────────────────────────────────────
 
-    /// @notice Create a 50/50 raffle — pay creation fee in USDC or WLD
+    /// @notice Create a 50/50 raffle — requires World ID 4.0 ZK proof and creation fee
     ///
     /// @dev Before calling, approve this contract:
     ///      USDC: usdc.approve(address(this), 10_000_000)
     ///      WLD:  wld.approve(address(this), 10 ether)
     ///
-    /// @param name     Raffle display name — max 64 chars, shown in UI as ENS-resolved
-    /// @param duration Seconds until raffle closes — between 1 hour and 7 days
-    /// @param token    PaymentToken.USDC (0) or PaymentToken.WLD (1)
-    ///                 All tickets in this raffle must pay with the same token
+    /// @param name           Raffle display name — max 64 chars, shown in UI as ENS-resolved
+    /// @param duration       Seconds until raffle closes — any value ≥ 1 second
+    /// @param token          PaymentToken.USDC (0) or PaymentToken.WLD (1)
+    /// @param root           World ID Merkle root — from IDKit widget response
+    /// @param nullifierHash  World ID nullifier for this create action
+    /// @param proof          ZK proof uint256[8] — from IDKit widget output
     ///
     /// @return raffleId  Share as wld5050.com/raffle/{raffleId}
     function createRaffle(
         string   calldata name,
         uint256           duration,
-        PaymentToken      token
+        PaymentToken      token,
+        uint256           root,
+        uint256           nullifierHash,
+        uint256[8] calldata proof
     ) external nonReentrant returns (uint256 raffleId) {
 
-        if (duration < MIN_DURATION || duration > MAX_DURATION)
+        if (duration < MIN_DURATION)
             revert DurationOutOfRange();
         if (bytes(name).length == 0 || bytes(name).length > MAX_NAME_LENGTH)
             revert NameTooLong();
+
+        // ── World ID verification ─────────────────────────────────────────────
+        // externalNullifierHash = hash(hashToField(APP_ID) + "create-raffle")
+        uint256 externalNullifierHash = abi
+            .encodePacked(abi.encodePacked(APP_ID).hashToField(), "create-raffle")
+            .hashToField();
+
+        worldId.verifyProof(
+            root,
+            WORLD_GROUP_ID,
+            abi.encodePacked(msg.sender).hashToField(),
+            nullifierHash,
+            externalNullifierHash,
+            proof
+        );
 
         // Pull creation fee from creator → platform wallet (wld5050.eth)
         if (token == PaymentToken.USDC) {
@@ -329,10 +348,10 @@ contract WLD5050 is IReceiver, IERC165, Ownable, ReentrancyGuard {
     ///                          both payments atomic in this transaction
     ///                          emits RaffleSettled with winnerSubname for ENS minting
     ///
-    /// @param metadata  CRE workflow metadata — decoded for replay protection (future use)
+    /// @dev First calldata argument is CRE workflow metadata — reserved for replay protection (future use)
     /// @param report    ABI-encoded (raffleId, winnerIndex, aiAttestationHash)
     function onReport(
-        bytes calldata metadata,
+        bytes calldata /* metadata */,
         bytes calldata report
     ) external override nonReentrant {
 
@@ -437,7 +456,7 @@ contract WLD5050 is IReceiver, IERC165, Ownable, ReentrancyGuard {
     // ─────────────────────────────────────────────────────────────────────────
 
     /// @notice All raffleIds that have ended and are still ACTIVE (need settlement)
-    /// @dev CRE cron workflow calls this every hour to find work to do
+    /// @dev CRE cron workflow calls this on a 30-second schedule to find work to do
     function getExpiredRaffles() external view returns (uint256[] memory ids) {
         uint256 count;
         for (uint256 i = 1; i <= raffleCount; i++) {

@@ -15,3 +15,9 @@ export function isValidPrivyAppId(appId: string): boolean {
   if (!appId || appId.includes('xxxx')) return false
   return /^[a-z0-9]{20,}$/i.test(appId)
 }
+
+/** World ID app IDs from the Developer Portal (`app_…`). */
+export function isValidWorldAppId(appId: string): appId is `app_${string}` {
+  if (!appId || appId.includes('xxxx')) return false
+  return /^app_[a-z0-9]+$/i.test(appId)
+}

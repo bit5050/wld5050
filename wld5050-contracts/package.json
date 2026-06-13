@@ -7,7 +7,7 @@
     "test": "npx hardhat test",
     "deploy:mainnet": "npx hardhat run scripts/deploy.ts --network worldchain-mainnet",
     "resolve:ens": "npx ts-node scripts/resolveEns.ts",
-    "workflow:simulate": "cre workflow simulate"
+    "workflow:simulate": "cre workflow simulate workflow --target production-settings --non-interactive --trigger-index 0"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.2",

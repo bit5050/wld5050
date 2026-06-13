@@ -1,0 +1,13 @@
+{
+  "name": "wld5050-settlement-workflow",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "postinstall": "bunx cre-setup"
+  },
+  "dependencies": {
+    "@chainlink/cre-sdk": "latest",
+    "viem": "^2.52.2"
+  }
+}

@@ -24,7 +24,7 @@ WLD5050.sol (World Chain, Chain ID 480)
     │  IWorldID.verifyProof() ← WorldIDRouter on World Chain
     │  USDC held in escrow until settlement
     │
-    │  [every hour, automatically]
+    │  [every 30 seconds, automatically]
     ▼
 Chainlink CRE Workflow (wld5050-workflow.ts)
     │
@@ -65,7 +65,7 @@ contracts/
 
 workflow/
 └── wld5050-workflow.ts            ← Chainlink CRE TypeScript workflow
-    ├── Cron trigger (every hour)
+    ├── Cron trigger (every 30 seconds — CRE minimum interval)
     ├── Read: getExpiredRaffles()
     ├── External API: AgentKit human-backed verification
     ├── Confidential HTTP: AI fairness attestation (TEE)
@@ -104,7 +104,7 @@ USDC:          0x79A02482A880bCE3F13e09Da970dC34db4CD24d1 (mainnet — confirm S
 ### What's integrated
 1. **IReceiver interface** — `WLD5050.sol` implements `onReport(bytes metadata, bytes report)`
 2. **IERC165** — declares `IReceiver` support (required by Chainlink Forwarder)
-3. **Cron trigger** — CRE workflow fires every hour via cron capability
+3. **Cron trigger** — CRE workflow fires every 30 seconds via cron capability (`*/30 * * * * *`)
 4. **Onchain read** — `getExpiredRaffles()` and `getRaffleState()` read from World Chain
 5. **External API** — `runtime.fetch()` calls AgentKit `/trigger-draw` endpoint
 6. **Confidential HTTP** — `runtime.confidentialHttp.request()` calls Chainlink Confidential AI
@@ -137,10 +137,11 @@ chmod +x cre && mv cre /usr/local/bin/
 cre login
 
 # Simulate workflow (produces execution log for judges)
-cre workflow simulate --workflow workflow/wld5050-workflow.ts
+cd workflow && bun install && cd ..
+cre workflow simulate workflow --target production-settings --non-interactive --trigger-index 0
 
-# Deploy (Chainlink team does this for you at the hackathon)
-cre workflow deploy --workflow workflow/wld5050-workflow.ts
+# Deploy (Chainlink team or cre workflow deploy)
+cre workflow deploy workflow --target production-settings
 ```
 
 ---

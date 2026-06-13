@@ -22,6 +22,8 @@ export const serverEnv = {
   worldChainRpcUrl: () => optional('WORLD_CHAIN_RPC_URL'),
   privyAppSecret: () => optional('PRIVY_APP_SECRET'),
   chainlinkCreApiKey: () => optional('CHAINLINK_CRE_API_KEY'),
+  worldRpId: () => optional('WORLD_RP_ID'),
+  worldRpSigningKey: () => optional('WORLD_RP_SIGNING_KEY'),
   /** Throws if unset — use when the route cannot run without an RPC. */
   requireEthMainnetRpcUrl: () => required('ETH_MAINNET_RPC_URL'),
 } as const

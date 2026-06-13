@@ -6,6 +6,7 @@ import {
   ArrowRight,
   Coins,
   Fingerprint,
+  KeyRound,
   Link2,
   ScanFace,
   ShieldCheck,
@@ -20,6 +21,7 @@ import { cn } from '@/lib/utils'
 
 const flowMarquee = [
   'World ID verified',
+  'Privy wallet login',
   '$10.00 USDC · 10 WLD create',
   '$2.50 USDC · 2.50 WLD per ticket',
   '50% winner · 50% creator',
@@ -42,7 +44,7 @@ const steps = [
     icon: Wallet,
     title: 'Create a raffle',
     body:
-      'Choose USDC or WLD as the raffle currency. Pay the flat creation fee ($10.00 USDC or 10 WLD to wld5050.eth), set a name and duration (1 hour to 7 days). Your raffle is live on-chain immediately.',
+      'Verify with World ID, then choose USDC or WLD as the raffle currency. Pay the flat creation fee ($10.00 USDC or 10 WLD to wld5050.eth), set a name and duration (any length — 1 minute to 1 year+). Your raffle is live on-chain immediately.',
   },
   {
     step: '03',
@@ -57,6 +59,31 @@ const steps = [
     title: 'CRE settles automatically',
     body:
       'When the deadline passes, Chainlink CRE selects a verifiable random winner, splits ticket revenue 50/50, and pushes payouts to winner and creator in one atomic transaction. No claim button.',
+  },
+] as const
+
+const privyFlow = [
+  'Click Connect Wallet in the nav — Privy opens a secure login modal',
+  'Sign in with email, Google, or an existing external wallet',
+  'New users get an embedded wallet on World Chain automatically',
+  'Wagmi signs create, buy, and dashboard reads against your address',
+] as const
+
+const privyFeatures = [
+  {
+    title: 'Multiple login methods',
+    body:
+      'Email, Google, or connect an existing wallet. Privy handles session management so you stay signed in across pages.',
+  },
+  {
+    title: 'Embedded wallets',
+    body:
+      'Users without a wallet get one provisioned on first login — no seed phrase, no browser extension required.',
+  },
+  {
+    title: 'World Chain native',
+    body:
+      'Privy and Wagmi are scoped to World Chain mainnet only. Every transaction targets the WLD5050 contract directly.',
   },
 ] as const
 
@@ -114,7 +141,7 @@ const integrations = [
     body:
       'Winner selection and prize distribution run on Chainlink\'s Decentralized Oracle Network via the Chainlink Runtime Environment. CRE workflows read expired raffles, generate verifiable randomness, and call onReport() through the Keystone Forwarder.',
     bullets: [
-      'Hourly cron trigger on expired raffles',
+      '30-second cron trigger on expired raffles',
       'BFT consensus randomness (runtime.Rand)',
       'Confidential AI fairness attestation hash on-chain',
       'Atomic USDC/WLD push to winner + creator',
@@ -323,6 +350,88 @@ export default function HowItWorksContent() {
               </BlurFade>
             ))}
           </div>
+        </SectionInner>
+      </SectionShell>
+
+      {/* Privy */}
+      <SectionShell id="privy">
+        <SectionInner>
+          <BlurFade blur="0px" delay={0} inView inViewMargin="-80px">
+            <div className="grid gap-10 lg:grid-cols-2 lg:gap-14 lg:items-start">
+              <div>
+                <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-[10px] border-[0.5px] border-[#E0E0E0]">
+                  <KeyRound className="h-[18px] w-[18px] text-black" strokeWidth={1.5} />
+                </div>
+                <SectionLabel>Authentication</SectionLabel>
+                <SectionTitle className="mb-3">Privy wallet integration</SectionTitle>
+                <BodyText className="max-w-[520px]">
+                  World ID proves you are human. Privy gives you a wallet to sign on-chain — create
+                  raffles, buy tickets, and view your dashboard without managing keys manually.
+                </BodyText>
+                <BodyText className="max-w-[520px] mt-4">
+                  WLD5050 uses Privy&apos;s React SDK paired with Wagmi. Login stays in a modal;
+                  contract calls route through your embedded or external wallet on World Chain.
+                </BodyText>
+              </div>
+
+              <ol className="space-y-3">
+                {privyFlow.map((step, index) => (
+                  <BlurFade
+                    key={step}
+                    blur="0px"
+                    delay={0.04 + index * 0.04}
+                    inView
+                    inViewMargin="-80px"
+                  >
+                    <li className="flex gap-4 rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-white p-5 transition-colors hover:border-black">
+                      <span className="font-mono text-[11px] font-bold tracking-widest text-[#9E9E9E] shrink-0">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <span className="font-body text-[13px] leading-relaxed text-[#616161] lg:text-[14px]">
+                        {step}
+                      </span>
+                    </li>
+                  </BlurFade>
+                ))}
+              </ol>
+            </div>
+          </BlurFade>
+
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+            {privyFeatures.map(({ title, body }, index) => (
+              <BlurFade
+                key={title}
+                blur="0px"
+                delay={0.06 + index * 0.05}
+                inView
+                inViewMargin="-80px"
+              >
+                <article className="group flex h-full flex-col rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] p-6 transition-colors hover:border-black sm:p-7">
+                  <h3 className="font-display text-[16px] font-semibold tracking-tight text-black mb-3 lg:text-[17px]">
+                    {title}
+                  </h3>
+                  <p className="font-body text-[13px] leading-relaxed text-[#616161] lg:text-[14px]">
+                    {body}
+                  </p>
+                  <div className="mt-auto pt-6">
+                    <div className="h-px w-full bg-[#E0E0E0] transition-colors group-hover:bg-black" />
+                  </div>
+                </article>
+              </BlurFade>
+            ))}
+          </div>
+
+          <BlurFade blur="0px" delay={0.2} inView inViewMargin="-80px">
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-white px-4 py-4 sm:flex-row sm:gap-4">
+              <span className="font-mono text-[10px] text-[#9E9E9E] uppercase tracking-[0.2em] shrink-0">
+                Stack
+              </span>
+              <span className="hidden h-3 w-px bg-[#E0E0E0] sm:inline-block" aria-hidden />
+              <p className="font-mono text-[11px] text-[#616161] tracking-wide text-center sm:text-left">
+                Privy React Auth · Privy Wagmi · World Chain · embedded wallets on login
+              </p>
+            </div>
+          </BlurFade>
         </SectionInner>
       </SectionShell>
 

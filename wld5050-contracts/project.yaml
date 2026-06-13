@@ -1,0 +1,9 @@
+staging-settings:
+  evms:
+    - chain-selector: "5299555114858065850"
+      rpc-url: "https://worldchain-sepolia.g.alchemy.com/public"
+
+production-settings:
+  evms:
+    - chain-selector: "2049429975587534727"
+      rpc-url: "https://worldchain-mainnet.g.alchemy.com/public"

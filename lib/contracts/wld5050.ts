@@ -79,7 +79,61 @@ export const erc20Abi = [
     inputs: [{ name: 'account', type: 'address' }],
     outputs: [{ type: 'uint256' }],
   },
+  {
+    type: 'function',
+    name: 'approve',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'spender', type: 'address' },
+      { name: 'amount', type: 'uint256' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    type: 'function',
+    name: 'allowance',
+    stateMutability: 'view',
+    inputs: [
+      { name: 'owner', type: 'address' },
+      { name: 'spender', type: 'address' },
+    ],
+    outputs: [{ type: 'uint256' }],
+  },
 ] as const
+
+export const wld5050WriteAbi = [
+  {
+    type: 'function',
+    name: 'createRaffle',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'name', type: 'string' },
+      { name: 'duration', type: 'uint256' },
+      { name: 'token', type: 'uint8' },
+      { name: 'root', type: 'uint256' },
+      { name: 'nullifierHash', type: 'uint256' },
+      { name: 'proof', type: 'uint256[8]' },
+    ],
+    outputs: [{ name: 'raffleId', type: 'uint256' }],
+  },
+  {
+    type: 'function',
+    name: 'buyTicket',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'raffleId', type: 'uint256' },
+      { name: 'root', type: 'uint256' },
+      { name: 'nullifierHash', type: 'uint256' },
+      { name: 'proof', type: 'uint256[8]' },
+    ],
+    outputs: [],
+  },
+] as const
+
+export const PLATFORM_FEE_USDC_RAW = BigInt(10_000_000)
+export const TICKET_PRICE_USDC_RAW = BigInt(2_500_000)
+export const PAYMENT_TOKEN_USDC = 0
+export const PAYMENT_TOKEN_WLD = 1
 
 export type PaymentToken = 'USDC' | 'WLD'
 

@@ -1,0 +1,7 @@
+{
+  "schedule": "*/30 * * * * *",
+  "wld5050Contract": "{{.WLD5050_CONTRACT_ADDRESS}}",
+  "chainSelectorName": "ethereum-testnet-sepolia-worldchain-1",
+  "agentKitEndpoint": "https://wld5050.com/trigger-draw",
+  "confidentialAiUrl": "{{.CHAINLINK_CONFIDENTIAL_AI_URL}}"
+}

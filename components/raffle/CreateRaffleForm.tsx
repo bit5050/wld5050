@@ -1,7 +1,13 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import type { IDKitResult } from '@worldcoin/idkit'
+import Link from 'next/link'
+import { toast } from 'sonner'
 import VerifiedBadge from '@/components/ui/VerifiedBadge'
+import ConnectWalletButton from '@/components/wallet/connect-wallet-button'
+import WorldIdVerifyButton from '@/components/worldid/world-id-verify-button'
+import { useCreateRaffleTx } from '@/hooks/use-raffle-transactions'
 import {
   AGENT_ENS,
   PLATFORM_FEE,
@@ -41,26 +47,32 @@ function formatDateTime(date: string, time: string) {
 }
 
 export default function CreateRaffleForm({ variant = 'section' }: Props) {
-  const defaultStart = useMemo(() => {
+  const defaultEnd = useMemo(() => {
     const d = new Date()
-    d.setMinutes(d.getMinutes() + 3)
+    d.setMinutes(d.getMinutes() + 5)
     return d
   }, [])
 
-  const defaultEnd = useMemo(() => {
-    const d = new Date(defaultStart)
-    d.setHours(d.getHours() + 24)
-    return d
-  }, [defaultStart])
-
   const [name, setName] = useState('')
-  const [startDate, setStartDate] = useState(toDateValue(defaultStart))
-  const [startTime, setStartTime] = useState(toTimeValue(defaultStart))
+  const [startDate, setStartDate] = useState(toDateValue(defaultEnd))
+  const [startTime, setStartTime] = useState(toTimeValue(defaultEnd))
   const [endDate, setEndDate] = useState(toDateValue(defaultEnd))
   const [endTime, setEndTime] = useState(toTimeValue(defaultEnd))
-  const [verified, setVerified] = useState(false)
+  const [worldIdResult, setWorldIdResult] = useState<IDKitResult | null>(null)
+  const [submitting, setSubmitting] = useState(false)
 
-  const canSubmit = verified && name.trim().length > 0
+  const {
+    address,
+    contractAddress,
+    createRaffle,
+    isPending,
+    isSuccess,
+    txHash,
+    worldIdAction,
+  } = useCreateRaffleTx()
+
+  const verified = worldIdResult !== null
+  const canSubmit = verified && name.trim().length > 0 && Boolean(address) && Boolean(contractAddress)
 
   return (
     <div
@@ -97,25 +109,78 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
       </div>
 
       <p className="mb-6 font-body text-[12px] leading-relaxed text-[#616161]">
-        Please allow at least a 2-minute buffer between the current time and your selected start
-        time. This helps avoid smart contract timing errors on World Chain.
+        Raffles can run for any length — 1 minute for a quick demo, or months for a long campaign.
+        End time is measured from when the transaction confirms on World Chain.
       </p>
 
-      {/* Verification status */}
-      {!verified ? (
-        <div className="mb-6 rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-black px-4 py-4">
-          <p className="font-display text-[14px] font-semibold text-white mb-1">
-            World ID not verified
-          </p>
-          <p className="font-body text-[12px] text-[#9E9E9E]">
-            Verify with World ID to create a raffle. One verified human per creator session.
-          </p>
-        </div>
-      ) : (
-        <div className="mb-6 flex items-center gap-2 rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] px-4 py-3">
-          <VerifiedBadge label="World ID verified — ready to create" />
-        </div>
-      )}
+      <div className="mb-6 flex flex-wrap gap-2">
+        {[
+          { label: '1 min', minutes: 1 },
+          { label: '5 min', minutes: 5 },
+          { label: '1 hour', minutes: 60 },
+          { label: '1 day', minutes: 24 * 60 },
+        ].map(({ label, minutes }) => (
+          <button
+            key={label}
+            type="button"
+            onClick={() => {
+              const now = new Date()
+              now.setMinutes(now.getMinutes() + minutes)
+              setEndDate(toDateValue(now))
+              setEndTime(toTimeValue(now))
+            }}
+            className="rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-white px-3 py-2 font-mono text-[11px] uppercase tracking-widest text-[#616161] transition-colors hover:border-black hover:text-black"
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Wallet + World ID */}
+      <div className="mb-6 space-y-3">
+        {!address ? (
+          <div className="rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] px-4 py-4">
+            <p className="font-body text-[13px] text-[#616161] mb-3">
+              Connect your wallet with Privy before verifying with World ID.
+            </p>
+            <ConnectWalletButton />
+          </div>
+        ) : null}
+
+        {!contractAddress ? (
+          <div className="rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] px-4 py-4">
+            <p className="font-body text-[13px] text-[#616161]">
+              Set <span className="font-mono">NEXT_PUBLIC_WLD5050_CONTRACT</span> to submit on-chain
+              raffles.
+            </p>
+          </div>
+        ) : null}
+
+        {!verified ? (
+          <div className="rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-black px-4 py-4">
+            <p className="font-display text-[14px] font-semibold text-white mb-1">
+              World ID not verified
+            </p>
+            <p className="font-body text-[12px] text-[#9E9E9E] mb-4">
+              Verify with World ID to create a raffle. One verified human per creator session.
+            </p>
+            <WorldIdVerifyButton
+              action={worldIdAction}
+              signal={address}
+              onVerified={(result) => {
+                setWorldIdResult(result)
+                toast.success('World ID verified — ready to create')
+              }}
+              onError={(message) => toast.error(message)}
+              disabled={!address}
+            />
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] px-4 py-3">
+            <VerifiedBadge label="World ID verified — ready to create" />
+          </div>
+        )}
+      </div>
 
       {/* Form fields */}
       <div className="space-y-5 mb-6">
@@ -244,23 +309,45 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
       </div>
 
       {/* Actions */}
-      {!verified ? (
+      {isSuccess && txHash ? (
+        <div className="rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] px-4 py-4 text-center">
+          <VerifiedBadge label="Raffle created on World Chain" />
+          <p className="mt-3 font-mono text-[12px] text-[#616161] break-all">{txHash}</p>
+          <Link
+            href="/"
+            className="mt-4 inline-block font-body text-[13px] font-medium text-black underline-offset-2 hover:underline"
+          >
+            Browse raffles
+          </Link>
+        </div>
+      ) : verified ? (
         <button
           type="button"
-          onClick={() => setVerified(true)}
-          className="w-full rounded-[10px] border-[0.5px] border-black bg-white py-3.5 font-body text-[14px] font-medium text-black transition-colors hover:bg-[#FAFAFA]"
-        >
-          Verify with World ID to continue
-        </button>
-      ) : (
-        <button
-          type="button"
-          disabled={!canSubmit}
+          disabled={!canSubmit || isPending || submitting}
+          onClick={async () => {
+            if (!worldIdResult) return
+            setSubmitting(true)
+            try {
+              await createRaffle({
+                name,
+                endDate,
+                endTime,
+                worldIdResult,
+              })
+              toast.success('Raffle creation submitted')
+            } catch (error) {
+              toast.error(error instanceof Error ? error.message : 'Failed to create raffle')
+            } finally {
+              setSubmitting(false)
+            }
+          }}
           className="w-full rounded-[10px] bg-black py-3.5 font-body text-[14px] font-medium text-white transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-30"
         >
-          Pay ${PLATFORM_FEE.toFixed(2)} USDC &amp; create raffle
+          {isPending || submitting
+            ? 'Confirm in wallet…'
+            : `Pay $${PLATFORM_FEE.toFixed(2)} USDC & create raffle`}
         </button>
-      )}
+      ) : null}
 
       <p className="mt-4 text-center font-body text-[11px] leading-relaxed text-[#9E9E9E]">
         Creation fee is non-refundable. Ticket revenue held in escrow on World Chain. Chainlink CRE
