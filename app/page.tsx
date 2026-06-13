@@ -1,6 +1,5 @@
-import StatCard from '@/components/ui/StatCard'
+import HeroSection from '@/components/sections/HeroSection'
 import DividerLabel from '@/components/ui/DividerLabel'
-import BalancedText from '@/components/ui/balanced-text'
 import RaffleCard from '@/components/raffle/RaffleCard'
 import CreateCard from '@/components/raffle/CreateCard'
 import WinnerCard from '@/components/raffle/WinnerCard'
@@ -48,39 +47,7 @@ const MOCK_SETTLEMENT: Settlement = {
 export default function HomePage() {
   return (
     <>
-      {/* HERO */}
-      <section className="px-6 pt-12 pb-10 border-b border-gray-200">
-        <p className="font-mono text-[11px] text-gray-400 tracking-widest uppercase mb-4">
-          World Chain · Human-verified · Automated
-        </p>
-        <BalancedText as="h1" className="font-display text-[38px] font-semibold leading-[1.15] tracking-tight mb-4">
-          Fair raffles.
-          <span className="text-gray-400"> No bots. No bias.</span>
-          {' '}No middlemen.
-        </BalancedText>
-        <p className="text-[14px] text-gray-600 leading-relaxed max-w-[480px] mb-8">
-          Create or enter a 50/50 raffle. One ticket per verified human.
-          Winners selected by Chainlink CRE and paid automatically — no claiming, no waiting.
-        </p>
-        <div className="flex gap-3 flex-wrap">
-          <a href="/create">
-            <button className="text-[14px] font-medium px-6 py-3 bg-black text-white rounded-md hover:opacity-80 transition-opacity">
-              Create a raffle
-            </button>
-          </a>
-          <a href="#raffles">
-            <button className="text-[14px] font-medium px-6 py-3 bg-white text-black border border-gray-200 rounded-md hover:border-black transition-colors">
-              Browse active raffles
-            </button>
-          </a>
-        </div>
-        <div className="flex gap-8 mt-10 pt-8 border-t border-gray-100">
-          <StatCard label="Per ticket"      value="$2.50" />
-          <StatCard label="Winner payout"   value="50%" />
-          <StatCard label="Creator payout"  value="50%" />
-          <StatCard label="Claiming steps"  value="0" />
-        </div>
-      </section>
+      <HeroSection />
 
       {/* ACTIVE RAFFLES */}
       <div id="raffles">

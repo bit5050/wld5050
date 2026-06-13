@@ -35,7 +35,7 @@ function NavLink({
       href={href}
       onClick={onClick}
       className={cn(
-        'text-[12px] font-medium transition-colors whitespace-nowrap',
+        'text-[15px] font-medium transition-colors whitespace-nowrap',
         active ? 'text-black' : 'text-gray-500 hover:text-black',
         className,
       )}
@@ -92,7 +92,7 @@ export default function Navbar() {
                   <Link
                     href={href}
                     className={cn(
-                      'px-3 py-3 text-[14px] font-medium rounded-md transition-colors',
+                      'px-3 py-3 text-[17.5px] font-medium rounded-md transition-colors',
                       isNavActive(href, pathname)
                         ? 'bg-gray-50 text-black'
                         : 'text-gray-600 hover:text-black hover:bg-gray-50',
