@@ -21,7 +21,7 @@ Complete these steps **in order**. Skipping a step is the most common reason Wor
 
 ```bash
 cd wld5050-contracts
-cp .env.example .env          # fill PRIVATE_KEY + confirm addresses
+cp env.example .env          # fill PRIVATE_KEY + confirm addresses
 npm install
 npm run compile
 npm run deploy:mainnet
