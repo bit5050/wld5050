@@ -13,6 +13,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer'
+import ConnectWalletButton from '@/components/wallet/connect-wallet-button'
 import { cn } from '@/lib/utils'
 
 function NavLink({
@@ -110,11 +111,7 @@ export default function Navbar() {
           <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
           World ID
         </span>
-        <Link href="/create">
-          <button className="text-[13px] font-medium px-4 py-2 bg-black text-white rounded-md hover:opacity-80 transition-opacity whitespace-nowrap">
-            + Create raffle
-          </button>
-        </Link>
+        <ConnectWalletButton />
       </div>
     </nav>
   )
