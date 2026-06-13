@@ -11,12 +11,19 @@ import {
   TICKET_PRICE_USDC_RAW,
   USDC_ADDRESS,
   wld5050WriteAbi,
+  wld5050Abi,
 } from '@/lib/contracts/wld5050'
 import { computeRaffleDurationSeconds, getContractAddress } from '@/lib/contracts/raffle-tx'
+import { parseRaffleIdFromReceipt } from '@/lib/contracts/parse-raffle-created'
 import { friendlyTxError } from '@/lib/contracts/decode-tx-error'
 import { erc20Abi } from '@/lib/contracts/wld5050'
 import { extractLegacyOrbProof } from '@/lib/worldid/proof'
 import { WORLD_ID_CREATE_ACTION } from '@/lib/worldid/actions'
+
+export type CreateRaffleResult = {
+  txHash: `0x${string}`
+  raffleId: number
+}
 
 async function ensureUsdcAllowance(
   publicClient: ReturnType<typeof usePublicClient>,
@@ -42,12 +49,13 @@ async function ensureUsdcAllowance(
   if (allowance >= required) return
 
   toast.message('Approve USDC…')
-  await writeContractAsync({
+  const approveHash = await writeContractAsync({
     address: USDC_ADDRESS,
     abi: erc20Abi,
     functionName: 'approve',
     args: [spender, required],
   })
+  await publicClient.waitForTransactionReceipt({ hash: approveHash })
 }
 
 export function useCreateRaffleTx() {
@@ -68,9 +76,10 @@ export function useCreateRaffleTx() {
       endDate: string
       endTime: string
       worldIdResult: IDKitResult
-    }) => {
+    }): Promise<CreateRaffleResult> => {
       if (!address) throw new Error('Connect your wallet first.')
       if (!contractAddress) throw new Error('WLD5050 contract address is not configured.')
+      if (!publicClient) throw new Error('World Chain RPC is not available.')
 
       const duration = computeRaffleDurationSeconds(params.endDate, params.endTime)
       const { root, nullifierHash, proof } = extractLegacyOrbProof(params.worldIdResult)
@@ -92,7 +101,21 @@ export function useCreateRaffleTx() {
           args: [params.name.trim(), duration, PAYMENT_TOKEN_USDC, root, nullifierHash, [...proof]],
         })
         setPendingHash(hash)
-        return hash
+
+        toast.message('Waiting for confirmation…')
+        const receipt = await publicClient.waitForTransactionReceipt({ hash })
+
+        let raffleId = parseRaffleIdFromReceipt(receipt, contractAddress)
+        if (raffleId === null) {
+          const count = await publicClient.readContract({
+            address: contractAddress,
+            abi: wld5050Abi,
+            functionName: 'raffleCount',
+          })
+          raffleId = Number(count)
+        }
+
+        return { txHash: hash, raffleId }
       } catch (error) {
         throw new Error(friendlyTxError(error))
       }

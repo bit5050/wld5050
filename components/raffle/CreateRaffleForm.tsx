@@ -2,13 +2,13 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import type { IDKitResult } from '@worldcoin/idkit'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import VerifiedBadge from '@/components/ui/VerifiedBadge'
 import ConnectWalletButton from '@/components/wallet/connect-wallet-button'
 import WorldIdVerifyButton from '@/components/worldid/world-id-verify-button'
-import { useCreateRaffleTx } from '@/hooks/use-raffle-transactions'
+import RaffleCreatedSuccessDialog from '@/components/raffle/RaffleCreatedSuccessDialog'
+import { useCreateRaffleTx, type CreateRaffleResult } from '@/hooks/use-raffle-transactions'
 import {
   AGENT_ENS,
   PLATFORM_FEE,
@@ -63,16 +63,18 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
   const [worldIdResult, setWorldIdResult] = useState<IDKitResult | null>(null)
   const [verifiedAt, setVerifiedAt] = useState<number | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [createdRaffle, setCreatedRaffle] = useState<CreateRaffleResult | null>(null)
+  const [successOpen, setSuccessOpen] = useState(false)
 
   const {
     address,
     contractAddress,
     createRaffle,
     isPending,
-    isSuccess,
-    txHash,
     worldIdAction,
   } = useCreateRaffleTx()
+
+  const created = createdRaffle !== null
 
   const verified = worldIdResult !== null
   const proofStale =
@@ -81,8 +83,8 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
   const canSubmit = formReady && verified && !proofStale
 
   useEffect(() => {
-    if (isSuccess) router.refresh()
-  }, [isSuccess, router])
+    if (created) router.refresh()
+  }, [created, router])
 
   return (
     <div
@@ -294,7 +296,7 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
       </div>
 
       {/* World ID — verify immediately before submit */}
-      {!isSuccess ? (
+      {!created ? (
         <div className="mb-6 space-y-3">
           {!verified || proofStale ? (
             <div className="rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-black px-4 py-4">
@@ -338,16 +340,22 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
       ) : null}
 
       {/* Actions */}
-      {isSuccess && txHash ? (
+      {created && createdRaffle ? (
         <div className="rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] px-4 py-4 text-center">
           <VerifiedBadge label="Raffle created on World Chain" />
-          <p className="mt-3 font-mono text-[12px] text-[#616161] break-all">{txHash}</p>
-          <Link
-            href="/"
-            className="mt-4 inline-block font-body text-[13px] font-medium text-black underline-offset-2 hover:underline"
+          <p className="mt-3 font-display text-[16px] font-semibold text-black">
+            {name.trim() || 'Your raffle'} is live
+          </p>
+          <p className="mt-1 font-mono text-[12px] text-[#616161]">
+            Raffle #{createdRaffle.raffleId}
+          </p>
+          <button
+            type="button"
+            onClick={() => setSuccessOpen(true)}
+            className="mt-4 inline-block rounded-[10px] bg-black px-4 py-2.5 font-body text-[13px] font-medium text-white transition-opacity hover:opacity-80"
           >
-            Browse raffles
-          </Link>
+            Share raffle
+          </button>
         </div>
       ) : verified && !proofStale ? (
         <button
@@ -357,13 +365,15 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
             if (!worldIdResult) return
             setSubmitting(true)
             try {
-              await createRaffle({
+              const result = await createRaffle({
                 name,
                 endDate,
                 endTime,
                 worldIdResult,
               })
-              toast.success('Raffle creation submitted')
+              setCreatedRaffle(result)
+              setSuccessOpen(true)
+              toast.success('Raffle created successfully!')
             } catch (error) {
               toast.error(error instanceof Error ? error.message : 'Failed to create raffle')
             } finally {
@@ -382,6 +392,16 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
         Creation fee is non-refundable. Ticket revenue held in escrow on World Chain. Chainlink CRE
         settles automatically when the raffle ends.
       </p>
+
+      {createdRaffle ? (
+        <RaffleCreatedSuccessDialog
+          open={successOpen}
+          onOpenChange={setSuccessOpen}
+          raffleId={createdRaffle.raffleId}
+          raffleName={name.trim() || 'Your raffle'}
+          txHash={createdRaffle.txHash}
+        />
+      ) : null}
     </div>
   )
 }

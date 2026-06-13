@@ -57,6 +57,17 @@ export const wld5050Abi = [
   },
   {
     type: 'event',
+    name: 'RaffleCreated',
+    inputs: [
+      { name: 'raffleId', type: 'uint256', indexed: true },
+      { name: 'creator', type: 'address', indexed: true },
+      { name: 'token', type: 'uint8', indexed: false },
+      { name: 'endTime', type: 'uint256', indexed: false },
+      { name: 'name', type: 'string', indexed: false },
+    ],
+  },
+  {
+    type: 'event',
     name: 'RaffleSettled',
     inputs: [
       { name: 'raffleId', type: 'uint256', indexed: true },
