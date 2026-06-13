@@ -11,7 +11,15 @@ import { Toaster } from '@/components/ui/sonner'
 export const metadata: Metadata = {
   title: 'WLD5050 — Human-verified 50/50 raffles on World Chain',
   description: 'Create or enter a fair 50/50 raffle. One ticket per verified human. Winners selected by Chainlink CRE, paid automatically.',
-  icons: { icon: '/favicon.ico' },
+  manifest: '/manifest.webmanifest',
+  icons: {
+    icon: [{ url: '/icon.png', sizes: '32x32', type: 'image/png' }],
+    apple: '/apple-icon.png',
+    shortcut: '/favicon.ico',
+  },
+  appleWebApp: {
+    title: 'WLD5050',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
