@@ -21,8 +21,8 @@ export default function CreateRaffleSection() {
             Launch A 50/50 Raffle On World Chain
           </h2>
           <p className="font-body text-[14px] leading-relaxed text-[#9E9E9E] max-w-[560px] mb-8">
-            Set your raffle name, schedule, and pay the creation fee. World ID verification required.
-            Chainlink CRE handles the draw and payouts automatically.
+            Set your raffle name and schedule, then pay the creation fee in USDC or WLD. World ID
+            verification required. Chainlink CRE handles the draw and payouts automatically.
           </p>
         </BlurFade>
 

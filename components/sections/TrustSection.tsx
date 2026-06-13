@@ -17,7 +17,7 @@ const cards = [
   {
     icon: Zap,
     title: 'Automatic payouts.',
-    body: 'Winner and creator both receive USDC in the same atomic transaction that selects the winner. There is no claiming step. There is no withdrawal page. The money arrives.',
+    body: 'Winner and creator both receive USDC or WLD in the same atomic transaction that selects the winner. There is no claiming step. There is no withdrawal page. The money arrives.',
   },
   {
     icon: ShieldCheck,

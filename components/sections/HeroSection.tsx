@@ -5,17 +5,30 @@ import { BlurFade } from '@/components/ui/blur-fade'
 import VerifiedBadge from '@/components/ui/VerifiedBadge'
 import HeroBackground from '@/components/sections/hero-background'
 
+import {
+  PLATFORM_FEE_DUAL_LABEL,
+  TICKET_PRICE_DUAL_LABEL,
+  PLATFORM_FEE_DUAL_LONG,
+  TICKET_PRICE_DUAL_LONG,
+} from '@/lib/pricing'
+
 const stats = [
-  { value: '$10.00 USDC', label: 'Create your own raffle' },
-  { value: '$2.50', label: 'per ticket' },
+  { value: PLATFORM_FEE_DUAL_LABEL, label: 'Create your own raffle', compact: true },
+  { value: TICKET_PRICE_DUAL_LABEL, label: 'per ticket', compact: true },
   { value: '50%', label: 'to winner' },
   { value: '50%', label: 'to creator' },
-] as const
+] as const satisfies ReadonlyArray<{ value: string; label: string; compact?: boolean }>
 
-function StatItem({ value, label }: { value: string; label: string }) {
+function StatItem({ value, label, compact = false }: { value: string; label: string; compact?: boolean }) {
   return (
-    <span className="inline-flex flex-col gap-1 shrink-0">
-      <span className="font-mono text-[22.5px] font-bold tracking-tight text-black">{value}</span>
+    <span className="inline-flex flex-col gap-1 shrink-0 max-w-[160px] sm:max-w-none">
+      <span
+        className={`font-mono font-bold tracking-tight text-black ${
+          compact ? 'text-[14px] leading-snug sm:text-[16px] lg:text-[17px]' : 'text-[22.5px]'
+        }`}
+      >
+        {value}
+      </span>
       <span className="font-body text-[16.5px] text-[#9E9E9E] uppercase tracking-widest">{label}</span>
     </span>
   )
@@ -77,8 +90,8 @@ export default function HeroSection() {
           <div className="mt-14 pt-8 border-t border-[0.5px] border-[#E0E0E0] lg:mt-16">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               <div className="flex flex-wrap items-end gap-x-5 gap-y-4">
-                {stats.map(({ value, label }, index) => (
-                  <span key={label} className="inline-flex items-end gap-5">
+                {stats.map((stat, index) => (
+                  <span key={stat.label} className="inline-flex items-end gap-5">
                     {index > 0 && (
                       <span
                         className="font-mono text-[19.5px] text-[#9E9E9E] pb-1 select-none"
@@ -87,7 +100,7 @@ export default function HeroSection() {
                         |
                       </span>
                     )}
-                    <StatItem value={value} label={label} />
+                    <StatItem value={stat.value} label={stat.label} compact={'compact' in stat ? stat.compact : false} />
                   </span>
                 ))}
               </div>

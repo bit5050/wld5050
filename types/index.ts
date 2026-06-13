@@ -36,8 +36,24 @@ export interface CREStep {
   status: 'done' | 'pending' | 'error'
 }
 
-export const TICKET_PRICE    = 2.5
-export const PLATFORM_FEE    = 10.0
+export {
+  PLATFORM_FEE,
+  PLATFORM_FEE_DUAL_LABEL,
+  PLATFORM_FEE_DUAL_LONG,
+  PLATFORM_FEE_TO_WALLET,
+  PLATFORM_FEE_USDC,
+  PLATFORM_FEE_USDC_LABEL,
+  PLATFORM_FEE_WLD,
+  PLATFORM_FEE_WLD_LABEL,
+  TICKET_PRICE,
+  TICKET_PRICE_DUAL_LABEL,
+  TICKET_PRICE_DUAL_LONG,
+  TICKET_PRICE_USDC,
+  TICKET_PRICE_USDC_LABEL,
+  TICKET_PRICE_WLD,
+  TICKET_PRICE_WLD_LABEL,
+} from '@/lib/pricing'
+
 export const PLATFORM_WALLET = 'wld5050.eth'
 export const AGENT_ENS       = 'agent.wld5050.eth'
 export const OPERATOR_ENS    = 'bit5050.eth'

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { IDKitResult } from '@worldcoin/idkit'
 import Link from 'next/link'
 import { toast } from 'sonner'
-import { TICKET_PRICE } from '@/types'
+import { TICKET_PRICE, TICKET_PRICE_DUAL_LONG, TICKET_PRICE_USDC_LABEL } from '@/types'
 import { formatCountdown } from '@/lib/format'
 import VerifiedBadge from '@/components/ui/VerifiedBadge'
 import ConnectWalletButton from '@/components/wallet/connect-wallet-button'
@@ -139,7 +139,7 @@ export default function RafflePage({ params }: { params: { id: string } }) {
           {[
             { step: '01', text: 'Connect wallet with Privy' },
             { step: '02', text: 'Verify with World ID — proves you are a unique human' },
-            { step: '03', text: 'Buy 1 ticket for $2.50 USDC — one per verified human per raffle' },
+            { step: '03', text: `Buy 1 ticket for ${TICKET_PRICE_DUAL_LONG} — one per verified human per raffle` },
             { step: '04', text: 'If you win, USDC arrives automatically — no claiming needed' },
           ].map(({ step, text }) => (
             <div
@@ -220,7 +220,7 @@ export default function RafflePage({ params }: { params: { id: string } }) {
               >
                 {isPending ? 'Confirm in wallet…' : 'Buy ticket — '}
                 {!isPending ? (
-                  <span className="font-mono text-[13px] opacity-70">${TICKET_PRICE.toFixed(2)} USDC</span>
+                  <span className="font-mono text-[13px] opacity-70">{TICKET_PRICE_USDC_LABEL}</span>
                 ) : null}
               </button>
             </>

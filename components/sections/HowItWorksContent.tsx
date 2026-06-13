@@ -17,13 +17,23 @@ import {
 import { BlurFade } from '@/components/ui/blur-fade'
 import { StatsMarquee } from '@/components/effects/stats-marquee'
 import HeroBackground from '@/components/sections/hero-background'
+import {
+  PLATFORM_FEE_DUAL_LABEL,
+  PLATFORM_FEE_DUAL_LONG,
+  PLATFORM_FEE_USDC_LABEL,
+  PLATFORM_FEE_WLD_LABEL,
+  TICKET_PRICE_DUAL_LABEL,
+  TICKET_PRICE_DUAL_LONG,
+  TICKET_PRICE_USDC_LABEL,
+  TICKET_PRICE_WLD_LABEL,
+} from '@/lib/pricing'
 import { cn } from '@/lib/utils'
 
 const flowMarquee = [
   'World ID verified',
   'Privy wallet login',
-  '$10.00 USDC · 10 WLD create',
-  '$2.50 USDC · 2.50 WLD per ticket',
+  `${PLATFORM_FEE_DUAL_LABEL} create`,
+  `${TICKET_PRICE_DUAL_LABEL} per ticket`,
   '50% winner · 50% creator',
   'Chainlink CRE settlement',
   'ENS winner subnames',
@@ -44,14 +54,14 @@ const steps = [
     icon: Wallet,
     title: 'Create a raffle',
     body:
-      'Verify with World ID, then choose USDC or WLD as the raffle currency. Pay the flat creation fee ($10.00 USDC or 10 WLD to wld5050.eth), set a name and duration (any length — 1 minute to 1 year+). Your raffle is live on-chain immediately.',
+      `Verify with World ID, then choose USDC or WLD as the raffle currency. Pay the flat creation fee (${PLATFORM_FEE_DUAL_LONG} to wld5050.eth), set a name and duration (any length — 1 minute to 1 year+). Your raffle is live on-chain immediately.`,
   },
   {
     step: '03',
     icon: Ticket,
     title: 'Buy a ticket',
     body:
-      'Verify with World ID, then pay $2.50 USDC or 2.50 WLD per ticket. Funds sit in escrow until settlement. The same human cannot buy twice — nullifier hashes are checked on-chain.',
+      `Verify with World ID, then pay ${TICKET_PRICE_DUAL_LONG}. Funds sit in escrow until settlement. The same human cannot buy twice — nullifier hashes are checked on-chain.`,
   },
   {
     step: '04',
@@ -90,14 +100,14 @@ const privyFeatures = [
 const pricingRows = [
   {
     label: 'Create raffle',
-    usdc: '$10.00',
-    wld: '10.00 WLD',
+    usdc: PLATFORM_FEE_USDC_LABEL,
+    wld: PLATFORM_FEE_WLD_LABEL,
     note: 'Paid to wld5050.eth (platform fee)',
   },
   {
     label: 'Ticket price',
-    usdc: '$2.50',
-    wld: '2.50 WLD',
+    usdc: TICKET_PRICE_USDC_LABEL,
+    wld: TICKET_PRICE_WLD_LABEL,
     note: 'Held in escrow until settlement',
   },
   {
@@ -515,7 +525,7 @@ export default function HowItWorksContent() {
               ))}
             </div>
             <p className="font-body text-[13px] text-[#9E9E9E] mt-6">
-              Creation fee is separate from ticket revenue — platform earns $10.00 USDC or 10 WLD per
+              Creation fee is separate from ticket revenue — platform earns {PLATFORM_FEE_DUAL_LONG} per
               raffle created.
             </p>
           </BlurFade>

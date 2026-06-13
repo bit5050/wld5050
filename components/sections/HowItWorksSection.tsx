@@ -1,17 +1,18 @@
 'use client'
 
 import { BlurFade } from '@/components/ui/blur-fade'
+import { PLATFORM_FEE_DUAL_LONG, TICKET_PRICE_DUAL_LONG } from '@/lib/pricing'
 
 const steps = [
   {
     step: '01',
     title: 'Create a raffle',
-    body: 'Pay a $10.00 USDC creation fee. Set a name and duration. Your raffle is live onchain immediately. You earn 50% of every ticket sold Chainlink CRE pays you automatically when the round ends.',
+    body: `Pay the ${PLATFORM_FEE_DUAL_LONG} creation fee (to wld5050.eth). Set a name and duration. Your raffle is live onchain immediately. You earn 50% of every ticket sold — Chainlink CRE pays you automatically when the round ends.`,
   },
   {
     step: '02',
     title: 'Buy a ticket',
-    body: 'Verify with World ID. Pay $2.50 USDC. One ticket per verified human the same person cannot enter twice, regardless of how many wallets they control.',
+    body: `Verify with World ID. Pay ${TICKET_PRICE_DUAL_LONG}. One ticket per verified human — the same person cannot enter twice, regardless of how many wallets they control.`,
   },
   {
     step: '03',

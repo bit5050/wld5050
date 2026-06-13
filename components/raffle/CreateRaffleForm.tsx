@@ -11,9 +11,14 @@ import RaffleCreatedSuccessDialog from '@/components/raffle/RaffleCreatedSuccess
 import { useCreateRaffleTx, type CreateRaffleResult } from '@/hooks/use-raffle-transactions'
 import {
   AGENT_ENS,
-  PLATFORM_FEE,
+  PLATFORM_FEE_DUAL_LABEL,
+  PLATFORM_FEE_DUAL_LONG,
+  PLATFORM_FEE_USDC_LABEL,
+  PLATFORM_FEE_WLD_LABEL,
   PLATFORM_WALLET,
-  TICKET_PRICE,
+  TICKET_PRICE_DUAL_LONG,
+  TICKET_PRICE_USDC_LABEL,
+  TICKET_PRICE_WLD_LABEL,
 } from '@/types'
 
 type Props = {
@@ -100,7 +105,8 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
         </h3>
         <p className="mt-2 font-mono text-[13px] text-[#616161]">
           Creation payment:{' '}
-          <span className="font-bold text-black">${PLATFORM_FEE.toFixed(2)} USDC</span>
+          <span className="font-bold text-black">{PLATFORM_FEE_DUAL_LABEL}</span>
+          <span className="text-[#9E9E9E]"> → {PLATFORM_WALLET}</span>
         </p>
       </div>
 
@@ -111,12 +117,10 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
         </p>
         <p className="font-body text-[13px] text-black mb-2">
           Creator pays:{' '}
-          <span className="font-mono font-bold">${PLATFORM_FEE.toFixed(2)} USDC</span>
+          <span className="font-mono font-bold">{PLATFORM_FEE_DUAL_LABEL}</span>
         </p>
         <ul className="space-y-1.5 font-mono text-[12px] text-[#616161]">
-          <li>
-            ${PLATFORM_FEE.toFixed(2)} → {PLATFORM_WALLET} platform creation fee
-          </li>
+          <li>{PLATFORM_FEE_USDC_LABEL} or {PLATFORM_FEE_WLD_LABEL} → {PLATFORM_WALLET}</li>
         </ul>
       </div>
 
@@ -270,11 +274,11 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
         <ul className="space-y-2 font-body text-[12px] leading-relaxed text-[#616161]">
           <li>
             <strong className="text-black">Platform Creation Fee:</strong>{' '}
-            <span className="font-mono">${PLATFORM_FEE.toFixed(2)} USDC</span> → {PLATFORM_WALLET}
+            <span className="font-mono">{PLATFORM_FEE_DUAL_LONG}</span> → {PLATFORM_WALLET}
           </li>
           <li>
             <strong className="text-black">Ticket Cost:</strong>{' '}
-            <span className="font-mono">${TICKET_PRICE.toFixed(2)} USDC</span> per ticket
+            <span className="font-mono">{TICKET_PRICE_DUAL_LONG}</span>
           </li>
           <li>
             <strong className="text-black">Prize Distribution:</strong> 50% to winner, 50% to
@@ -384,7 +388,7 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
         >
           {isPending || submitting
             ? 'Confirm in wallet…'
-            : `Pay $${PLATFORM_FEE.toFixed(2)} USDC & create raffle`}
+            : `Pay ${PLATFORM_FEE_USDC_LABEL} & create raffle`}
         </button>
       ) : null}
 

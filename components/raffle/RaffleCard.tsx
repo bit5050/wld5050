@@ -1,7 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Raffle, TICKET_PRICE } from '@/types'
+import { Raffle, TICKET_PRICE_USDC_LABEL, TICKET_PRICE_WLD_LABEL } from '@/types'
+import { TICKET_PRICE_USDC } from '@/lib/pricing'
 import { formatCountdown } from '@/lib/format'
 import ENSName from '@/components/ens/ENSName'
 import ShareRaffleDialog from '@/components/raffle/ShareRaffleDialog'
@@ -15,8 +16,8 @@ export default function RaffleCard({ raffle, compact = false }: Props) {
   const [countdown, setCountdown] = useState<string | null>(null)
 
   const tickets = raffle.ticketsSold
-  const prizePool = (tickets * TICKET_PRICE).toFixed(2)
-  const yourShare = (tickets * TICKET_PRICE / 2).toFixed(2)
+  const prizePool = (tickets * TICKET_PRICE_USDC).toFixed(2)
+  const yourShare = (tickets * TICKET_PRICE_USDC / 2).toFixed(2)
 
   useEffect(() => {
     const update = () => setCountdown(formatCountdown(raffle.endTime))
@@ -89,7 +90,7 @@ export default function RaffleCard({ raffle, compact = false }: Props) {
           <Link href={`/raffle/${raffle.id}`}>
             <button className={`w-full font-medium bg-black text-white rounded-[7px] hover:opacity-80 transition-opacity ${compact ? 'text-[13px] py-2.5' : 'text-[14px] py-3'}`}>
               Buy ticket{' '}
-              <span className="font-mono opacity-70">$2.50</span>
+              <span className="font-mono opacity-70">{TICKET_PRICE_USDC_LABEL} · {TICKET_PRICE_WLD_LABEL}</span>
             </button>
           </Link>
           <ShareRaffleDialog

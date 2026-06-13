@@ -5,7 +5,7 @@ import { motion, useReducedMotion } from 'motion/react'
 import { cn } from '@/lib/utils'
 
 const codeLines = [
-  'wld5050.eth → platform fee $10.00 USDC',
+  'wld5050.eth → platform fee $10.00 USDC · 10.00 WLD',
   'agent.wld5050.eth → CRE draw agent',
   'World ID 4.0 → one entry per human',
   'CRE DON → 15/15 nodes consensus',

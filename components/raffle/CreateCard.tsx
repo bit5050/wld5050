@@ -1,5 +1,10 @@
 'use client'
+
 import Link from 'next/link'
+import {
+  PLATFORM_FEE_DUAL_LABEL,
+  TICKET_PRICE_DUAL_LABEL,
+} from '@/lib/pricing'
 
 type Props = {
   featured?: boolean
@@ -23,8 +28,8 @@ export default function CreateCard({ featured = false }: Props) {
       </p>
       <div className="space-y-2 mb-3">
         {[
-          { label: 'Platform creation fee', value: '$10.00 USDC' },
-          { label: 'Ticket price (fixed)', value: '$2.50 USDC' },
+          { label: 'Platform creation fee', value: PLATFORM_FEE_DUAL_LABEL },
+          { label: 'Ticket price (fixed)', value: TICKET_PRICE_DUAL_LABEL },
           { label: 'Your payout', value: '50% of ticket revenue' },
         ].map(({ label, value }) => (
           <div
