@@ -8,8 +8,6 @@ import HeroBackground from '@/components/sections/hero-background'
 import {
   PLATFORM_FEE_DUAL_LABEL,
   TICKET_PRICE_DUAL_LABEL,
-  PLATFORM_FEE_DUAL_LONG,
-  TICKET_PRICE_DUAL_LONG,
 } from '@/lib/pricing'
 
 const stats = [
@@ -21,15 +19,23 @@ const stats = [
 
 function StatItem({ value, label, compact = false }: { value: string; label: string; compact?: boolean }) {
   return (
-    <span className="inline-flex flex-col gap-1 shrink-0 max-w-[160px] sm:max-w-none">
+    <span
+      className={`inline-flex flex-col gap-0.5 shrink-0 ${compact ? 'max-w-[135px]' : 'max-w-none'} sm:max-w-none`}
+    >
       <span
         className={`font-mono font-bold tracking-tight text-black ${
-          compact ? 'text-[14px] leading-snug sm:text-[16px] lg:text-[17px]' : 'text-[22.5px]'
+          compact ? 'text-[12px] leading-snug sm:text-[13px] lg:text-[14px]' : 'text-[18px]'
         }`}
       >
         {value}
       </span>
-      <span className="font-body text-[16.5px] text-[#9E9E9E] uppercase tracking-widest">{label}</span>
+      <span
+        className={`font-body text-[#9E9E9E] uppercase tracking-widest ${
+          compact ? 'text-[14px]' : 'text-[12.5px]'
+        }`}
+      >
+        {label}
+      </span>
     </span>
   )
 }
@@ -94,7 +100,7 @@ export default function HeroSection() {
                   <span key={stat.label} className="inline-flex items-end gap-5">
                     {index > 0 && (
                       <span
-                        className="font-mono text-[19.5px] text-[#9E9E9E] pb-1 select-none"
+                        className="font-mono text-[15px] text-[#9E9E9E] pb-0.5 select-none"
                         aria-hidden
                       >
                         |
