@@ -1,0 +1,5 @@
+export { ShaderBackground } from './shader-background'
+export { ParticlesBackground } from './particles-background'
+export { StatsMarquee } from './stats-marquee'
+export { PhysicsBallPit } from './physics-ball-pit'
+export { default as BlurText } from '@/components/BlurText'

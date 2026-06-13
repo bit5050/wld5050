@@ -1,5 +1,6 @@
 import StatCard from '@/components/ui/StatCard'
 import DividerLabel from '@/components/ui/DividerLabel'
+import BalancedText from '@/components/ui/balanced-text'
 import RaffleCard from '@/components/raffle/RaffleCard'
 import CreateCard from '@/components/raffle/CreateCard'
 import WinnerCard from '@/components/raffle/WinnerCard'
@@ -52,11 +53,11 @@ export default function HomePage() {
         <p className="font-mono text-[11px] text-gray-400 tracking-widest uppercase mb-4">
           World Chain · Human-verified · Automated
         </p>
-        <h1 className="font-display text-[38px] font-semibold leading-[1.15] tracking-tight mb-4">
-          Fair raffles.<br />
-          <span className="text-gray-400">No bots. No bias.</span><br />
-          No middlemen.
-        </h1>
+        <BalancedText as="h1" className="font-display text-[38px] font-semibold leading-[1.15] tracking-tight mb-4">
+          Fair raffles.
+          <span className="text-gray-400"> No bots. No bias.</span>
+          {' '}No middlemen.
+        </BalancedText>
         <p className="text-[14px] text-gray-600 leading-relaxed max-w-[480px] mb-8">
           Create or enter a 50/50 raffle. One ticket per verified human.
           Winners selected by Chainlink CRE and paid automatically — no claiming, no waiting.
