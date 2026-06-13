@@ -13,11 +13,13 @@ import {
   CommandShortcut,
 } from '@/components/ui/command'
 
-const pages = [
-  { label: 'Home', href: '/', shortcut: 'H' },
-  { label: 'Create raffle', href: '/create', shortcut: 'C' },
-  { label: 'Browse raffles', href: '/#raffles', shortcut: 'B' },
-]
+import { navLinks } from '@/lib/nav-links'
+
+const pages = navLinks.map(({ label, href }) => ({
+  label,
+  href,
+  shortcut: label.charAt(0).toUpperCase(),
+}))
 
 export default function CommandMenu() {
   const [open, setOpen] = useState(false)
