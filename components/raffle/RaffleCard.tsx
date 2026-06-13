@@ -43,7 +43,7 @@ export default function RaffleCard({ raffle, compact = false }: Props) {
         <span className={`font-display font-medium tracking-tight text-black ${compact ? 'text-[14px] leading-snug line-clamp-2' : 'text-[15px]'}`}>
           {raffle.name}
         </span>
-        <span className="font-mono text-[10px] tracking-wide px-2 py-0.5 rounded-full border border-black text-black shrink-0">
+        <span className="font-mono text-[10px] tracking-wide px-2 py-0.5 rounded-full border border-black text-black flex-none">
           ● Live
         </span>
       </div>
@@ -64,7 +64,7 @@ export default function RaffleCard({ raffle, compact = false }: Props) {
             </>
           ) : (
             <>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#00C853] inline-block shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#00C853] inline-block flex-none" />
               <span>Created by{' '}
                 <span className="text-black font-medium">
                   <ENSName address={raffle.creator} fallback={raffle.creatorEns ?? undefined} />
