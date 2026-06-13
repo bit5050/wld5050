@@ -64,7 +64,7 @@ export default function RaffleCard({ raffle, compact = false }: Props) {
             </>
           ) : (
             <>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#00C853] inline-block flex-shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#00C853] inline-block shrink-0" />
               <span>Created by{' '}
                 <span className="text-black font-medium">
                   <ENSName address={raffle.creator} fallback={raffle.creatorEns ?? undefined} />

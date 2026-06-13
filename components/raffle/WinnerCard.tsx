@@ -17,7 +17,7 @@ export default function WinnerCard({ settlement: s }: Props) {
         </div>
         <div className="px-4 py-4">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center font-mono text-[12px] font-bold flex-shrink-0">
+            <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center font-mono text-[12px] font-bold shrink-0">
               {initials}
             </div>
             <div>

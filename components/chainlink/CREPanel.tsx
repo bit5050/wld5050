@@ -17,7 +17,7 @@ export default function CREPanel({ steps }: Props) {
       <div className="divide-y divide-gray-100">
         {steps.map((step, i) => (
           <div key={i} className="flex items-start gap-3 px-4 py-3">
-            <span className={`font-mono text-[13px] flex-shrink-0 mt-0.5 ${colors[step.status]}`}>
+            <span className={`font-mono text-[13px] shrink-0 mt-0.5 ${colors[step.status]}`}>
               {icons[step.status]}
             </span>
             <div className="text-[12px] text-gray-600 leading-relaxed">

@@ -36,7 +36,7 @@ export default function RafflePage({ params }: { params: { id: string } }) {
         <h1 className="font-display text-[26px] font-semibold tracking-tight leading-tight">
           ETHGlobal NYC Community Pot
         </h1>
-        <span className="font-mono text-[10px] px-2.5 py-1 border border-black rounded-full ml-4 mt-1 flex-shrink-0">
+        <span className="font-mono text-[10px] px-2.5 py-1 border border-black rounded-full ml-4 mt-1 shrink-0">
           ● Live
         </span>
       </div>
@@ -76,7 +76,7 @@ export default function RafflePage({ params }: { params: { id: string } }) {
             { step: '04', text: 'If you win, USDC arrives in your wallet automatically — no claiming needed' },
           ].map(({ step, text }) => (
             <div key={step} className="flex items-start gap-3 py-2.5 border-b border-gray-100 last:border-0">
-              <span className="font-mono text-[11px] text-gray-400 flex-shrink-0 mt-0.5">{step}</span>
+              <span className="font-mono text-[11px] text-gray-400 shrink-0 mt-0.5">{step}</span>
               <span className="text-[13px] text-gray-600">{text}</span>
             </div>
           ))}

@@ -190,10 +190,10 @@ export default function HeroBackground({ variant = 'light' }: SectionBackgroundP
       ))}
 
       {/* Soft edge fade so code/icons don't clash with text */}
-      <div className={cn('absolute inset-y-0 left-0 w-[22%] bg-gradient-to-r to-transparent', fadeFrom)} />
-      <div className={cn('absolute inset-y-0 right-0 w-[22%] bg-gradient-to-l to-transparent', fadeFrom)} />
-      <div className={cn('absolute inset-x-0 top-0 h-20 bg-gradient-to-b to-transparent', fadeFrom)} />
-      <div className={cn('absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t to-transparent', fadeFrom)} />
+      <div className={cn('absolute inset-y-0 left-0 w-[22%] bg-linear-to-r to-transparent', fadeFrom)} />
+      <div className={cn('absolute inset-y-0 right-0 w-[22%] bg-linear-to-l to-transparent', fadeFrom)} />
+      <div className={cn('absolute inset-x-0 top-0 h-20 bg-linear-to-b to-transparent', fadeFrom)} />
+      <div className={cn('absolute inset-x-0 bottom-0 h-20 bg-linear-to-t to-transparent', fadeFrom)} />
     </div>
   )
 }
