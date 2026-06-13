@@ -7,6 +7,7 @@ import Footer from '@/components/layout/Footer'
 import CommandMenu from '@/components/layout/command-menu'
 import AppProviders from '@/components/providers/app-providers'
 import MotionProviders from '@/components/providers/motion-providers'
+import TermsAgreementModal from '@/components/legal/TermsAgreementModal'
 import { Toaster } from '@/components/ui/sonner'
 
 export const metadata: Metadata = {
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </main>
             <Footer />
             <CommandMenu />
+            <TermsAgreementModal />
             <Toaster position="bottom-center" richColors closeButton />
           </MotionProviders>
         </AppProviders>

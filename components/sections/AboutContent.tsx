@@ -163,7 +163,7 @@ export default function AboutContent() {
               <span className="text-[#9E9E9E]">WLD5050</span>
             </h1>
             <BodyText className="max-w-[640px]">
-              Human-verified 50/50 raffles on World Chain — where every entrant is a real person and
+              Human-verified 50/50 raffles on World Chain. Where every entrant is a real person and
               every winner is chosen with provably fair, automated randomness.
             </BodyText>
           </BlurFade>
@@ -232,40 +232,44 @@ export default function AboutContent() {
       </SectionShell>
 
       {/* BIT5050 Ecosystem */}
-      <SectionShell>
-        <StatsMarquee items={[...ecosystemMarquee]} className="border-[#E0E0E0] bg-[#FAFAFA]" />
-        <SectionInner>
+      <SectionShell dark>
+        <HeroBackground variant="dark" />
+        <StatsMarquee
+          items={[...ecosystemMarquee]}
+          className="relative z-10 border-[#2A2A2A] bg-[#111111] [&_span]:text-[#9E9E9E]"
+        />
+        <SectionInner className="relative z-10">
           <BlurFade blur="0px" delay={0} inView inViewMargin="-80px">
             <div className="grid gap-10 lg:grid-cols-2 lg:gap-14 lg:items-start">
               <div>
-                <SectionLabel>Ecosystem</SectionLabel>
-                <SectionTitle className="mb-5">Part of the BIT5050 Ecosystem</SectionTitle>
+                <SectionLabel dark>Ecosystem</SectionLabel>
+                <SectionTitle dark className="mb-5">Part of the BIT5050 Ecosystem</SectionTitle>
                 <div className="space-y-5">
-                  <BodyText>
+                  <BodyText dark>
                     WLD5050 is proudly built by BIT5050 INC., a Delaware C-Corp and the world&apos;s
                     leading multi-chain Web3 50/50 raffle protocol, currently deployed across{' '}
                     <NumberTicker
                       value={17}
-                      className="font-mono font-bold text-black"
+                      className="font-mono font-bold text-white"
                     />{' '}
                     blockchain ecosystems.
                   </BodyText>
-                  <BodyText>
+                  <BodyText dark>
                     BIT5050 operates under one founding philosophy:
                   </BodyText>
                   <blockquote
-                    className="rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] px-5 py-4"
+                    className="rounded-[10px] border-[0.5px] border-[#2A2A2A] bg-[#111111] px-5 py-4"
                   >
-                    <p className="font-display text-[18px] font-semibold tracking-tight text-black sm:text-[20px]">
+                    <p className="font-display text-[18px] font-semibold tracking-tight text-white sm:text-[20px]">
                       &ldquo;All Product. All Service. No Token.&rdquo;
                     </p>
                   </blockquote>
-                  <BodyText>
+                  <BodyText dark>
                     BIT5050 provides Web3 raffle platforms for creators, influencers, live streamers,
                     NFT &amp; DAO communities, organizations, and events, including live events. No
                     governance token. No speculation. Just infrastructure that works.
                   </BodyText>
-                  <BodyText>
+                  <BodyText dark>
                     WLD5050 carries that philosophy directly onto World Chain, combining BIT5050&apos;s
                     battle-tested raffle architecture with World ID&apos;s proof-of-humanity layer to
                     deliver the most trusted raffle experience in Web3.
@@ -274,38 +278,38 @@ export default function AboutContent() {
               </div>
 
               <aside
-                className="rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-white p-6 sm:p-8"
+                className="rounded-[10px] border-[0.5px] border-[#2A2A2A] bg-[#111111] p-6 sm:p-8"
                 aria-label="BIT5050 at a glance"
               >
-                <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-[10px] border-[0.5px] border-[#E0E0E0]">
-                  <Building2 className="h-5 w-5 text-black" strokeWidth={1.5} />
+                <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-[10px] border-[0.5px] border-[#2A2A2A]">
+                  <Building2 className="h-5 w-5 text-white" strokeWidth={1.5} />
                 </div>
-                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#9E9E9E] mb-1">
+                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-white mb-1">
                   BIT5050 INC.
                 </p>
-                <p className="font-display text-[22px] font-semibold tracking-tight text-black mb-6">
+                <p className="font-display text-[22px] font-semibold tracking-tight text-white mb-6">
                   Delaware C-Corp
                 </p>
                 <dl className="space-y-4">
-                  <div className="flex items-baseline justify-between gap-4 border-b border-[0.5px] border-[#E0E0E0] pb-4">
+                  <div className="flex items-baseline justify-between gap-4 border-b border-[0.5px] border-[#2A2A2A] pb-4">
                     <dt className="font-mono text-[11px] uppercase tracking-widest text-[#9E9E9E]">
                       Chains
                     </dt>
-                    <dd className="font-mono text-[22px] font-bold text-black">
-                      <NumberTicker value={17} />+
+                    <dd className="font-mono text-[22px] font-bold text-white">
+                      <NumberTicker value={17} className="text-white" />+
                     </dd>
                   </div>
-                  <div className="flex items-baseline justify-between gap-4 border-b border-[0.5px] border-[#E0E0E0] pb-4">
+                  <div className="flex items-baseline justify-between gap-4 border-b border-[0.5px] border-[#2A2A2A] pb-4">
                     <dt className="font-mono text-[11px] uppercase tracking-widest text-[#9E9E9E]">
                       Model
                     </dt>
-                    <dd className="font-body text-[14px] text-black">50/50 raffle protocol</dd>
+                    <dd className="font-body text-[14px] text-white">50/50 raffle protocol</dd>
                   </div>
                   <div className="flex items-baseline justify-between gap-4">
                     <dt className="font-mono text-[11px] uppercase tracking-widest text-[#9E9E9E]">
                       Token
                     </dt>
-                    <dd className="font-body text-[14px] text-black">None</dd>
+                    <dd className="font-body text-[14px] text-white">None</dd>
                   </div>
                 </dl>
               </aside>
