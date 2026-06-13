@@ -36,15 +36,11 @@ export default function HeroSection() {
 
           <BlurFade blur="0px" delay={0.06} inView>
             <h1 className="font-display text-[40px] font-bold leading-[1.12] tracking-tight mb-5 sm:text-[44px] lg:text-[48px]">
-              World Coin 50/50 Raffles.
+              Human-Only 50/50 Raffles on World Chain.
               <br />
-              <span className="text-[#9E9E9E]">No bots. No bias.</span>
-              <br />
-              Verified Human.
-              <br />
-              No middlemen. <span className="text-[#9E9E9E]">Chainlink CRE.</span>
-              <br />
-              <span className="text-[#9E9E9E]">ENS.</span>
+              <span className="text-[#9E9E9E]">
+                Verified by World ID. Powered by Chainlink. Readable by ENS.
+              </span>
             </h1>
           </BlurFade>
 
