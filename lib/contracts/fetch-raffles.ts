@@ -9,6 +9,7 @@ import {
 import { getPublicClient } from '@/lib/contracts/public-client'
 import { getWld5050ContractAddress } from '@/lib/contracts/contract-address'
 import { fetchRaffleStartTime, fallbackRaffleStartTime } from '@/lib/contracts/fetch-raffle-start'
+import { fetchRaffleSettlement } from '@/lib/contracts/fetch-raffle-settlement'
 import type { CompletedRaffle, CREStep, Raffle, RaffleStatus, Settlement } from '@/types'
 
 const ZERO_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000'
@@ -134,9 +135,15 @@ export async function fetchRafflesFromContract(
     const status = mapRaffleStatus(statusCode, isEnded)
 
     if (statusCode === 1 && includeCompleted) {
-      const winnerPrize = formatRawTokenAmount(totalRevenue / BigInt(2), token)
-      const creatorPayout = formatRawTokenAmount(totalRevenue - totalRevenue / BigInt(2), token)
-      const winner = await resolveWinnerAddress(id, creator, winnerSubname)
+      const settlement = await fetchRaffleSettlement(id, publicClient, contractAddress, ticketsSold)
+      const winnerPrize =
+        settlement?.winnerPrize ?? formatRawTokenAmount(totalRevenue / BigInt(2), token)
+      const creatorPayout =
+        settlement?.creatorPayout ??
+        formatRawTokenAmount(totalRevenue - totalRevenue / BigInt(2), token)
+      const winner = settlement?.winner ?? (await resolveWinnerAddress(id, creator, winnerSubname))
+      const subname =
+        settlement?.winnerSubname ?? (winnerSubname || `winner-round${id}.wld5050.eth`)
 
       completed.push({
         raffleId: id,
@@ -145,18 +152,18 @@ export async function fetchRafflesFromContract(
         paymentToken: token,
         winner,
         winnerEns: null,
-        winnerSubname: winnerSubname || `winner-round${id}.wld5050.eth`,
+        winnerSubname: subname,
         winnerPrize,
         creatorPayout,
-        txHash: '',
-        blockNumber: 0,
+        txHash: settlement?.txHash ?? '',
+        blockNumber: settlement?.blockNumber ?? 0,
         creSteps: buildCreSteps(
           id,
-          0,
+          settlement?.blockNumber ?? 0,
           aiAttestationHash,
           winnerPrize,
           creatorPayout,
-          winnerSubname || `winner-round${id}.wld5050.eth`,
+          subname,
         ),
       })
       continue

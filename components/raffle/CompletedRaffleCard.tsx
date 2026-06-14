@@ -4,6 +4,7 @@ import ShareRaffleDialog from '@/components/raffle/ShareRaffleDialog'
 import PaymentTokenBadge from '@/components/raffle/PaymentTokenBadge'
 import VerifiedBadge from '@/components/ui/VerifiedBadge'
 import { formatTokenAmount } from '@/lib/pricing'
+import { getAddressExplorerUrl, getTxExplorerUrl } from '@/lib/share/raffle-share'
 import type { CompletedRaffle } from '@/types'
 
 type Props = {
@@ -43,6 +44,26 @@ export default function CompletedRaffleCard({ raffle, compact = false }: Props) 
             <span className="font-medium text-black">
               <ENSName address={raffle.winner} fallback={raffle.winnerEns ?? undefined} />
             </span>
+          </p>
+          <p className="flex flex-wrap gap-x-3 gap-y-1 pt-1">
+            <a
+              href={getAddressExplorerUrl(raffle.winner)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono text-[10px] text-[#9E9E9E] transition-colors hover:text-black"
+            >
+              Winner ↗
+            </a>
+            {raffle.txHash ? (
+              <a
+                href={getTxExplorerUrl(raffle.txHash)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-[10px] text-[#9E9E9E] transition-colors hover:text-black"
+              >
+                Settlement ↗
+              </a>
+            ) : null}
           </p>
           {!compact && (
             <div className="pt-1">

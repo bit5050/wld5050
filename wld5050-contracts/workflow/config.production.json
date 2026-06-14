@@ -2,6 +2,6 @@
   "schedule": "*/30 * * * * *",
   "wld5050Contract": "0x787C5b5B464CEa2D1482e3f0e605171B1f0D322E",
   "chainSelectorName": "ethereum-mainnet-worldchain-1",
-  "agentKitEndpoint": "https://wld5050.com/api/trigger-draw",
+  "agentKitEndpoint": "https://wld5050.vercel.app/api/trigger-draw",
   "confidentialAiUrl": ""
 }

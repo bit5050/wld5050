@@ -10,6 +10,10 @@ export function getTxExplorerUrl(txHash: string): string {
   return `https://worldscan.org/tx/${txHash}`
 }
 
+export function getAddressExplorerUrl(address: string): string {
+  return `https://worldscan.org/address/${address}`
+}
+
 export function buildShareMessage(raffleName: string, raffleUrl: string): string {
   return `Join my WLD5050 raffle "${raffleName}" — human-verified 50/50 on World Chain. ${raffleUrl}`
 }

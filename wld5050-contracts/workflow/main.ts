@@ -14,7 +14,7 @@ import {
   ConsensusAggregationByFields,
   type CronPayload,
   type Runtime,
-  LAST_FINALIZED_BLOCK_NUMBER,
+  LATEST_BLOCK_NUMBER,
   encodeCallMsg,
   prepareReportRequest,
   json,
@@ -112,7 +112,7 @@ function readExpiredRaffleIds(
         to: runtime.config.wld5050Contract as Address,
         data,
       }),
-      blockNumber: LAST_FINALIZED_BLOCK_NUMBER,
+      blockNumber: LATEST_BLOCK_NUMBER,
     })
     .result()
 
@@ -147,7 +147,7 @@ function readRaffleState(
         to: runtime.config.wld5050Contract as Address,
         data,
       }),
-      blockNumber: LAST_FINALIZED_BLOCK_NUMBER,
+      blockNumber: LATEST_BLOCK_NUMBER,
     })
     .result()
 

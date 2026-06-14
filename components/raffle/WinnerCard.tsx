@@ -1,9 +1,10 @@
-import { Settlement } from '@/types'
+import type { Settlement } from '@/types'
 import ENSName from '@/components/ens/ENSName'
 import VerifiedBadge from '@/components/ui/VerifiedBadge'
 import CREPanel from '@/components/chainlink/CREPanel'
 import PaymentTokenBadge from '@/components/raffle/PaymentTokenBadge'
 import { formatTokenAmount } from '@/lib/pricing'
+import { getAddressExplorerUrl, getTxExplorerUrl } from '@/lib/share/raffle-share'
 
 interface Props { settlement: Settlement }
 
@@ -43,6 +44,26 @@ export default function WinnerCard({ settlement: s }: Props) {
                 <div className="font-mono text-[14px] font-bold">{value}</div>
               </div>
             ))}
+          </div>
+          <div className="mb-4 flex flex-wrap gap-x-4 gap-y-2 text-[11px]">
+            <a
+              href={getAddressExplorerUrl(s.winner)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono text-gray-500 transition-colors hover:text-black"
+            >
+              Winner on Worldscan ↗
+            </a>
+            {s.txHash ? (
+              <a
+                href={getTxExplorerUrl(s.txHash)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-gray-500 transition-colors hover:text-black"
+              >
+                Settlement tx ↗
+              </a>
+            ) : null}
           </div>
           <div className="flex items-center justify-between px-3.5 py-2.5 border border-gray-100 rounded-[7px]">
             <div>

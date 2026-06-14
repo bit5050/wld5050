@@ -9,9 +9,10 @@ import {
   fetchRaffleTicketsSold,
   fetchRafflesFromContract,
 } from '@/lib/contracts/fetch-raffles'
+import { fetchRaffleSettlement } from '@/lib/contracts/fetch-raffle-settlement'
 import { getPublicClient } from '@/lib/contracts/public-client'
 import { isValidContractAddress, wld5050Abi } from '@/lib/contracts/wld5050'
-import type { CompletedRaffle, Raffle } from '@/types'
+import type { CompletedRaffle, Raffle, Settlement } from '@/types'
 
 function resolvePublicClient(wagmiClient: PublicClient | undefined): PublicClient {
   return wagmiClient ?? getPublicClient()
@@ -64,6 +65,7 @@ export function useRaffle(raffleId: number) {
   const wagmiClient = usePublicClient()
   const publicClient = resolvePublicClient(wagmiClient)
   const [raffle, setRaffle] = useState<Raffle | null>(null)
+  const [settlement, setSettlement] = useState<Settlement | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -86,11 +88,25 @@ export function useRaffle(raffleId: number) {
     try {
       const data = await fetchRaffleById(raffleId, publicClient, contractAddress)
       setRaffle(data)
-      if (!data) setError('Raffle not found.')
+      if (!data) {
+        setError('Raffle not found.')
+        setSettlement(null)
+      } else if (data.status === 'SETTLED') {
+        const settled = await fetchRaffleSettlement(
+          raffleId,
+          publicClient,
+          contractAddress,
+          data.ticketsSold,
+        )
+        setSettlement(settled)
+      } else {
+        setSettlement(null)
+      }
     } catch (err) {
       console.error('Raffle fetch failed:', err)
       setError('Could not load raffle from contract.')
       setRaffle(null)
+      setSettlement(null)
     } finally {
       if (!options?.silent) {
         setIsLoading(false)
@@ -113,6 +129,9 @@ export function useRaffle(raffleId: number) {
   const refreshStatsRef = useRef(refreshStats)
   refreshStatsRef.current = refreshStats
 
+  const refreshRef = useRef(refresh)
+  refreshRef.current = refresh
+
   useWatchContractEvent({
     address: hasContract ? contractAddress : undefined,
     abi: wld5050Abi,
@@ -121,6 +140,22 @@ export function useRaffle(raffleId: number) {
     enabled: hasContract && Number.isFinite(raffleId) && raffleId >= 1 && raffle?.status === 'ACTIVE',
     onLogs() {
       void refreshStatsRef.current()
+    },
+  })
+
+  useWatchContractEvent({
+    address: hasContract ? contractAddress : undefined,
+    abi: wld5050Abi,
+    eventName: 'RaffleSettled',
+    args: Number.isFinite(raffleId) && raffleId >= 1 ? { raffleId: BigInt(raffleId) } : undefined,
+    enabled:
+      hasContract &&
+      Number.isFinite(raffleId) &&
+      raffleId >= 1 &&
+      raffle != null &&
+      raffle.status !== 'SETTLED',
+    onLogs() {
+      void refreshRef.current({ silent: true })
     },
   })
 
@@ -141,5 +176,5 @@ export function useRaffle(raffleId: number) {
     return () => clearInterval(interval)
   }, [raffle, refresh])
 
-  return { raffle, isLoading, error, refresh, refreshStats, hasContract }
+  return { raffle, settlement, isLoading, error, refresh, refreshStats, hasContract }
 }

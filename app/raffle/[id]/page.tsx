@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import {
   buyTicketStepText,
   formatPrizePool,
+  formatTokenAmount,
   formatWinnerShare,
   ticketPriceLabel,
   winStepText,
@@ -21,6 +22,7 @@ import ShareRaffleButtons from '@/components/raffle/ShareRaffleButtons'
 import RaffleCountdown from '@/components/raffle/RaffleCountdown'
 import PaymentTokenBadge from '@/components/raffle/PaymentTokenBadge'
 import ContractAddressLink from '@/components/raffle/ContractAddressLink'
+import RaffleSettlementPanel from '@/components/raffle/RaffleSettlementPanel'
 import { useBuyTicketTx } from '@/hooks/use-raffle-transactions'
 import { useRaffleCountdown } from '@/hooks/use-raffle-countdown'
 import { useRaffle } from '@/hooks/use-raffle-data'
@@ -39,7 +41,7 @@ export default function RafflePage() {
     [raffleId],
   )
 
-  const { raffle, isLoading, error, refreshStats } = useRaffle(raffleId)
+  const { raffle, settlement, isLoading, error, refreshStats } = useRaffle(raffleId)
   const [worldIdResult, setWorldIdResult] = useState<IDKitResult | null>(null)
   const [entered, setEntered] = useState(false)
 
@@ -54,7 +56,9 @@ export default function RafflePage() {
   const verified = worldIdResult !== null
   const tickets = raffle?.ticketsSold ?? 0
   const prizePool = formatPrizePool(tickets, paymentToken)
-  const yourShare = formatWinnerShare(tickets, paymentToken)
+  const winnerShare = settlement
+    ? formatTokenAmount(settlement.winnerPrize, paymentToken)
+    : formatWinnerShare(tickets, paymentToken)
   const isUpcoming = phase === 'upcoming'
   const isLive = raffle?.status === 'ACTIVE' && phase === 'live'
   const isSettled = isRaffleSettled(raffle?.status ?? 'ACTIVE')
@@ -142,7 +146,11 @@ export default function RafflePage() {
         {[
           { label: 'Tickets sold', value: String(tickets), green: false },
           { label: 'Prize pool', value: prizePool, green: true },
-          { label: 'Winner gets', value: yourShare, green: false },
+          {
+            label: isSettled ? 'Winner received' : 'Winner gets',
+            value: winnerShare,
+            green: false,
+          },
         ].map(({ label, value, green }) => (
           <div key={label}>
             <p className="mb-1.5 text-[10px] uppercase tracking-widest text-gray-400">{label}</p>
@@ -154,6 +162,14 @@ export default function RafflePage() {
           </div>
         ))}
       </div>
+
+      {isSettled && settlement ? (
+        <RaffleSettlementPanel
+          settlement={settlement}
+          creator={raffle.creator}
+          creatorEns={raffle.creatorEns}
+        />
+      ) : null}
 
       <div className="mb-8 rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] p-4">
         <ShareRaffleButtons raffleId={raffleId} raffleName={raffle.name} />
@@ -182,12 +198,9 @@ export default function RafflePage() {
       {!canEnter && !entered ? (
         <div className="rounded-[10px] border border-gray-200 p-5 text-center">
           {isSettled ? (
-            <p className="text-[13px] text-gray-600">
-              This raffle has been settled.{' '}
-              <Link href="/results" className="text-black underline underline-offset-2">
-                View results
-              </Link>
-            </p>
+            settlement ? null : (
+              <p className="text-[13px] text-gray-600">Loading settlement details…</p>
+            )
           ) : awaitingCre ? (
             <div className="space-y-2">
               <p className="text-[13px] text-gray-600">
