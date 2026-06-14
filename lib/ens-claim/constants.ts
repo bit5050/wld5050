@@ -47,9 +47,9 @@ export function ensSubnameLabel(fullName: string): string {
   return trimmed.split('.')[0] ?? trimmed
 }
 
-/** Production WinnerEnsClaimRegistrar on Ethereum mainnet. */
+/** Production WinnerEnsClaimRegistrar on Ethereum mainnet (ENS registry v2). */
 export const WINNER_ENS_CLAIM_REGISTRAR_ADDRESS =
-  '0x695da60e4145c5df881df643681c6f0cf1f1b808' as const
+  '0xef9ad4bd204eace9d2b2a0f53326c7e83e8c49f9' as const
 
 export function getWinnerEnsClaimRegistrarAddress(): `0x${string}` | null {
   const raw = process.env.NEXT_PUBLIC_WINNER_ENS_CLAIM_REGISTRAR?.trim()

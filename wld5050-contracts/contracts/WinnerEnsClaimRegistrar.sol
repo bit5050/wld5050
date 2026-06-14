@@ -3,18 +3,27 @@ pragma solidity ^0.8.26;
 
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
-import {IENSNameWrapper} from "./interfaces/IENS.sol";
+
+interface IENSRegistry {
+    function setSubnodeRecord(
+        bytes32 node,
+        bytes32 label,
+        address owner,
+        address resolver,
+        uint64 ttl
+    ) external;
+}
 
 /// @title WinnerEnsClaimRegistrar
 /// @notice Lets verified raffle winners claim winner-round{N}.wld5050.eth on Ethereum L1.
-/// @dev Parent wld5050.eth owner must call NameWrapper.setApprovalForAll(registrar, true) once.
-///      Claim authorization uses an off-chain signature after verifying RaffleSettled on World Chain.
+/// @dev Parent wld5050.eth owner must call ens.setApprovalForAll(registrar, true) once.
+///      Works with unwrapped .eth names (no NameWrapper required).
 contract WinnerEnsClaimRegistrar is EIP712 {
     bytes32 public constant CLAIM_TYPEHASH = keccak256(
         "Claim(uint256 raffleId,string label,address winner,uint256 deadline)"
     );
 
-    IENSNameWrapper public immutable nameWrapper;
+    IENSRegistry public immutable ens;
     address public immutable claimSigner;
     bytes32 public immutable parentNode;
     address public immutable resolver;
@@ -28,22 +37,18 @@ contract WinnerEnsClaimRegistrar is EIP712 {
     error InvalidSignature();
 
     constructor(
-        address nameWrapper_,
+        address ens_,
         address claimSigner_,
         bytes32 parentNode_,
         address resolver_
     ) EIP712("WLD5050 Winner ENS", "1") {
-        nameWrapper = IENSNameWrapper(nameWrapper_);
+        ens = IENSRegistry(ens_);
         claimSigner = claimSigner_;
         parentNode = parentNode_;
         resolver = resolver_;
     }
 
     /// @notice Mint winner-round{N}.wld5050.eth to msg.sender after backend signature verification.
-    /// @param raffleId  Settled raffle id on World Chain
-    /// @param label     Subname label only, e.g. "winner-round2" (not the full ENS name)
-    /// @param deadline  Unix timestamp after which the signature is invalid
-    /// @param signature EIP-712 signature from claimSigner
     function claim(
         uint256 raffleId,
         string calldata label,
@@ -68,13 +73,11 @@ contract WinnerEnsClaimRegistrar is EIP712 {
 
         claimed[raffleId] = true;
 
-        nameWrapper.setSubnodeRecord(
+        ens.setSubnodeRecord(
             parentNode,
-            label,
+            keccak256(bytes(label)),
             msg.sender,
             resolver,
-            0,
-            0,
             0
         );
 

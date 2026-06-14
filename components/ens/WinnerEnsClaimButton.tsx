@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useAccount, useSwitchChain, useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
 import { mainnet } from 'viem/chains'
 import { getAddress, type Hex } from 'viem'
+import { getPublicClient } from '@/lib/contracts/public-client'
 import ConnectWalletButton from '@/components/wallet/connect-wallet-button'
 import { Button } from '@/components/ui/button'
 import {
@@ -13,6 +14,7 @@ import {
   getWinnerEnsClaimRegistrarAddress,
   winnerEnsClaimRegistrarAbi,
 } from '@/lib/ens-claim/constants'
+import { friendlyEnsClaimError } from '@/lib/ens-claim/decode-claim-error'
 import { toastError, toastSuccess } from '@/lib/toast'
 
 type SignaturePayload = {
@@ -79,6 +81,21 @@ export default function WinnerEnsClaimButton({
         throw new Error(data.error ?? 'Could not get claim signature')
       }
 
+      const mainnetClient = getPublicClient(mainnet)
+
+      await mainnetClient.simulateContract({
+        address: data.registrarAddress,
+        abi: winnerEnsClaimRegistrarAbi,
+        functionName: 'claim',
+        args: [
+          BigInt(data.raffleId),
+          data.label,
+          BigInt(data.deadline),
+          data.signature,
+        ],
+        account: getAddress(address),
+      })
+
       const hash = await writeContractAsync({
         chainId: mainnet.id,
         address: data.registrarAddress,
@@ -96,7 +113,7 @@ export default function WinnerEnsClaimButton({
       toastSuccess('Winner ENS badge claim submitted on Ethereum')
       onClaimed?.()
     } catch (err) {
-      toastError(err instanceof Error ? err.message : 'Claim failed')
+      toastError(friendlyEnsClaimError(err))
     } finally {
       setIsFetchingSig(false)
     }

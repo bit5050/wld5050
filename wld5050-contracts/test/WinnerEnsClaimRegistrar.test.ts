@@ -9,21 +9,19 @@ describe("WinnerEnsClaimRegistrar", () => {
   async function deploy() {
     const [signerWallet, winner, impostor] = await ethers.getSigners()
 
-    const mockWrapper = await (
-      await ethers.getContractFactory("MockNameWrapper")
-    ).deploy()
+    const mockEns = await (await ethers.getContractFactory("MockENSRegistry")).deploy()
 
     const registrar = await (
       await ethers.getContractFactory("WinnerEnsClaimRegistrar")
     ).deploy(
-      await mockWrapper.getAddress(),
+      await mockEns.getAddress(),
       signerWallet.address,
       parentNode,
       resolver,
     )
 
-    await mockWrapper.setApproved(await registrar.getAddress(), true)
-    return { registrar, mockWrapper, signerWallet, winner, impostor }
+    await mockEns.setApproved(await registrar.getAddress())
+    return { registrar, mockEns, signerWallet, winner, impostor }
   }
 
   async function signClaim(
@@ -54,7 +52,7 @@ describe("WinnerEnsClaimRegistrar", () => {
   }
 
   it("mints subname when signature is valid", async () => {
-    const { registrar, mockWrapper, signerWallet, winner } = await deploy()
+    const { registrar, mockEns, signerWallet, winner } = await deploy()
 
     const raffleId = 2n
     const label = "winner-round2"
@@ -71,8 +69,7 @@ describe("WinnerEnsClaimRegistrar", () => {
     await registrar.connect(winner).claim(raffleId, label, deadline, signature)
 
     expect(await registrar.claimed(raffleId)).to.equal(true)
-    expect(await mockWrapper.lastLabel()).to.equal(label)
-    expect(await mockWrapper.lastOwner()).to.equal(winner.address)
+    expect(await mockEns.lastOwner()).to.equal(winner.address)
   })
 
   it("rejects duplicate claims", async () => {

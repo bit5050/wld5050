@@ -6,8 +6,8 @@
 import { run } from "hardhat"
 import { namehash } from "viem/ens"
 
-const REGISTRAR = "0x695da60e4145c5df881df643681c6f0cf1f1b808"
-const ENS_NAME_WRAPPER = "0xD4416b13d2b3a9aBae7AcD5D6C2BbDBE25686401"
+const REGISTRAR = "0xef9ad4bd204eace9d2b2a0f53326c7e83e8c49f9"
+const ENS_REGISTRY = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e"
 const CLAIM_SIGNER = "0x655F553fF96791C225C97a07691C1CC198A223c4"
 const ENS_PUBLIC_RESOLVER = "0x231b0Ee14048e9dCcD1d247744d114a4EB5E8E63"
 const WLD5050_ETH_NODE = namehash("wld5050.eth")
@@ -23,7 +23,7 @@ async function main() {
   await run("verify:verify", {
     address: REGISTRAR,
     constructorArguments: [
-      ENS_NAME_WRAPPER,
+      ENS_REGISTRY,
       CLAIM_SIGNER,
       WLD5050_ETH_NODE,
       ENS_PUBLIC_RESOLVER,

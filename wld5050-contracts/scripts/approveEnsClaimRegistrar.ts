@@ -1,7 +1,7 @@
 /**
  * Grant WinnerEnsClaimRegistrar permission to mint subnames under wld5050.eth.
  *
- * The wallet controlling wld5050.eth on NameWrapper must run this once after deploy.
+ * Uses ENS registry setApprovalForAll (works with unwrapped wld5050.eth).
  *
  * Usage:
  *   npm run ens-claim:approve -- --registrar 0xYourRegistrarAddress
@@ -11,11 +11,11 @@ import { ethers } from "ethers"
 
 dotenv.config()
 
-const ENS_NAME_WRAPPER = "0xD4416b13d2b3a9aBae7AcD5D6C2BbDBE25686401"
+const ENS_REGISTRY = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e"
 
-const nameWrapperAbi = [
+const ensRegistryAbi = [
   "function setApprovalForAll(address operator, bool approved) external",
-  "function isApprovedForAll(address account, address operator) external view returns (bool)",
+  "function isApprovedForAll(address owner, address operator) external view returns (bool)",
 ] as const
 
 function getArg(name: string): string | undefined {
@@ -47,19 +47,19 @@ async function main() {
   const owner = new ethers.Wallet(normalizedKey, provider)
 
   console.log("wld5050.eth controller:", owner.address)
-  console.log("Approving registrar:", registrar)
+  console.log("Approving registrar on ENS registry:", registrar)
 
-  const nameWrapper = new ethers.Contract(ENS_NAME_WRAPPER, nameWrapperAbi, owner)
-  const alreadyApproved = await nameWrapper.isApprovedForAll(owner.address, registrar)
+  const ens = new ethers.Contract(ENS_REGISTRY, ensRegistryAbi, owner)
+  const alreadyApproved = await ens.isApprovedForAll(owner.address, registrar)
   if (alreadyApproved) {
     console.log("Already approved — nothing to do.")
     return
   }
 
-  const tx = await nameWrapper.setApprovalForAll(registrar, true)
+  const tx = await ens.setApprovalForAll(registrar, true)
   console.log("Tx submitted:", tx.hash)
   await tx.wait()
-  console.log("Registrar approved on ENS NameWrapper.")
+  console.log("Registrar approved on ENS registry.")
 }
 
 main().catch((err) => {
