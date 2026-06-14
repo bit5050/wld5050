@@ -3,12 +3,15 @@ import ENSName from '@/components/ens/ENSName'
 import PaymentTokenBadge from '@/components/raffle/PaymentTokenBadge'
 import VerifiedBadge from '@/components/ui/VerifiedBadge'
 import { formatTokenAmount } from '@/lib/pricing'
-import { getAddressExplorerUrl, getTxExplorerUrl } from '@/lib/share/raffle-share'
+import {
+  getAddressTokenTransfersUrl,
+  getTxTokenTransfersUrl,
+} from '@/lib/share/raffle-share'
 import type { Settlement } from '@/types'
 
 type Props = {
   settlement: Settlement
-  creator: string
+  creator?: string
   creatorEns?: string | null
 }
 
@@ -41,8 +44,21 @@ function WorldscanLink({
   )
 }
 
-export default function RaffleSettlementPanel({ settlement, creator, creatorEns }: Props) {
-  const { paymentToken, winnerPrize, creatorPayout, winner, winnerEns, txHash } = settlement
+export default function RaffleSettlementPanel({
+  settlement,
+  creator: creatorProp,
+  creatorEns,
+}: Props) {
+  const {
+    paymentToken,
+    winnerPrize,
+    creatorPayout,
+    winner,
+    winnerEns,
+    creator: settlementCreator,
+    txHash,
+  } = settlement
+  const creator = creatorProp ?? settlementCreator
 
   return (
     <div className="mb-8 overflow-hidden rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-white">
@@ -66,8 +82,8 @@ export default function RaffleSettlementPanel({ settlement, creator, creatorEns 
             <VerifiedBadge label="World ID verified winner" />
             <p className="mt-2">
               <WorldscanLink
-                href={getAddressExplorerUrl(winner)}
-                label={`${truncateAddress(winner)} on Worldscan`}
+                href={getAddressTokenTransfersUrl(winner)}
+                label={`${paymentToken} payment · ${truncateAddress(winner)}`}
                 mono
               />
             </p>
@@ -81,8 +97,8 @@ export default function RaffleSettlementPanel({ settlement, creator, creatorEns 
             <p className="text-[12px] text-gray-500">Hosted this raffle</p>
             <p className="mt-2">
               <WorldscanLink
-                href={getAddressExplorerUrl(creator)}
-                label={`${truncateAddress(creator)} on Worldscan`}
+                href={getAddressTokenTransfersUrl(creator)}
+                label={`${paymentToken} payment · ${truncateAddress(creator)}`}
                 mono
               />
             </p>
@@ -91,16 +107,28 @@ export default function RaffleSettlementPanel({ settlement, creator, creatorEns 
 
         <div className="grid grid-cols-2 gap-3">
           {[
-            { label: 'Winner received (50%)', value: formatTokenAmount(winnerPrize, paymentToken) },
-            { label: 'Creator received (50%)', value: formatTokenAmount(creatorPayout, paymentToken) },
-          ].map(({ label, value }) => (
-            <div
+            {
+              label: 'Winner received (50%)',
+              value: formatTokenAmount(winnerPrize, paymentToken),
+              href: getAddressTokenTransfersUrl(winner),
+            },
+            {
+              label: 'Creator received (50%)',
+              value: formatTokenAmount(creatorPayout, paymentToken),
+              href: getAddressTokenTransfersUrl(creator),
+            },
+          ].map(({ label, value, href }) => (
+            <Link
               key={label}
-              className="rounded-[8px] border border-gray-100 px-4 py-3"
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-[8px] border border-gray-100 px-4 py-3 transition-colors hover:border-black"
             >
               <p className="mb-1 text-[10px] uppercase tracking-widest text-gray-400">{label}</p>
               <p className="font-mono text-[18px] font-bold tracking-tight text-black">{value}</p>
-            </div>
+              <p className="mt-1 font-mono text-[10px] text-gray-400">View on Worldscan ↗</p>
+            </Link>
           ))}
         </div>
 
@@ -117,11 +145,12 @@ export default function RaffleSettlementPanel({ settlement, creator, creatorEns 
               Proof of payment
             </p>
             <p className="mb-2 text-[12px] text-gray-600">
-              Both payouts were pushed in one Chainlink CRE settlement transaction on World Chain.
+              Both {paymentToken} payouts in one Chainlink CRE settlement — view token transfers
+              below.
             </p>
             <WorldscanLink
-              href={getTxExplorerUrl(txHash)}
-              label={`Settlement tx ${truncateAddress(txHash)}`}
+              href={getTxTokenTransfersUrl(txHash)}
+              label={`50/50 token transfers · tx ${truncateAddress(txHash)}`}
               mono
             />
           </div>

@@ -4,7 +4,7 @@ import VerifiedBadge from '@/components/ui/VerifiedBadge'
 import CREPanel from '@/components/chainlink/CREPanel'
 import PaymentTokenBadge from '@/components/raffle/PaymentTokenBadge'
 import { formatTokenAmount } from '@/lib/pricing'
-import { getAddressExplorerUrl, getTxExplorerUrl } from '@/lib/share/raffle-share'
+import { getAddressTokenTransfersUrl, getTxTokenTransfersUrl } from '@/lib/share/raffle-share'
 
 interface Props { settlement: Settlement }
 
@@ -47,21 +47,29 @@ export default function WinnerCard({ settlement: s }: Props) {
           </div>
           <div className="mb-4 flex flex-wrap gap-x-4 gap-y-2 text-[11px]">
             <a
-              href={getAddressExplorerUrl(s.winner)}
+              href={getAddressTokenTransfersUrl(s.winner)}
               target="_blank"
               rel="noopener noreferrer"
               className="font-mono text-gray-500 transition-colors hover:text-black"
             >
-              Winner on Worldscan ↗
+              Winner {s.paymentToken} payment ↗
+            </a>
+            <a
+              href={getAddressTokenTransfersUrl(s.creator)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono text-gray-500 transition-colors hover:text-black"
+            >
+              Creator {s.paymentToken} payment ↗
             </a>
             {s.txHash ? (
               <a
-                href={getTxExplorerUrl(s.txHash)}
+                href={getTxTokenTransfersUrl(s.txHash)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-mono text-gray-500 transition-colors hover:text-black"
               >
-                Settlement tx ↗
+                50/50 token transfers ↗
               </a>
             ) : null}
           </div>

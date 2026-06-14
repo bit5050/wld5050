@@ -1,4 +1,4 @@
-const DEFAULT_ORIGIN = 'https://wld5050.vercel.app'
+const DEFAULT_ORIGIN = 'https://www.wld5050.com'
 
 export function getRaffleUrl(raffleId: number, origin?: string): string {
   const base =
@@ -12,6 +12,15 @@ export function getTxExplorerUrl(txHash: string): string {
 
 export function getAddressExplorerUrl(address: string): string {
   return `https://worldscan.org/address/${address}`
+}
+
+/** Opens Worldscan with the Token Transfers tab — shows USDC/WLD payout rows. */
+export function getTxTokenTransfersUrl(txHash: string): string {
+  return `${getTxExplorerUrl(txHash)}#tokentxns`
+}
+
+export function getAddressTokenTransfersUrl(address: string): string {
+  return `${getAddressExplorerUrl(address)}#tokentxns`
 }
 
 export function buildShareMessage(raffleName: string, raffleUrl: string): string {

@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import {
   buildShareMessage,
   getRaffleUrl,
-  getTxExplorerUrl,
+  getTxTokenTransfersUrl,
   shareToFacebook,
   shareToTelegram,
   shareToWhatsApp,
@@ -126,12 +126,12 @@ export default function ShareRaffleButtons({
 
       {txHash ? (
         <a
-          href={getTxExplorerUrl(txHash)}
+          href={getTxTokenTransfersUrl(txHash)}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 font-mono text-[11px] text-[#616161] underline-offset-2 hover:text-black hover:underline"
         >
-          View transaction on Worldscan
+          View token transfers on Worldscan
           <ExternalLink className="h-3 w-3" />
         </a>
       ) : null}

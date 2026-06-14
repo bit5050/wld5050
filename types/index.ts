@@ -19,6 +19,8 @@ export interface Settlement {
   raffleId: number
   winner: string
   winnerEns: string | null
+  creator: string
+  creatorEns: string | null
   winnerSubname: string
   winnerPrize: number
   creatorPayout: number

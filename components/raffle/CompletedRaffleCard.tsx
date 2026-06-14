@@ -4,7 +4,7 @@ import ShareRaffleDialog from '@/components/raffle/ShareRaffleDialog'
 import PaymentTokenBadge from '@/components/raffle/PaymentTokenBadge'
 import VerifiedBadge from '@/components/ui/VerifiedBadge'
 import { formatTokenAmount } from '@/lib/pricing'
-import { getAddressExplorerUrl, getTxExplorerUrl } from '@/lib/share/raffle-share'
+import { getAddressTokenTransfersUrl, getTxTokenTransfersUrl } from '@/lib/share/raffle-share'
 import type { CompletedRaffle } from '@/types'
 
 type Props = {
@@ -47,21 +47,29 @@ export default function CompletedRaffleCard({ raffle, compact = false }: Props) 
           </p>
           <p className="flex flex-wrap gap-x-3 gap-y-1 pt-1">
             <a
-              href={getAddressExplorerUrl(raffle.winner)}
+              href={getAddressTokenTransfersUrl(raffle.winner)}
               target="_blank"
               rel="noopener noreferrer"
               className="font-mono text-[10px] text-[#9E9E9E] transition-colors hover:text-black"
             >
-              Winner ↗
+              Winner {raffle.paymentToken} ↗
+            </a>
+            <a
+              href={getAddressTokenTransfersUrl(raffle.creator)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono text-[10px] text-[#9E9E9E] transition-colors hover:text-black"
+            >
+              Creator {raffle.paymentToken} ↗
             </a>
             {raffle.txHash ? (
               <a
-                href={getTxExplorerUrl(raffle.txHash)}
+                href={getTxTokenTransfersUrl(raffle.txHash)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-mono text-[10px] text-[#9E9E9E] transition-colors hover:text-black"
               >
-                Settlement ↗
+                50/50 transfers ↗
               </a>
             ) : null}
           </p>
