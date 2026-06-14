@@ -6,6 +6,7 @@ export interface Raffle {
   creator: string
   creatorEns: string | null
   ticketsSold: number
+  startTime: number
   endTime: number
   status: RaffleStatus
   aiAttestationHash?: string

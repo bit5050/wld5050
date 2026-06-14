@@ -6,13 +6,14 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { TICKET_PRICE, TICKET_PRICE_DUAL_LONG, TICKET_PRICE_USDC_LABEL } from '@/types'
-import { formatCountdown } from '@/lib/format'
 import VerifiedBadge from '@/components/ui/VerifiedBadge'
 import ConnectWalletButton from '@/components/wallet/connect-wallet-button'
 import WorldIdVerifyButton from '@/components/worldid/world-id-verify-button'
 import ENSName from '@/components/ens/ENSName'
 import ShareRaffleButtons from '@/components/raffle/ShareRaffleButtons'
+import RaffleCountdown from '@/components/raffle/RaffleCountdown'
 import { useBuyTicketTx } from '@/hooks/use-raffle-transactions'
+import { useRaffleCountdown } from '@/hooks/use-raffle-countdown'
 import { useRaffle } from '@/hooks/use-raffle-data'
 import { worldIdEnterRaffleAction } from '@/lib/worldid/actions'
 
@@ -27,28 +28,25 @@ export default function RafflePage() {
   const { raffle, isLoading, error, hasContract } = useRaffle(raffleId)
   const [worldIdResult, setWorldIdResult] = useState<IDKitResult | null>(null)
   const [entered, setEntered] = useState(false)
-  const [countdown, setCountdown] = useState<string | null>(null)
 
   const { address, contractAddress, buyTicket, isPending, isSuccess, txHash } =
     useBuyTicketTx(raffleId)
+
+  const startTime = raffle?.startTime ?? 0
+  const endTime = raffle?.endTime ?? 0
+  const { phase, startsIn, endsIn } = useRaffleCountdown(startTime, endTime)
 
   const verified = worldIdResult !== null
   const tickets = raffle?.ticketsSold ?? 0
   const prizePool = (tickets * TICKET_PRICE).toFixed(2)
   const yourShare = ((tickets * TICKET_PRICE) / 2).toFixed(2)
-  const isLive = raffle?.status === 'ACTIVE'
+  const isUpcoming = phase === 'upcoming'
+  const isLive = raffle?.status === 'ACTIVE' && phase === 'live'
+  const canEnter = isLive && !entered
 
   useEffect(() => {
     if (isSuccess) setEntered(true)
   }, [isSuccess])
-
-  useEffect(() => {
-    if (!raffle) return
-    const update = () => setCountdown(formatCountdown(raffle.endTime))
-    update()
-    const t = setInterval(update, 30000)
-    return () => clearInterval(t)
-  }, [raffle])
 
   if (isLoading) {
     return (
@@ -96,10 +94,10 @@ export default function RafflePage() {
           {raffle.name}
         </h1>
         <span className="ml-4 mt-1 flex-none rounded-full border border-black px-2.5 py-1 font-mono text-[10px]">
-          {isLive ? '● Live' : `● ${raffle.status}`}
+          {isUpcoming ? '● Starting soon' : isLive ? '● Live' : `● ${raffle.status}`}
         </span>
       </div>
-      <div className="mb-8 flex items-center gap-2 text-[12px] text-gray-600">
+      <div className="mb-2 flex items-center gap-2 text-[12px] text-gray-600">
         <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-500" />
         <span>
           Created by{' '}
@@ -107,12 +105,9 @@ export default function RafflePage() {
             <ENSName address={raffle.creator} fallback={raffle.creatorEns ?? undefined} />
           </span>
         </span>
-        <span className="text-gray-300">·</span>
-        <span>
-          {isLive ? 'Ends in' : 'Ended'}{' '}
-          <strong className="text-black">{countdown ?? '…'}</strong>
-        </span>
       </div>
+
+      <RaffleCountdown phase={phase} startsIn={startsIn} endsIn={endsIn} />
 
       <div className="mb-8 grid grid-cols-3 gap-4 border-b border-gray-100 pb-8">
         {[
@@ -155,13 +150,17 @@ export default function RafflePage() {
         </div>
       </div>
 
-      {!isLive ? (
+      {!canEnter && !entered ? (
         <div className="rounded-[10px] border border-gray-200 p-5 text-center">
           <p className="text-[13px] text-gray-600">
-            This raffle is no longer active.{' '}
-            <Link href="/results" className="text-black underline underline-offset-2">
-              View results
-            </Link>
+            {isUpcoming
+              ? 'This raffle has not started yet. The countdown above shows when entries open.'
+              : 'This raffle is no longer active. '}
+            {!isUpcoming ? (
+              <Link href="/results" className="text-black underline underline-offset-2">
+                View results
+              </Link>
+            ) : null}
           </p>
         </div>
       ) : entered ? (
