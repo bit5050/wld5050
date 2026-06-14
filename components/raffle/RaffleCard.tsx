@@ -90,7 +90,7 @@ export default function RaffleCard({ raffle, compact = false }: Props) {
               style={{ width: `${Math.min((tickets / 500) * 100, 100)}%` }} />
           </div>
         </div>
-        <div className="mt-auto space-y-2">
+        <div className="mt-auto flex flex-col gap-1.5">
           <Link href={`/raffle/${raffle.id}`}>
             <button className={`flex w-full items-center justify-center gap-2 font-medium bg-black text-white rounded-[7px] hover:opacity-80 transition-opacity ${compact ? 'text-[13px] py-2.5' : 'text-[14px] py-3'}`}>
               Buy ticket
@@ -100,10 +100,22 @@ export default function RaffleCard({ raffle, compact = false }: Props) {
               </span>
             </button>
           </Link>
+          <Link href={`/raffle/${raffle.id}`}>
+            <button
+              type="button"
+              className={`w-full rounded-[7px] border border-black bg-black font-medium text-white transition-opacity hover:opacity-80 ${compact ? 'py-2.5 text-[13px]' : 'py-3 text-[14px]'}`}
+            >
+              View raffle →
+            </button>
+          </Link>
           <ShareRaffleDialog
             raffleId={raffle.id}
             raffleName={raffle.name}
-            triggerClassName={compact ? 'py-2 text-[12px]' : undefined}
+            triggerClassName={
+              compact
+                ? 'border-black bg-black py-2 text-[12px] text-white hover:opacity-80'
+                : 'border-black bg-black text-white hover:opacity-80'
+            }
           />
         </div>
       </div>

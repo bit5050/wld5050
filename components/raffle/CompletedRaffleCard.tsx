@@ -114,11 +114,11 @@ export default function CompletedRaffleCard({ raffle, compact = false }: Props) 
           )}
         </div>
 
-        <div className="mt-auto space-y-2">
+        <div className="mt-auto flex flex-col gap-1.5">
           <Link href={`/raffle/${raffle.raffleId}`}>
             <button
               type="button"
-              className={`w-full rounded-[7px] border-[0.5px] border-[#E0E0E0] bg-white font-medium text-black transition-colors hover:border-black ${compact ? 'py-2.5 text-[13px]' : 'py-3 text-[14px]'}`}
+              className={`w-full rounded-[7px] border border-black bg-black font-medium text-white transition-opacity hover:opacity-80 ${compact ? 'py-2.5 text-[13px]' : 'py-3 text-[14px]'}`}
             >
               View raffle →
             </button>
@@ -127,7 +127,11 @@ export default function CompletedRaffleCard({ raffle, compact = false }: Props) 
             raffleId={raffle.raffleId}
             raffleName={raffle.raffleName}
             txHash={raffle.txHash || undefined}
-            triggerClassName={compact ? 'py-2 text-[12px]' : undefined}
+            triggerClassName={
+              compact
+                ? 'border-black bg-black py-2 text-[12px] text-white hover:opacity-80'
+                : 'border-black bg-black text-white hover:opacity-80'
+            }
           />
         </div>
       </div>
