@@ -376,13 +376,13 @@ export default function AboutContent() {
                 <BodyText>
                   Every WLD5050 raffle follows the same rule:{' '}
                   <strong className="font-medium text-black">one entry per real human, per round</strong>.
-                  The app shows a single &ldquo;Buy ticket&rdquo; button — no quantity picker — because
+                  The app shows a single &ldquo;Buy ticket&rdquo; button no quantity picker because
                   each verified World ID can only purchase one ticket in that raffle.
                 </BodyText>
                 <BodyText>
                   That limit is enforced on-chain, not just in the UI. When you buy a ticket, the
                   contract stores your World ID nullifier for that raffle. A second purchase with the
-                  same identity reverts — even from a different wallet.
+                  same identity reverts even from a different wallet.
                 </BodyText>
                 <BodyText>
                   <strong className="font-medium text-black">Why?</strong> This is the core WLD5050
@@ -390,8 +390,8 @@ export default function AboutContent() {
                   stack tickets in a single raffle to inflate their chances.
                 </BodyText>
                 <BodyText>
-                  You can still enter many raffles over time — one ticket per raffle — but never more
-                  than one in the same round. Supporting &ldquo;buy N tickets&rdquo; in one raffle would
+                  You can still enter many raffles over time one ticket per raffle but never more than
+                  one in the same round. Supporting &ldquo;buy N tickets&rdquo; in one raffle would
                   require a smart contract change and a deliberate product decision about whether that
                   fits a human-verified model. Today it is strictly one-to-one.
                 </BodyText>
@@ -440,9 +440,10 @@ export default function AboutContent() {
           <BlurFade blur="0px" delay={0} inView inViewMargin="-80px">
             <SectionLabel>Stack</SectionLabel>
             <SectionTitle className="mb-3">Powered By</SectionTitle>
-            <BodyText className="max-w-[640px] mb-10">
-              Three layers of trust — humanity, randomness, and identity — integrated into one protocol.
-            </BodyText>
+            <p className="mb-10 max-w-[640px] font-display text-[18px] font-semibold leading-snug tracking-tight text-black sm:text-[20px] lg:text-[20px]">
+              Three layers of trust humanity, randomness, and identity. Integrated into one
+              protocol.
+            </p>
           </BlurFade>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6">
