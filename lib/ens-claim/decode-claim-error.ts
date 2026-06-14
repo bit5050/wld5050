@@ -1,9 +1,19 @@
 /** Map on-chain ENS claim failures to user-facing copy. */
 export function friendlyEnsClaimError(error: unknown): string {
-  const text =
-    error instanceof Error
-      ? `${error.message} ${error.cause instanceof Error ? error.cause.message : ''}`
-      : String(error)
+  const parts: string[] = []
+  let current: unknown = error
+
+  for (let depth = 0; depth < 6 && current; depth++) {
+    if (current instanceof Error) {
+      if (current.message) parts.push(current.message)
+      current = current.cause
+    } else {
+      parts.push(String(current))
+      break
+    }
+  }
+
+  const text = parts.join(' ')
 
   if (text.includes('0xb455aae8') || text.includes('Unauthorised')) {
     return 'Claim registrar is not approved on wld5050.eth yet. Platform setup is incomplete — contact support.'
@@ -17,12 +27,30 @@ export function friendlyEnsClaimError(error: unknown): string {
   if (text.includes('0x0819bdcd') || text.includes('SignatureExpired')) {
     return 'Claim signature expired. Click the button again for a fresh signature.'
   }
-  if (text.includes('User rejected') || text.includes('user rejected')) {
+  if (
+    text.includes('User rejected') ||
+    text.includes('user rejected') ||
+    text.includes('User denied')
+  ) {
     return 'Transaction cancelled in wallet.'
   }
   if (text.includes('insufficient funds')) {
     return 'Not enough ETH on Ethereum mainnet for gas.'
   }
+  if (
+    text.includes('switch chain') ||
+    text.includes('SwitchChain') ||
+    text.includes('Chain not configured')
+  ) {
+    return 'Switch your wallet to Ethereum mainnet, then try again.'
+  }
+  if (
+    text.includes('Internal error') ||
+    text.includes('cloudflare-eth.com') ||
+    text.includes('Failed to fetch')
+  ) {
+    return 'Could not reach Ethereum RPC. Switch to mainnet in your wallet and try again.'
+  }
 
-  return 'Claim failed. Ensure you are on Ethereum mainnet with ETH for gas, then try again.'
+  return 'Claim failed. Switch to Ethereum mainnet, ensure you have ETH for gas, then try again.'
 }

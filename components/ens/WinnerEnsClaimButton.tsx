@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { useAccount, useSwitchChain, useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
 import { mainnet } from 'viem/chains'
 import { getAddress, type Hex } from 'viem'
-import { getPublicClient } from '@/lib/contracts/public-client'
 import ConnectWalletButton from '@/components/wallet/connect-wallet-button'
 import { Button } from '@/components/ui/button'
 import {
@@ -70,31 +69,18 @@ export default function WinnerEnsClaimButton({
         await switchChainAsync({ chainId: mainnet.id })
       }
 
+      const winnerAddress = getAddress(address)
+
       const res = await fetch('/api/ens-claim/signature', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ raffleId, winner: address }),
+        body: JSON.stringify({ raffleId, winner: winnerAddress }),
       })
 
       const data = (await res.json()) as SignaturePayload & { error?: string }
       if (!res.ok) {
         throw new Error(data.error ?? 'Could not get claim signature')
       }
-
-      const mainnetClient = getPublicClient(mainnet)
-
-      await mainnetClient.simulateContract({
-        address: data.registrarAddress,
-        abi: winnerEnsClaimRegistrarAbi,
-        functionName: 'claim',
-        args: [
-          BigInt(data.raffleId),
-          data.label,
-          BigInt(data.deadline),
-          data.signature,
-        ],
-        account: getAddress(address),
-      })
 
       const hash = await writeContractAsync({
         chainId: mainnet.id,
