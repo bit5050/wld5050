@@ -1,7 +1,21 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import RaffleCard from '@/components/raffle/RaffleCard'
 import ContractAddressLink from '@/components/raffle/ContractAddressLink'
 import { fetchRafflesFromContract } from '@/lib/contracts/fetch-raffles'
+
+export const metadata: Metadata = {
+  title: 'Buy Tickets World Chain WLD Raffle',
+  description: 'Buy Tickets World Chain WLD Raffle , Create World ID 50/50 Raffle',
+  openGraph: {
+    title: 'Buy Tickets World Chain WLD Raffle',
+    description: 'Buy Tickets World Chain WLD Raffle , Create World ID 50/50 Raffle',
+  },
+  twitter: {
+    title: 'Buy Tickets World Chain WLD Raffle',
+    description: 'Buy Tickets World Chain WLD Raffle , Create World ID 50/50 Raffle',
+  },
+}
 
 export const revalidate = 30
 

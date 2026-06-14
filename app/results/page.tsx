@@ -1,7 +1,21 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import WinnerCard from '@/components/raffle/WinnerCard'
 import ContractAddressLink from '@/components/raffle/ContractAddressLink'
 import { fetchRafflesFromContract, toSettlement } from '@/lib/contracts/fetch-raffles'
+
+export const metadata: Metadata = {
+  title: 'Results | WLD5050 | World Chain WLD Raffle',
+  description: 'Results | WLD5050 | World Chain WLD Raffle',
+  openGraph: {
+    title: 'Results | WLD5050 | World Chain WLD Raffle',
+    description: 'Results | WLD5050 | World Chain WLD Raffle',
+  },
+  twitter: {
+    title: 'Results | WLD5050 | World Chain WLD Raffle',
+    description: 'Results | WLD5050 | World Chain WLD Raffle',
+  },
+}
 
 export const revalidate = 30
 

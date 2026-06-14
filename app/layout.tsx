@@ -11,8 +11,26 @@ import TermsAgreementModal from '@/components/legal/TermsAgreementModal'
 import { Toaster } from '@/components/ui/sonner'
 
 export const metadata: Metadata = {
-  title: 'WLD5050 — Human-verified 50/50 raffles on World Chain',
-  description: 'Create or enter a fair 50/50 raffle. One ticket per verified human. Winners selected by Chainlink CRE, paid automatically.',
+  metadataBase: new URL('https://www.wld5050.com'),
+  title: {
+    default: 'WLD5050 | Human-Verified 50/50 Raffles On World Chain | WorldID Raffle',
+    template: '%s',
+  },
+  description:
+    'WLD5050 , Human-Verified 50/50 Raffles On World Chain , World ID Raffle , World ID 50/50 Raffle Platform',
+  openGraph: {
+    type: 'website',
+    siteName: 'WLD5050',
+    title: 'WLD5050 | Human-Verified 50/50 Raffles On World Chain | WorldID Raffle',
+    description:
+      'WLD5050 , Human-Verified 50/50 Raffles On World Chain , World ID Raffle , World ID 50/50 Raffle Platform',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'WLD5050 | Human-Verified 50/50 Raffles On World Chain | WorldID Raffle',
+    description:
+      'WLD5050 , Human-Verified 50/50 Raffles On World Chain , World ID Raffle , World ID 50/50 Raffle Platform',
+  },
   manifest: '/manifest.webmanifest',
   icons: {
     icon: [{ url: '/icon.png', sizes: '32x32', type: 'image/png' }],
