@@ -1,14 +1,7 @@
 import 'server-only'
 
-import {
-  createPublicClient,
-  getAddress,
-  http,
-  type Address,
-  type PublicClient,
-} from 'viem'
-import { mainnet } from 'viem/chains'
-import { getWinnerEnsClaimRegistrarAddress } from '@/lib/ens-claim/constants'
+import { getAddress, type Address, type PublicClient } from 'viem'
+import { isEnsClaimedOnRegistrar } from '@/lib/ens/fetch-ens-minted'
 import { getWld5050ContractAddress } from '@/lib/contracts/contract-address'
 import { fetchRaffleSettlement } from '@/lib/contracts/fetch-raffle-settlement'
 import { getPublicClient } from '@/lib/contracts/public-client'
@@ -56,30 +49,4 @@ export async function verifyRaffleWinner(
   }
 }
 
-export async function isEnsClaimedOnRegistrar(raffleId: number): Promise<boolean> {
-  const registrar = getWinnerEnsClaimRegistrarAddress()
-  if (!registrar) return false
-
-  const rpcUrl = process.env.ETH_MAINNET_RPC_URL
-  if (!rpcUrl) return false
-
-  const client = createPublicClient({
-    chain: mainnet,
-    transport: http(rpcUrl),
-  })
-
-  return client.readContract({
-    address: registrar as Address,
-    abi: [
-      {
-        type: 'function',
-        name: 'claimed',
-        stateMutability: 'view',
-        inputs: [{ name: 'raffleId', type: 'uint256' }],
-        outputs: [{ type: 'bool' }],
-      },
-    ],
-    functionName: 'claimed',
-    args: [BigInt(raffleId)],
-  })
-}
+export { isEnsClaimedOnRegistrar }

@@ -14,6 +14,7 @@ type Props = {
   settlement: Settlement
   creator?: string
   creatorEns?: string | null
+  onEnsClaimed?: () => void
 }
 
 function truncateAddress(address: string) {
@@ -49,6 +50,7 @@ export default function RaffleSettlementPanel({
   settlement,
   creator: creatorProp,
   creatorEns,
+  onEnsClaimed,
 }: Props) {
   const {
     paymentToken,
@@ -139,6 +141,7 @@ export default function RaffleSettlementPanel({
             winner={settlement.winner as `0x${string}`}
             winnerSubname={settlement.winnerSubname}
             ensMinted={settlement.ensMinted}
+            onEnsClaimed={onEnsClaimed}
           />
         ) : null}
 

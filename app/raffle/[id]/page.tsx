@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { IDKitResult } from '@worldcoin/idkit'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -27,11 +27,14 @@ import { useBuyTicketTx } from '@/hooks/use-raffle-transactions'
 import { useRaffleCountdown } from '@/hooks/use-raffle-countdown'
 import { useRaffle } from '@/hooks/use-raffle-data'
 import { worldIdEnterRaffleAction } from '@/lib/worldid/actions'
+import { invalidateSettlementCache } from '@/lib/contracts/fetch-raffle-settlement'
+import { publicEnv } from '@/lib/env.public'
 import {
   getRaffleBadgeLabel,
   isAwaitingCreSettlement,
   isRaffleSettled,
 } from '@/lib/raffle-display'
+import type { Address } from 'viem'
 
 export default function RafflePage() {
   const params = useParams()
@@ -41,9 +44,19 @@ export default function RafflePage() {
     [raffleId],
   )
 
-  const { raffle, settlement, isLoading, error, refreshStats } = useRaffle(raffleId)
+  const { raffle, settlement, isLoading, error, refresh, refreshStats, hasContract } =
+    useRaffle(raffleId)
   const [worldIdResult, setWorldIdResult] = useState<IDKitResult | null>(null)
   const [entered, setEntered] = useState(false)
+
+  const wld5050Contract = publicEnv.contractAddress as Address
+
+  const handleEnsClaimed = useCallback(() => {
+    if (hasContract) {
+      invalidateSettlementCache(wld5050Contract, raffleId)
+    }
+    void refresh({ silent: true })
+  }, [hasContract, raffleId, refresh, wld5050Contract])
 
   const { address, contractAddress, buyTicket, isPending, isSuccess, txHash } =
     useBuyTicketTx(raffleId, raffle?.paymentToken)
@@ -168,6 +181,7 @@ export default function RafflePage() {
           settlement={settlement}
           creator={raffle.creator}
           creatorEns={raffle.creatorEns}
+          onEnsClaimed={handleEnsClaimed}
         />
       ) : null}
 

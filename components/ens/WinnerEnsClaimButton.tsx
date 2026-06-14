@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useAccount, useSwitchChain, useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
 import { mainnet } from 'viem/chains'
@@ -50,10 +50,16 @@ export default function WinnerEnsClaimButton({
   const [txHash, setTxHash] = useState<Hex | undefined>()
   const [isFetchingSig, setIsFetchingSig] = useState(false)
 
-  const { isLoading: isConfirming } = useWaitForTransactionReceipt({
+  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
     chainId: mainnet.id,
   })
+
+  useEffect(() => {
+    if (!isSuccess || !txHash) return
+    toastSuccess('Winner ENS badge claimed on Ethereum')
+    onClaimed?.()
+  }, [isSuccess, onClaimed, txHash])
 
   const isWinner =
     isConnected &&
@@ -96,8 +102,7 @@ export default function WinnerEnsClaimButton({
       })
 
       setTxHash(hash)
-      toastSuccess('Winner ENS badge claim submitted on Ethereum')
-      onClaimed?.()
+      toastSuccess('Confirm claim in MetaMask…')
     } catch (err) {
       toastError(friendlyEnsClaimError(err))
     } finally {
@@ -106,7 +111,6 @@ export default function WinnerEnsClaimButton({
   }, [
     address,
     chainId,
-    onClaimed,
     raffleId,
     registrarAddress,
     switchChainAsync,
