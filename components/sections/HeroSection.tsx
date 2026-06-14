@@ -66,7 +66,8 @@ export default function HeroSection() {
           <BlurFade blur="0px" delay={0.12} inView>
             <p className="font-body text-[14px] text-[#616161] leading-relaxed max-w-[520px] mb-8 lg:text-[15px]">
               Create a 50/50 raffle or buy tickets. World ID guarantees verified human raffles.
-              Chainlink CRE selects the winner and pays out automatically no claiming, no waiting.
+              Chainlink CRE selects the winner and pays out automatically no claiming, no waiting.{' '}
+              1 Raffle. 1 Ticket. 1 World ID.
             </p>
           </BlurFade>
 
