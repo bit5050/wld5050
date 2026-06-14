@@ -47,10 +47,22 @@ export function ensSubnameLabel(fullName: string): string {
   return trimmed.split('.')[0] ?? trimmed
 }
 
+/** Production WinnerEnsClaimRegistrar on Ethereum mainnet. */
+export const WINNER_ENS_CLAIM_REGISTRAR_ADDRESS =
+  '0x695da60e4145c5df881df643681c6f0cf1f1b808' as const
+
 export function getWinnerEnsClaimRegistrarAddress(): `0x${string}` | null {
   const raw = process.env.NEXT_PUBLIC_WINNER_ENS_CLAIM_REGISTRAR?.trim()
-  if (!raw || !/^0x[a-fA-F0-9]{40}$/.test(raw)) return null
-  return raw as `0x${string}`
+  if (raw && /^0x[a-fA-F0-9]{40}$/.test(raw)) {
+    return raw as `0x${string}`
+  }
+  return WINNER_ENS_CLAIM_REGISTRAR_ADDRESS
+}
+
+export function getEnsRegistrarEtherscanUrl(
+  address: `0x${string}` = WINNER_ENS_CLAIM_REGISTRAR_ADDRESS,
+): string {
+  return `https://etherscan.io/address/${address}`
 }
 
 export function getEnsDomainsUrl(fullName: string): string {

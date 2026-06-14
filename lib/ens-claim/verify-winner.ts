@@ -8,6 +8,7 @@ import {
   type PublicClient,
 } from 'viem'
 import { mainnet } from 'viem/chains'
+import { getWinnerEnsClaimRegistrarAddress } from '@/lib/ens-claim/constants'
 import { getWld5050ContractAddress } from '@/lib/contracts/contract-address'
 import { fetchRaffleSettlement } from '@/lib/contracts/fetch-raffle-settlement'
 import { getPublicClient } from '@/lib/contracts/public-client'
@@ -56,8 +57,8 @@ export async function verifyRaffleWinner(
 }
 
 export async function isEnsClaimedOnRegistrar(raffleId: number): Promise<boolean> {
-  const registrar = process.env.NEXT_PUBLIC_WINNER_ENS_CLAIM_REGISTRAR?.trim()
-  if (!registrar || !/^0x[a-fA-F0-9]{40}$/.test(registrar)) return false
+  const registrar = getWinnerEnsClaimRegistrarAddress()
+  if (!registrar) return false
 
   const rpcUrl = process.env.ETH_MAINNET_RPC_URL
   if (!rpcUrl) return false

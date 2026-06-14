@@ -1,11 +1,15 @@
 'use client'
 
 import { useCallback, useState } from 'react'
+import Link from 'next/link'
 import { useAccount, useSwitchChain, useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
 import { mainnet } from 'viem/chains'
 import { getAddress, type Hex } from 'viem'
+import ConnectWalletButton from '@/components/wallet/connect-wallet-button'
 import { Button } from '@/components/ui/button'
 import {
+  getEnsDomainsUrl,
+  getEnsRegistrarEtherscanUrl,
   getWinnerEnsClaimRegistrarAddress,
   winnerEnsClaimRegistrarAbi,
 } from '@/lib/ens-claim/constants'
@@ -22,13 +26,19 @@ type SignaturePayload = {
 type Props = {
   raffleId: number
   winner: `0x${string}`
+  winnerSubname: string
   ensMinted: boolean
   onClaimed?: () => void
+}
+
+function truncateAddress(address: string) {
+  return `${address.slice(0, 6)}…${address.slice(-4)}`
 }
 
 export default function WinnerEnsClaimButton({
   raffleId,
   winner,
+  winnerSubname,
   ensMinted,
   onClaimed,
 }: Props) {
@@ -100,21 +110,67 @@ export default function WinnerEnsClaimButton({
     writeContractAsync,
   ])
 
-  if (ensMinted || !registrarAddress) return null
-  if (!isWinner) return null
+  if (ensMinted) return null
 
   const busy = isFetchingSig || isWritePending || isConfirming
 
   return (
-    <Button
-      type="button"
-      variant="outline"
-      size="sm"
-      disabled={busy}
-      onClick={() => void claim()}
-      className="mt-2 h-8 rounded-[6px] border-black px-3 font-mono text-[10px] uppercase tracking-widest"
-    >
-      {busy ? 'Claiming…' : 'Claim badge on Ethereum'}
-    </Button>
+    <div className="mt-3 space-y-3 border-t border-gray-100 pt-3">
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px]">
+        <Link
+          href={getEnsDomainsUrl(winnerSubname)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-mono text-[#616161] transition-colors hover:text-black"
+        >
+          Preview on ENS ↗
+        </Link>
+        {registrarAddress ? (
+          <Link
+            href={getEnsRegistrarEtherscanUrl(registrarAddress)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono text-[#616161] transition-colors hover:text-black"
+          >
+            Claim contract ↗
+          </Link>
+        ) : null}
+        {txHash ? (
+          <Link
+            href={`https://etherscan.io/tx/${txHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono text-[#616161] transition-colors hover:text-black"
+          >
+            Claim tx ↗
+          </Link>
+        ) : null}
+      </div>
+
+      {!isConnected ? (
+        <div className="rounded-[7px] border border-gray-100 bg-gray-50 px-3 py-3">
+          <p className="mb-2 text-[11px] text-gray-600">
+            Connect the wallet that won this raffle to claim your ENS badge on Ethereum.
+          </p>
+          <ConnectWalletButton />
+        </div>
+      ) : !isWinner ? (
+        <p className="text-[11px] text-gray-500">
+          Connected as {truncateAddress(address!)} — switch to the winner wallet{' '}
+          <span className="font-mono text-black">{truncateAddress(winner)}</span> to claim.
+        </p>
+      ) : (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={busy || !registrarAddress}
+          onClick={() => void claim()}
+          className="h-9 rounded-[6px] border-black px-4 font-mono text-[10px] uppercase tracking-widest"
+        >
+          {busy ? 'Claiming…' : 'Claim badge on Ethereum'}
+        </Button>
+      )}
+    </div>
   )
 }

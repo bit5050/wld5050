@@ -37,14 +37,22 @@ export default function WinnerEnsLink({
         </>
       ) : (
         <>
-          <p className="font-mono text-[12px] font-bold text-black">{winnerSubname}</p>
+          <Link
+            href={getEnsDomainsUrl(winnerSubname)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono text-[12px] font-bold text-black transition-colors hover:text-[#616161]"
+          >
+            {winnerSubname} ↗
+          </Link>
           <p className="mt-1 text-[11px] text-gray-500">
             Optional trophy name on Ethereum L1. Winners claim it themselves and pay mainnet
-            gas (~$1–15). Payout proof stays on Worldscan above.
+            gas. Payout proof stays on Worldscan above.
           </p>
           <WinnerEnsClaimButton
             raffleId={raffleId}
             winner={winner}
+            winnerSubname={winnerSubname}
             ensMinted={ensMinted}
           />
         </>
