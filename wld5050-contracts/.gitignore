@@ -3,6 +3,9 @@
 .env.local
 .env.*
 
+# CRE workflow build artifacts
+workflow/.cre_build_tmp.js
+
 node_modules/
 artifacts/
 cache/

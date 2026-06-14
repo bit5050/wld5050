@@ -29,6 +29,13 @@ export function friendlyTxError(error: unknown): string {
   if (haystack.includes('ExpiredRoot')) {
     return REVERT_MESSAGES['0x3ae7359e']
   }
+  if (haystack.includes('transfer amount exceeds balance') || haystack.includes('InsufficientBalance')) {
+    return 'Insufficient balance on World Chain for the 10 USDC or 10 WLD creation fee. Fund your wallet or switch payment token.'
+  }
+  if (haystack.includes('insufficient allowance') || haystack.includes('InsufficientAllowance')) {
+    return 'Insufficient token allowance. Approve the creation fee in your wallet and try again.'
+  }
+
   if (haystack.includes('User rejected')) {
     return 'Transaction cancelled in wallet.'
   }
