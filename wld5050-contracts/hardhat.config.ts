@@ -4,6 +4,7 @@ import * as dotenv from "dotenv"
 dotenv.config()
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY ?? "0x" + "0".repeat(64)
+const WORLDSCAN_API_KEY = process.env.WORLDSCAN_API_KEY ?? process.env.ETHERSCAN_API_KEY ?? ""
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -20,6 +21,19 @@ const config: HardhatUserConfig = {
       chainId: 480,
       accounts: [PRIVATE_KEY],
     },
+  },
+  etherscan: {
+    apiKey: WORLDSCAN_API_KEY,
+    customChains: [
+      {
+        network: "worldchain-mainnet",
+        chainId: 480,
+        urls: {
+          apiURL: "https://api.etherscan.io/v2/api?chainid=480",
+          browserURL: "https://worldscan.org",
+        },
+      },
+    ],
   },
 }
 

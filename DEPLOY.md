@@ -93,7 +93,30 @@ cre workflow activate workflow --target production-settings
 
 - `config.production.json` → `"schedule": "*/30 * * * * *"`
 - `chainSelectorName` → `"ethereum-mainnet-worldchain-1"`
-- Contract `creForwarder` matches `CRE_FORWARDER` in `.env` (`0x98B8335…`)
+- Contract `creForwarder` matches `CRE_FORWARDER` in `.env` (`0x98B8335…` for production CRE deploy)
+
+### Hackathon fallback (no CRE deploy access)
+
+Deploy with **mock** forwarder for manual settlement via CRE simulate broadcast:
+
+```bash
+# In wld5050-contracts/.env before deploy:
+CRE_FORWARDER=0x6E9EE680ef59ef64Aa8C7371279c27E496b5eDc1
+npm run deploy:mainnet
+```
+
+After each raffle ends, from `wld5050-contracts/`:
+
+```bash
+cre workflow simulate workflow \
+  --target production-settings \
+  --non-interactive \
+  --trigger-index 0 \
+  --broadcast \
+  -e .env
+```
+
+Requires `CRE_ETH_PRIVATE_KEY` in `.env` and World Chain ETH for gas. Current hackathon contract: `0x787C5b5B464CEa2D1482e3f0e605171B1f0D322E`.
 
 ---
 
