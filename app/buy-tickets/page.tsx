@@ -28,37 +28,50 @@ export default async function BuyTicketsPage() {
   })
 
   return (
-    <div className="px-6 py-10">
-      <h1 className="font-display text-[28px] font-semibold tracking-tight mb-1">Buy Tickets</h1>
-      <p className="text-[13px] text-gray-600 mb-2 max-w-[480px]">
-        One ticket per verified human. Pick an active raffle below to enter.
-      </p>
-      <p className="mb-8">
-        <ContractAddressLink />
-      </p>
-      {active.length === 0 ? (
-        <div className="rounded-[10px] border border-gray-200 px-5 py-8 text-center">
-          <p className="text-[14px] text-gray-600 mb-4">No active raffles on-chain right now.</p>
-          <Link
-            href="/create"
-            className="inline-block text-[13px] font-medium text-black hover:opacity-70 transition-opacity"
-          >
-            Create the first raffle →
-          </Link>
+    <section className="relative left-1/2 w-screen max-w-[1400px] -translate-x-1/2 border-b border-[0.5px] border-[#E0E0E0] bg-white">
+      <div className="mx-auto max-w-[1200px] px-6 py-14 sm:px-10 sm:py-16 lg:px-14">
+        <div className="mb-8">
+          <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.2em] text-[#9E9E9E]">
+            Live now
+          </p>
+          <h1 className="font-display text-[28px] font-semibold tracking-tight sm:text-[32px]">
+            Buy Tickets
+          </h1>
+          <p className="mt-2 max-w-[560px] text-[13px] text-[#616161]">
+            One human, one ticket, every time. World ID verification. Chainlink-powered winners. ENS identities and winner badges.
+          </p>
+          <p className="mt-2">
+            <ContractAddressLink />
+          </p>
         </div>
-      ) : (
-        <div className="space-y-3">
-          {active.map((raffle) => (
-            <RaffleCard key={raffle.id} raffle={raffle} />
-          ))}
-        </div>
-      )}
-      <Link
-        href="/"
-        className="inline-block mt-6 text-[12px] text-gray-400 hover:text-black transition-colors"
-      >
-        ← Back to home
-      </Link>
-    </div>
+
+        {active.length === 0 ? (
+          <div className="rounded-[10px] border-[0.5px] border-[#E0E0E0] px-5 py-10 text-center">
+            <p className="mb-4 font-body text-[14px] text-[#616161]">
+              No active raffles on-chain right now.
+            </p>
+            <Link
+              href="/create"
+              className="inline-block text-[13px] font-medium text-black transition-opacity hover:opacity-70"
+            >
+              Create the first raffle →
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+            {active.map((raffle) => (
+              <RaffleCard key={raffle.id} raffle={raffle} compact />
+            ))}
+          </div>
+        )}
+
+        <Link
+          href="/"
+          className="mt-8 inline-block text-[12px] text-[#9E9E9E] transition-colors hover:text-black"
+        >
+          ← Back to home
+        </Link>
+      </div>
+    </section>
   )
 }

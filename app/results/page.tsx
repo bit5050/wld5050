@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import WinnerCard from '@/components/raffle/WinnerCard'
+import CompletedRaffleCard from '@/components/raffle/CompletedRaffleCard'
 import ContractAddressLink from '@/components/raffle/ContractAddressLink'
-import { fetchRafflesFromContract, toSettlement } from '@/lib/contracts/fetch-raffles'
+import { fetchRafflesFromContract } from '@/lib/contracts/fetch-raffles'
 import { siteShareImage, SITE_SHARE_IMAGE_PATH } from '@/lib/seo/share-image'
 
 export const metadata: Metadata = {
@@ -26,36 +26,46 @@ export default async function ResultsPage() {
   const { completed } = await fetchRafflesFromContract()
 
   return (
-    <div className="px-6 py-10">
-      <h1 className="font-display text-[28px] font-semibold tracking-tight mb-1">Results</h1>
-      <p className="text-[13px] text-gray-600 mb-2 max-w-[480px]">
-        Past raffle settlements verified and paid automatically by Chainlink CRE.
-      </p>
-      <p className="mb-8">
-        <ContractAddressLink />
-      </p>
-      {completed.length === 0 ? (
-        <div className="rounded-[10px] border border-gray-200 px-5 py-8 text-center">
-          <p className="text-[14px] text-gray-600">No settled raffles yet.</p>
+    <section className="relative left-1/2 w-screen max-w-[1400px] -translate-x-1/2 border-b border-[0.5px] border-[#E0E0E0] bg-white">
+      <div className="mx-auto max-w-[1200px] px-6 py-14 sm:px-10 sm:py-16 lg:px-14">
+        <div className="mb-8">
+          <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.2em] text-[#9E9E9E]">
+            Settled onchain
+          </p>
+          <h1 className="font-display text-[28px] font-semibold tracking-tight sm:text-[32px]">
+            Completed Raffle Results
+          </h1>
+          <p className="mt-2 max-w-[560px] text-[13px] text-[#616161]">
+            WLD5050 verified settlements.
+          </p>
+          <p className="mt-2">
+            <ContractAddressLink />
+          </p>
         </div>
-      ) : (
-        <div className="space-y-8">
-          {completed.map((raffle) => (
-            <div key={raffle.raffleId} id={`round-${raffle.raffleId}`}>
-              <p className="mb-3 font-mono text-[11px] uppercase tracking-widest text-gray-400">
-                {raffle.raffleName}
-              </p>
-              <WinnerCard settlement={toSettlement(raffle)} />
-            </div>
-          ))}
-        </div>
-      )}
-      <Link
-        href="/"
-        className="inline-block mt-8 text-[12px] text-gray-400 hover:text-black transition-colors"
-      >
-        ← Back to home
-      </Link>
-    </div>
+
+        {completed.length === 0 ? (
+          <div className="rounded-[10px] border-[0.5px] border-[#E0E0E0] px-5 py-10 text-center">
+            <p className="font-body text-[14px] text-[#616161]">
+              No settled raffles yet. Results appear here after Chainlink CRE completes a draw.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+            {completed.map((raffle) => (
+              <div key={raffle.raffleId} id={`round-${raffle.raffleId}`}>
+                <CompletedRaffleCard raffle={raffle} compact />
+              </div>
+            ))}
+          </div>
+        )}
+
+        <Link
+          href="/"
+          className="mt-8 inline-block text-[12px] text-[#9E9E9E] transition-colors hover:text-black"
+        >
+          ← Back to home
+        </Link>
+      </div>
+    </section>
   )
 }
