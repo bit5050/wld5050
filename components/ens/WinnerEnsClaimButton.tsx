@@ -9,7 +9,6 @@ import ConnectWalletButton from '@/components/wallet/connect-wallet-button'
 import { Button } from '@/components/ui/button'
 import {
   getEnsDomainsUrl,
-  getEnsRegistrarEtherscanUrl,
   getWinnerEnsClaimRegistrarAddress,
   winnerEnsClaimRegistrarAbi,
 } from '@/lib/ens-claim/constants'
@@ -132,16 +131,6 @@ export default function WinnerEnsClaimButton({
         >
           Preview on ENS ↗
         </Link>
-        {registrarAddress ? (
-          <Link
-            href={getEnsRegistrarEtherscanUrl(registrarAddress)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-mono text-[#616161] transition-colors hover:text-black"
-          >
-            Claim contract ↗
-          </Link>
-        ) : null}
         {txHash ? (
           <Link
             href={`https://etherscan.io/tx/${txHash}`}
@@ -169,11 +158,10 @@ export default function WinnerEnsClaimButton({
       ) : (
         <Button
           type="button"
-          variant="outline"
           size="sm"
           disabled={busy || !registrarAddress}
           onClick={() => void claim()}
-          className="h-9 rounded-[6px] border-black px-4 font-mono text-[10px] uppercase tracking-widest"
+          className="h-9 rounded-[6px] border border-black bg-black px-4 font-mono text-[10px] uppercase tracking-widest text-white hover:bg-black hover:opacity-80"
         >
           {busy ? 'Claiming…' : 'Claim badge on Ethereum'}
         </Button>

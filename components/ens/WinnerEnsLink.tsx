@@ -50,8 +50,8 @@ export default function WinnerEnsLink({
       <p
         className={
           minted
-            ? 'mb-2 text-[10px] uppercase tracking-widest text-white/50'
-            : 'mb-1 text-[10px] uppercase tracking-widest text-gray-400'
+            ? 'mb-2 text-[10px] font-bold uppercase tracking-widest text-white'
+            : 'mb-1 text-[10px] font-bold uppercase tracking-widest text-black'
         }
       >
         Winner ENS badge
