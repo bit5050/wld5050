@@ -18,6 +18,18 @@ export default function Footer() {
           ))}
         </div>
         <p className="text-[10px] text-gray-400">Powered by World Chain · Chainlink CRE · ENS</p>
+        <p className="text-[10px] text-gray-400">
+          © 2026{' '}
+          <a
+            href="https://www.bit5050.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition-colors hover:text-black"
+          >
+            BIT5050 INC.
+          </a>{' '}
+          All rights reserved. Built for the Web3 community.
+        </p>
       </div>
     </footer>
   )
