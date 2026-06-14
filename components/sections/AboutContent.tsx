@@ -11,6 +11,7 @@ import {
   Link2,
   ScanFace,
   ShieldCheck,
+  Ticket,
   Users,
 } from 'lucide-react'
 import { BlurFade } from '@/components/ui/blur-fade'
@@ -359,6 +360,75 @@ export default function AboutContent() {
                   by participation, not by how many wallets someone spun up.
                 </BodyText>
               </article>
+            </div>
+          </BlurFade>
+        </SectionInner>
+      </SectionShell>
+
+      {/* One entry per human */}
+      <SectionShell id="one-entry">
+        <SectionInner>
+          <BlurFade blur="0px" delay={0} inView inViewMargin="-80px">
+            <SectionLabel>Fair entry</SectionLabel>
+            <SectionTitle className="mb-5">One ticket per verified human</SectionTitle>
+            <div className="grid gap-8 lg:grid-cols-[1fr_320px] lg:gap-12 lg:items-start">
+              <div className="space-y-5">
+                <BodyText>
+                  Every WLD5050 raffle follows the same rule:{' '}
+                  <strong className="font-medium text-black">one entry per real human, per round</strong>.
+                  The app shows a single &ldquo;Buy ticket&rdquo; button — no quantity picker — because
+                  each verified World ID can only purchase one ticket in that raffle.
+                </BodyText>
+                <BodyText>
+                  That limit is enforced on-chain, not just in the UI. When you buy a ticket, the
+                  contract stores your World ID nullifier for that raffle. A second purchase with the
+                  same identity reverts — even from a different wallet.
+                </BodyText>
+                <BodyText>
+                  <strong className="font-medium text-black">Why?</strong> This is the core WLD5050
+                  design: fair odds for real participants. Bots and multi-wallet Sybil entries cannot
+                  stack tickets in a single raffle to inflate their chances.
+                </BodyText>
+                <BodyText>
+                  You can still enter many raffles over time — one ticket per raffle — but never more
+                  than one in the same round. Supporting &ldquo;buy N tickets&rdquo; in one raffle would
+                  require a smart contract change and a deliberate product decision about whether that
+                  fits a human-verified model. Today it is strictly one-to-one.
+                </BodyText>
+              </div>
+
+              <aside
+                className="rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] p-6 lg:p-7"
+                aria-label="Entry rules"
+              >
+                <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-white">
+                  <Ticket className="h-[18px] w-[18px] text-black" strokeWidth={1.5} />
+                </div>
+                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#9E9E9E] mb-4">
+                  Per raffle
+                </p>
+                <ul className="space-y-3 font-body text-[13px] leading-relaxed text-[#616161]">
+                  <li className="flex gap-2">
+                    <span className="text-black shrink-0">✓</span>
+                    <span>One ticket after World ID verification</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-black shrink-0">✓</span>
+                    <span>Enter unlimited different raffles</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-[#9E9E9E] shrink-0">✗</span>
+                    <span>Multiple tickets in the same raffle</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-[#9E9E9E] shrink-0">✗</span>
+                    <span>Extra entries via additional wallets (same World ID)</span>
+                  </li>
+                </ul>
+                <p className="mt-5 border-t border-[#E0E0E0] pt-4 font-mono text-[11px] leading-relaxed text-[#9E9E9E]">
+                  Enforced by World ID nullifiers in the WLD5050 smart contract on World Chain.
+                </p>
+              </aside>
             </div>
           </BlurFade>
         </SectionInner>
