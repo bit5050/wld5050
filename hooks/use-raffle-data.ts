@@ -2,14 +2,20 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { usePublicClient } from 'wagmi'
-import type { Address } from 'viem'
+import type { Address, PublicClient } from 'viem'
 import { publicEnv } from '@/lib/env.public'
 import { fetchRaffleById, fetchRafflesFromContract } from '@/lib/contracts/fetch-raffles'
+import { getPublicClient } from '@/lib/contracts/public-client'
 import { isValidContractAddress } from '@/lib/contracts/wld5050'
 import type { CompletedRaffle, Raffle } from '@/types'
 
+function resolvePublicClient(wagmiClient: PublicClient | undefined): PublicClient {
+  return wagmiClient ?? getPublicClient()
+}
+
 export function useRaffles() {
-  const publicClient = usePublicClient()
+  const wagmiClient = usePublicClient()
+  const publicClient = resolvePublicClient(wagmiClient)
   const [active, setActive] = useState<Raffle[]>([])
   const [completed, setCompleted] = useState<CompletedRaffle[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -19,7 +25,7 @@ export function useRaffles() {
   const hasContract = isValidContractAddress(contractAddress)
 
   const refresh = useCallback(async () => {
-    if (!publicClient || !hasContract) {
+    if (!hasContract) {
       setActive([])
       setCompleted([])
       setIsLoading(false)
@@ -51,7 +57,8 @@ export function useRaffles() {
 }
 
 export function useRaffle(raffleId: number) {
-  const publicClient = usePublicClient()
+  const wagmiClient = usePublicClient()
+  const publicClient = resolvePublicClient(wagmiClient)
   const [raffle, setRaffle] = useState<Raffle | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -60,8 +67,9 @@ export function useRaffle(raffleId: number) {
   const hasContract = isValidContractAddress(contractAddress)
 
   const refresh = useCallback(async () => {
-    if (!publicClient || !hasContract) {
+    if (!hasContract || !Number.isFinite(raffleId) || raffleId < 1) {
       setRaffle(null)
+      setError(Number.isFinite(raffleId) && raffleId >= 1 ? null : 'Invalid raffle id.')
       setIsLoading(false)
       return
     }

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { IDKitResult } from '@worldcoin/idkit'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { TICKET_PRICE, TICKET_PRICE_DUAL_LONG, TICKET_PRICE_USDC_LABEL } from '@/types'
 import { formatCountdown } from '@/lib/format'
@@ -15,7 +16,8 @@ import { useBuyTicketTx } from '@/hooks/use-raffle-transactions'
 import { useRaffle } from '@/hooks/use-raffle-data'
 import { worldIdEnterRaffleAction } from '@/lib/worldid/actions'
 
-export default function RafflePage({ params }: { params: { id: string } }) {
+export default function RafflePage() {
+  const params = useParams()
   const raffleId = Number(params.id)
   const worldIdAction = useMemo(
     () => (Number.isFinite(raffleId) ? worldIdEnterRaffleAction(raffleId) : 'enter-raffle'),

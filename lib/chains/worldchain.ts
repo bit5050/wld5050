@@ -1,10 +1,9 @@
 import { defineChain } from 'viem'
+import { publicEnv } from '@/lib/env.public'
 
 export const WORLD_CHAIN_ID = 480
 
-const rpcUrl =
-  process.env.NEXT_PUBLIC_WORLD_CHAIN_RPC_URL ??
-  'https://worldchain-mainnet.g.alchemy.com/public'
+const rpcUrl = publicEnv.worldChainRpcUrl
 
 export const worldchain = defineChain({
   id: WORLD_CHAIN_ID,

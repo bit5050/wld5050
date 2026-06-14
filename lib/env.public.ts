@@ -8,6 +8,9 @@ export const publicEnv = {
   privyAppId: process.env.NEXT_PUBLIC_PRIVY_APP_ID ?? '',
   contractAddress: process.env.NEXT_PUBLIC_WLD5050_CONTRACT ?? '',
   chainId: Number(process.env.NEXT_PUBLIC_CHAIN_ID ?? '480'),
+  worldChainRpcUrl:
+    process.env.NEXT_PUBLIC_WORLD_CHAIN_RPC_URL ??
+    'https://worldchain-mainnet.g.alchemy.com/public',
 } as const
 
 /** Privy app IDs are alphanumeric (legacy `cl…`, newer `cm…`, etc.). */
