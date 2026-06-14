@@ -30,16 +30,13 @@ const config: HardhatUserConfig = {
     },
   },
   etherscan: {
-    apiKey: {
-      mainnet: ETHERSCAN_API_KEY,
-      "worldchain-mainnet": WORLDSCAN_API_KEY,
-    },
+    apiKey: ETHERSCAN_API_KEY,
     customChains: [
       {
         network: "worldchain-mainnet",
         chainId: 480,
         urls: {
-          apiURL: "https://api.etherscan.io/v2/api?chainid=480",
+          apiURL: "https://api.etherscan.io/v2/api",
           browserURL: "https://worldscan.org",
         },
       },
