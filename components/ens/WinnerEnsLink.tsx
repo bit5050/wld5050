@@ -40,24 +40,36 @@ export default function WinnerEnsLink({
   }, [onEnsClaimed])
 
   return (
-    <div className="rounded-[8px] border border-gray-100 px-4 py-3">
-      <p className="mb-1 text-[10px] uppercase tracking-widest text-gray-400">
+    <div
+      className={
+        minted
+          ? 'rounded-[8px] border border-black bg-black px-4 py-3.5'
+          : 'rounded-[8px] border border-gray-100 px-4 py-3'
+      }
+    >
+      <p
+        className={
+          minted
+            ? 'mb-2 text-[10px] uppercase tracking-widest text-white/50'
+            : 'mb-1 text-[10px] uppercase tracking-widest text-gray-400'
+        }
+      >
         Winner ENS badge
       </p>
 
       {minted ? (
         <>
+          <p className="font-display text-[14px] font-semibold leading-snug tracking-tight text-white sm:text-[15px]">
+            ENS subdomain winner badge claimed on Ethereum mainnet
+          </p>
           <Link
             href={getEnsDomainsUrl(winnerSubname)}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-mono text-[12px] font-bold text-black transition-colors hover:text-[#616161]"
+            className="mt-2 inline-block font-mono text-[12px] font-bold text-white/90 transition-colors hover:text-white"
           >
             {winnerSubname} ↗
           </Link>
-          <p className="mt-1 text-[11px] text-gray-500">
-            Live on Ethereum — resolves to the winner&apos;s address.
-          </p>
         </>
       ) : (
         <>
