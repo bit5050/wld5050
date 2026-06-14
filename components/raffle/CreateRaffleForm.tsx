@@ -14,7 +14,7 @@ import { useCreateRaffleTx, type CreateRaffleResult } from '@/hooks/use-raffle-t
 import type { PaymentToken } from '@/lib/contracts/wld5050'
 import { getWld5050WorldscanUrl } from '@/lib/contracts/contract-address'
 import { platformFeeLabel, ticketPriceLabel } from '@/lib/pricing'
-import { AGENT_ENS, PLATFORM_WALLET } from '@/types'
+import { PLATFORM_WALLET } from '@/types'
 
 type Props = {
   variant?: 'section' | 'page'
@@ -337,8 +337,8 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
             creator. Both paid automatically in the same transaction.
           </li>
           <li>
-            <strong className="text-black">Winner Selection:</strong> Chainlink CRE DON consensus
-            ({AGENT_ENS}) with AI fairness attestation before every draw.
+            <strong className="text-black">Settlement:</strong> Chainlink CRE settles expired
+            raffles on World Chain. 1 winner, 50/50 payouts, single automatic transaction.
           </li>
           <li>
             <strong className="text-black">Entry Rule:</strong> One ticket per World ID verified
