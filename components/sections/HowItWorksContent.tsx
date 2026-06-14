@@ -18,6 +18,11 @@ import { BlurFade } from '@/components/ui/blur-fade'
 import { StatsMarquee } from '@/components/effects/stats-marquee'
 import HeroBackground from '@/components/sections/hero-background'
 import {
+  getEnsDomainsUrl,
+  getEnsRegistrarEtherscanUrl,
+  WINNER_ENS_CLAIM_REGISTRAR_ADDRESS,
+} from '@/lib/ens-claim/constants'
+import {
   PLATFORM_FEE_DUAL_LABEL,
   PLATFORM_FEE_DUAL_LONG,
   PLATFORM_FEE_USDC_LABEL,
@@ -178,6 +183,33 @@ const crePipeline = [
   'Verifiable randomness via CRE DON consensus',
   'onReport() → winner + creator paid in one tx',
   'RaffleSettled event → winner may claim ENS badge on L1',
+] as const
+
+const ensClaimFlow = [
+  'Chainlink CRE settles the raffle on World Chain — USDC or WLD payouts land automatically.',
+  'The contract reserves winner-round{N}.wld5050.eth for that round.',
+  'The winner connects the winning wallet and clicks Claim badge on Ethereum mainnet.',
+  'They pay L1 gas; our verified registrar mints the subname under wld5050.eth.',
+  'The name resolves globally on app.ens.domains — a portable trophy anyone can verify.',
+] as const
+
+const ensBadgeNotes = [
+  'Conceptually: a public trophy you can share — “I won WLD5050 round 2.”',
+  'Technically: an ENS subname under wld5050.eth, not a typical NFT collection drop.',
+  'Human-readable name tied to your address — works across wallets and apps.',
+  'NameWrapper may tokenize as ERC-1155, but the experience is “my winner ENS badge.”',
+  'No artwork or OpenSea PFP — identity proof, not an NFT drop.',
+] as const
+
+const ensProofSplit = [
+  {
+    title: 'Payment proof',
+    body: 'Worldscan token transfers on World Chain — CRE settlement tx shows both 50/50 payouts.',
+  },
+  {
+    title: 'Winner badge',
+    body: 'Optional winner-round{N}.wld5050.eth on Ethereum L1 — shareable identity, claimed by the winner.',
+  },
 ] as const
 
 function SectionShell({
@@ -586,6 +618,144 @@ export default function HowItWorksContent() {
               </BlurFade>
             ))}
           </div>
+        </SectionInner>
+      </SectionShell>
+
+      {/* ENS integration */}
+      <SectionShell id="ens">
+        <SectionInner>
+          <BlurFade blur="0px" delay={0} inView inViewMargin="-80px">
+            <div className="grid gap-10 lg:grid-cols-2 lg:gap-14 lg:items-start">
+              <div>
+                <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-[10px] border-[0.5px] border-[#E0E0E0]">
+                  <AtSign className="h-[18px] w-[18px] text-black" strokeWidth={1.5} />
+                </div>
+                <SectionLabel>ENS integration</SectionLabel>
+                <SectionTitle className="mb-3">Winner badges on Ethereum</SectionTitle>
+                <BodyText className="max-w-[520px]">
+                  WLD5050 runs human-verified 50/50 raffles on World Chain. When Chainlink CRE
+                  settles via{' '}
+                  <Link
+                    href="https://app.ens.domains/agent.wld5050.eth"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-black underline underline-offset-2 hover:text-[#616161]"
+                  >
+                    agent.wld5050.eth
+                  </Link>
+                  , the winner claims{' '}
+                  <span className="font-mono text-black">winner-round{'{N}'}.wld5050.eth</span> on
+                  Ethereum — a subname registry that turns a cross-chain win into a global,
+                  verifiable ENS identity.
+                </BodyText>
+                <BodyText className="max-w-[520px] mt-4">
+                  Human-verified winners get a portable ENS trophy that works in any wallet or app.
+                </BodyText>
+                <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2 text-[12px]">
+                  <Link
+                    href={getEnsRegistrarEtherscanUrl()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-[#616161] transition-colors hover:text-black"
+                  >
+                    Verified claim contract ↗
+                  </Link>
+                  <Link
+                    href={getEnsDomainsUrl('winner-round2.wld5050.eth')}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-[#616161] transition-colors hover:text-black"
+                  >
+                    Example badge on ENS ↗
+                  </Link>
+                </div>
+              </div>
+
+              <ol className="space-y-3">
+                {ensClaimFlow.map((step, index) => (
+                  <BlurFade
+                    key={step}
+                    blur="0px"
+                    delay={0.04 + index * 0.04}
+                    inView
+                    inViewMargin="-80px"
+                  >
+                    <li className="flex gap-4 rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-white p-5 transition-colors hover:border-black">
+                      <span className="font-mono text-[11px] font-bold tracking-widest text-[#9E9E9E] shrink-0">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <span className="font-body text-[13px] leading-relaxed text-[#616161] lg:text-[14px]">
+                        {step}
+                      </span>
+                    </li>
+                  </BlurFade>
+                ))}
+              </ol>
+            </div>
+          </BlurFade>
+
+          <div className="mt-10 grid gap-4 lg:grid-cols-3 lg:gap-5">
+            <BlurFade blur="0px" delay={0.06} inView inViewMargin="-80px">
+              <article className="flex h-full flex-col rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] p-6 sm:p-7 lg:col-span-1">
+                <h3 className="font-display text-[16px] font-semibold tracking-tight text-black mb-3">
+                  Badge, not an NFT drop
+                </h3>
+                <ul className="space-y-2">
+                  {ensBadgeNotes.map((note) => (
+                    <li
+                      key={note}
+                      className="flex items-start gap-2 font-body text-[12px] leading-relaxed text-[#616161] lg:text-[13px]"
+                    >
+                      <ArrowRight
+                        className="h-3.5 w-3.5 shrink-0 mt-0.5 text-[#9E9E9E]"
+                        strokeWidth={1.5}
+                      />
+                      {note}
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            </BlurFade>
+
+            {ensProofSplit.map(({ title, body }, index) => (
+              <BlurFade
+                key={title}
+                blur="0px"
+                delay={0.1 + index * 0.05}
+                inView
+                inViewMargin="-80px"
+              >
+                <article className="flex h-full flex-col rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-white p-6 sm:p-7">
+                  <h3 className="font-display text-[16px] font-semibold tracking-tight text-black mb-3">
+                    {title}
+                  </h3>
+                  <p className="font-body text-[13px] leading-relaxed text-[#616161] lg:text-[14px]">
+                    {body}
+                  </p>
+                </article>
+              </BlurFade>
+            ))}
+          </div>
+
+          <BlurFade blur="0px" delay={0.2} inView inViewMargin="-80px">
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-white px-4 py-4 sm:flex-row sm:gap-4">
+              <span className="font-mono text-[10px] text-[#9E9E9E] uppercase tracking-[0.2em] shrink-0">
+                L1 registrar
+              </span>
+              <span className="hidden h-3 w-px bg-[#E0E0E0] sm:inline-block" aria-hidden />
+              <p className="font-mono text-[11px] text-[#616161] tracking-wide text-center sm:text-left break-all">
+                WinnerEnsClaimRegistrar ·{' '}
+                <Link
+                  href={getEnsRegistrarEtherscanUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-black underline underline-offset-2 hover:text-[#616161]"
+                >
+                  {WINNER_ENS_CLAIM_REGISTRAR_ADDRESS}
+                </Link>
+              </p>
+            </div>
+          </BlurFade>
         </SectionInner>
       </SectionShell>
 

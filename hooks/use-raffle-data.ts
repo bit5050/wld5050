@@ -1,8 +1,9 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { usePublicClient, useWatchContractEvent } from 'wagmi'
-import type { Address, PublicClient } from 'viem'
+import { useWatchContractEvent } from 'wagmi'
+import type { Address } from 'viem'
+import { worldchain } from '@/lib/chains/worldchain'
 import { publicEnv } from '@/lib/env.public'
 import {
   fetchRaffleById,
@@ -14,13 +15,10 @@ import { getPublicClient } from '@/lib/contracts/public-client'
 import { isValidContractAddress, wld5050Abi } from '@/lib/contracts/wld5050'
 import type { CompletedRaffle, Raffle, Settlement } from '@/types'
 
-function resolvePublicClient(wagmiClient: PublicClient | undefined): PublicClient {
-  return wagmiClient ?? getPublicClient()
-}
+/** World Chain reads must not follow the wallet's active chain (e.g. Ethereum for ENS claim). */
+const worldChainClient = getPublicClient()
 
 export function useRaffles() {
-  const wagmiClient = usePublicClient()
-  const publicClient = resolvePublicClient(wagmiClient)
   const [active, setActive] = useState<Raffle[]>([])
   const [completed, setCompleted] = useState<CompletedRaffle[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -41,7 +39,7 @@ export function useRaffles() {
     setError(null)
 
     try {
-      const data = await fetchRafflesFromContract(publicClient, contractAddress)
+      const data = await fetchRafflesFromContract(worldChainClient, contractAddress)
       setActive(data.active)
       setCompleted(data.completed)
     } catch (err) {
@@ -52,7 +50,7 @@ export function useRaffles() {
     } finally {
       setIsLoading(false)
     }
-  }, [publicClient, contractAddress, hasContract])
+  }, [contractAddress, hasContract])
 
   useEffect(() => {
     refresh()
@@ -62,8 +60,6 @@ export function useRaffles() {
 }
 
 export function useRaffle(raffleId: number) {
-  const wagmiClient = usePublicClient()
-  const publicClient = resolvePublicClient(wagmiClient)
   const [raffle, setRaffle] = useState<Raffle | null>(null)
   const [settlement, setSettlement] = useState<Settlement | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -86,7 +82,7 @@ export function useRaffle(raffleId: number) {
     setError(null)
 
     try {
-      const data = await fetchRaffleById(raffleId, publicClient, contractAddress)
+      const data = await fetchRaffleById(raffleId, worldChainClient, contractAddress)
       setRaffle(data)
       if (!data) {
         setError('Raffle not found.')
@@ -94,7 +90,7 @@ export function useRaffle(raffleId: number) {
       } else if (data.status === 'SETTLED') {
         const settled = await fetchRaffleSettlement(
           raffleId,
-          publicClient,
+          worldChainClient,
           contractAddress,
           data.ticketsSold,
         )
@@ -112,19 +108,19 @@ export function useRaffle(raffleId: number) {
         setIsLoading(false)
       }
     }
-  }, [publicClient, contractAddress, hasContract, raffleId])
+  }, [contractAddress, hasContract, raffleId])
 
   const refreshStats = useCallback(async () => {
     if (!hasContract || !Number.isFinite(raffleId) || raffleId < 1) return
 
     try {
-      const ticketsSold = await fetchRaffleTicketsSold(raffleId, publicClient, contractAddress)
+      const ticketsSold = await fetchRaffleTicketsSold(raffleId, worldChainClient, contractAddress)
       if (ticketsSold === null) return
       setRaffle((prev) => (prev ? { ...prev, ticketsSold } : prev))
     } catch (err) {
       console.error('Raffle stats refresh failed:', err)
     }
-  }, [publicClient, contractAddress, hasContract, raffleId])
+  }, [contractAddress, hasContract, raffleId])
 
   const refreshStatsRef = useRef(refreshStats)
   refreshStatsRef.current = refreshStats
@@ -135,6 +131,7 @@ export function useRaffle(raffleId: number) {
   useWatchContractEvent({
     address: hasContract ? contractAddress : undefined,
     abi: wld5050Abi,
+    chainId: worldchain.id,
     eventName: 'TicketPurchased',
     args: Number.isFinite(raffleId) && raffleId >= 1 ? { raffleId: BigInt(raffleId) } : undefined,
     enabled: hasContract && Number.isFinite(raffleId) && raffleId >= 1 && raffle?.status === 'ACTIVE',
@@ -146,6 +143,7 @@ export function useRaffle(raffleId: number) {
   useWatchContractEvent({
     address: hasContract ? contractAddress : undefined,
     abi: wld5050Abi,
+    chainId: worldchain.id,
     eventName: 'RaffleSettled',
     args: Number.isFinite(raffleId) && raffleId >= 1 ? { raffleId: BigInt(raffleId) } : undefined,
     enabled:

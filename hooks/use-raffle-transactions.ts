@@ -3,8 +3,9 @@
 import { useCallback, useState } from 'react'
 import type { IDKitResult } from '@worldcoin/idkit'
 import { useWallets } from '@privy-io/react-auth'
-import { usePublicClient, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
+import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { toast } from 'sonner'
+import { worldchain } from '@/lib/chains/worldchain'
 import {
   PAYMENT_TOKEN_USDC,
   PAYMENT_TOKEN_WLD,
@@ -19,6 +20,7 @@ import {
   type PaymentToken,
 } from '@/lib/contracts/wld5050'
 import { computeRaffleDurationSeconds, getContractAddress } from '@/lib/contracts/raffle-tx'
+import { getPublicClient } from '@/lib/contracts/public-client'
 import { parseRaffleIdFromReceipt } from '@/lib/contracts/parse-raffle-created'
 import { friendlyTxError } from '@/lib/contracts/decode-tx-error'
 import { erc20Abi } from '@/lib/contracts/wld5050'
@@ -48,21 +50,22 @@ const TOKEN_CONFIG: Record<
   },
 }
 
+type ApproveWriteFn = (args: {
+  chainId: typeof worldchain.id
+  address: typeof USDC_ADDRESS | typeof WLD_TOKEN_ADDRESS
+  abi: typeof erc20Abi
+  functionName: 'approve'
+  args: [`0x${string}`, bigint]
+}) => Promise<`0x${string}`>
+
 async function ensureTokenAllowance(
-  publicClient: ReturnType<typeof usePublicClient>,
+  publicClient: ReturnType<typeof getPublicClient>,
   token: PaymentToken,
   owner: `0x${string}`,
   spender: `0x${string}`,
   required: bigint,
-  writeContractAsync: (variables: {
-    address: `0x${string}`
-    abi: typeof erc20Abi
-    functionName: 'approve'
-    args: [`0x${string}`, bigint]
-  }) => Promise<`0x${string}`>,
+  writeContractAsync: ApproveWriteFn,
 ) {
-  if (!publicClient) return
-
   const { address } = TOKEN_CONFIG[token]
 
   const allowance = await publicClient.readContract({
@@ -76,6 +79,7 @@ async function ensureTokenAllowance(
 
   toast.message(`Approve ${token}…`)
   const approveHash = await writeContractAsync({
+    chainId: worldchain.id,
     address,
     abi: erc20Abi,
     functionName: 'approve',
@@ -86,7 +90,7 @@ async function ensureTokenAllowance(
 
 export function useCreateRaffleTx() {
   const { wallets } = useWallets()
-  const publicClient = usePublicClient()
+  const publicClient = getPublicClient()
   const address = wallets[0]?.address as `0x${string}` | undefined
   const contractAddress = getContractAddress()
   const [pendingHash, setPendingHash] = useState<`0x${string}` | undefined>()
@@ -94,6 +98,7 @@ export function useCreateRaffleTx() {
   const { writeContractAsync, isPending } = useWriteContract()
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash: pendingHash,
+    chainId: worldchain.id,
   })
 
   const createRaffle = useCallback(
@@ -106,7 +111,6 @@ export function useCreateRaffleTx() {
     }): Promise<CreateRaffleResult> => {
       if (!address) throw new Error('Connect your wallet first.')
       if (!contractAddress) throw new Error('WLD5050 contract address is not configured.')
-      if (!publicClient) throw new Error('World Chain RPC is not available.')
 
       const duration = computeRaffleDurationSeconds(params.endDate, params.endTime)
       const { root, nullifierHash, proof } = extractLegacyOrbProof(params.worldIdResult)
@@ -124,6 +128,7 @@ export function useCreateRaffleTx() {
       toast.message('Creating raffle on World Chain…')
       try {
         const hash = await writeContractAsync({
+          chainId: worldchain.id,
           address: contractAddress,
           abi: wld5050WriteAbi,
           functionName: 'createRaffle',
@@ -165,7 +170,7 @@ export function useCreateRaffleTx() {
 
 export function useBuyTicketTx(raffleId: number, paymentToken?: PaymentToken) {
   const { wallets } = useWallets()
-  const publicClient = usePublicClient()
+  const publicClient = getPublicClient()
   const address = wallets[0]?.address as `0x${string}` | undefined
   const contractAddress = getContractAddress()
   const [pendingHash, setPendingHash] = useState<`0x${string}` | undefined>()
@@ -173,6 +178,7 @@ export function useBuyTicketTx(raffleId: number, paymentToken?: PaymentToken) {
   const { writeContractAsync, isPending } = useWriteContract()
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash: pendingHash,
+    chainId: worldchain.id,
   })
 
   const buyTicket = useCallback(
@@ -196,6 +202,7 @@ export function useBuyTicketTx(raffleId: number, paymentToken?: PaymentToken) {
       toast.message(`Buying ticket with ${paymentToken}…`)
       try {
         const hash = await writeContractAsync({
+          chainId: worldchain.id,
           address: contractAddress,
           abi: wld5050WriteAbi,
           functionName: 'buyTicket',
