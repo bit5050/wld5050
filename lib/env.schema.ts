@@ -19,6 +19,8 @@ export const serverEnvSchema = z.object({
   WORLD_CHAIN_RPC_URL: z.string().url().optional(),
   PRIVY_APP_SECRET: z.string().min(1).optional(),
   CHAINLINK_CRE_API_KEY: z.string().min(1).optional(),
+  ENS_CLAIM_SIGNER_PRIVATE_KEY: z.string().min(1).optional(),
+  OPERATOR_PRIVATE_KEY: z.string().min(1).optional(),
   WORLD_RP_ID: z.string().optional(),
   WORLD_RP_SIGNING_KEY: z.string().optional(),
 })

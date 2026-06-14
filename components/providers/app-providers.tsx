@@ -5,6 +5,7 @@ import { WagmiProvider } from '@privy-io/wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState, type ReactNode } from 'react'
 import { worldchain } from '@/lib/chains/worldchain'
+import { mainnet } from 'viem/chains'
 import { isValidPrivyAppId, publicEnv } from '@/lib/env.public'
 import { wagmiConfig } from '@/lib/wagmi-config'
 
@@ -30,7 +31,7 @@ export default function AppProviders({ children }: { children: ReactNode }) {
           },
         },
         defaultChain: worldchain,
-        supportedChains: [worldchain],
+        supportedChains: [worldchain, mainnet],
       }}
     >
       <QueryClientProvider client={queryClient}>

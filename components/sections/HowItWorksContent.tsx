@@ -91,9 +91,9 @@ const privyFeatures = [
       'Users without a wallet get one provisioned on first login — no seed phrase, no browser extension required.',
   },
   {
-    title: 'World Chain native',
+    title: 'World Chain + Ethereum',
     body:
-      'Privy and Wagmi are scoped to World Chain mainnet only. Every transaction targets the WLD5050 contract directly.',
+      'Privy and Wagmi default to World Chain for raffles. Winners switch to Ethereum mainnet only to claim their optional ENS badge.',
   },
 ] as const
 
@@ -162,11 +162,11 @@ const integrations = [
     title: 'ENS',
     tag: 'Readable identities',
     body:
-      'ENS replaces raw hex addresses across the UI. When CRE settles a raffle, the contract emits a winner subname — winner-round{N}.wld5050.eth — minted on Ethereum L1 and pointed at the winner\'s address.',
+      'ENS replaces raw hex addresses across the UI. When CRE settles a raffle, the contract reserves winner-round{N}.wld5050.eth. Winners can claim that badge on Ethereum mainnet (they pay L1 gas) — a shareable trophy name, separate from World Chain payout proof.',
     bullets: [
-      'Hosts, buyers, and winners shown by ENS name',
-      'winner-round{N}.wld5050.eth minted post-draw',
-      'Permanent on-chain identity for every winner',
+      'Hosts, buyers, and winners shown by ENS name where available',
+      'winner-round{N}.wld5050.eth — optional claim on Ethereum L1',
+      'Worldscan token transfers remain the payment proof',
     ],
   },
 ] as const
@@ -177,7 +177,7 @@ const crePipeline = [
   'Confidential AI fairness attestation (TEE)',
   'Verifiable randomness via CRE DON consensus',
   'onReport() → winner + creator paid in one tx',
-  'RaffleSettled event → ENS subname minted on L1',
+  'RaffleSettled event → winner may claim ENS badge on L1',
 ] as const
 
 function SectionShell({

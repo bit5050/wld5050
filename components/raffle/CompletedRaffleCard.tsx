@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import ENSName from '@/components/ens/ENSName'
+import { getEnsDomainsUrl } from '@/lib/ens-claim/constants'
 import ShareRaffleDialog from '@/components/raffle/ShareRaffleDialog'
 import PaymentTokenBadge from '@/components/raffle/PaymentTokenBadge'
 import VerifiedBadge from '@/components/ui/VerifiedBadge'
@@ -99,7 +100,18 @@ export default function CompletedRaffleCard({ raffle, compact = false }: Props) 
 
         <div className={`mb-3 rounded-[7px] border-[0.5px] border-[#E0E0E0] px-3 py-2.5 ${compact ? '' : 'px-3.5'}`}>
           <p className="text-[9px] uppercase tracking-widest text-[#9E9E9E] mb-0.5">Winner ENS</p>
-          <p className="font-mono text-[10px] font-bold text-black truncate">{raffle.winnerSubname}</p>
+          {raffle.ensMinted ? (
+            <Link
+              href={getEnsDomainsUrl(raffle.winnerSubname)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono text-[10px] font-bold text-black truncate hover:text-[#616161]"
+            >
+              {raffle.winnerSubname} ↗
+            </Link>
+          ) : (
+            <p className="font-mono text-[10px] font-bold text-black truncate">{raffle.winnerSubname}</p>
+          )}
         </div>
 
         <div className="mt-auto space-y-2">

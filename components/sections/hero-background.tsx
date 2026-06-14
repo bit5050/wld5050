@@ -9,7 +9,7 @@ const codeLines = [
   'agent.wld5050.eth → CRE draw agent',
   'World ID 4.0 → one entry per human',
   'CRE DON → 15/15 nodes consensus',
-  'winner-round{N}.wld5050.eth → minted post-draw',
+  'winner-round{N}.wld5050.eth → optional L1 badge (winner claims)',
   'ProveKit → ZK winner index verified',
   'Chainlink Confidential AI → fairness attestation',
   'Privy → embedded wallet · gasless ERC-4337',

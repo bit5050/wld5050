@@ -1,5 +1,6 @@
 import type { Settlement } from '@/types'
 import ENSName from '@/components/ens/ENSName'
+import WinnerEnsLink from '@/components/ens/WinnerEnsLink'
 import VerifiedBadge from '@/components/ui/VerifiedBadge'
 import CREPanel from '@/components/chainlink/CREPanel'
 import PaymentTokenBadge from '@/components/raffle/PaymentTokenBadge'
@@ -73,15 +74,12 @@ export default function WinnerCard({ settlement: s }: Props) {
               </a>
             ) : null}
           </div>
-          <div className="flex items-center justify-between px-3.5 py-2.5 border border-gray-100 rounded-[7px]">
-            <div>
-              <div className="text-[10px] text-gray-400 uppercase tracking-widest mb-0.5">Winner ENS subname</div>
-              <div className="font-mono text-[11px] font-bold">{s.winnerSubname}</div>
-            </div>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <path d="M2 12L12 2M12 2H6M12 2V8" stroke="#9E9E9E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
+          <WinnerEnsLink
+            raffleId={s.raffleId}
+            winner={s.winner as `0x${string}`}
+            winnerSubname={s.winnerSubname}
+            ensMinted={s.ensMinted}
+          />
         </div>
       </div>
       <CREPanel steps={s.creSteps} />

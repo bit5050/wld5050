@@ -5,6 +5,7 @@ import {
   paymentTokenFromIndex,
   wld5050Abi,
 } from '@/lib/contracts/wld5050'
+import { isWinnerEnsMinted } from '@/lib/ens/fetch-ens-minted'
 import type { Settlement } from '@/types'
 
 /** World Chain RPC limits eth_getLogs to 100 blocks per request. */
@@ -84,6 +85,10 @@ export async function fetchRaffleSettlement(
         paymentToken: token,
         txHash: log.transactionHash,
         blockNumber: Number(log.blockNumber),
+        ensMinted: await isWinnerEnsMinted(
+          (log.args.winnerSubname as string) || `winner-round${raffleId}.wld5050.eth`,
+          log.args.winner as Address,
+        ),
         creSteps: [],
       }
       settlementCache.set(key, settlement)
@@ -128,6 +133,10 @@ export async function fetchRaffleSettlement(
       paymentToken: token,
       txHash: '',
       blockNumber: 0,
+      ensMinted: await isWinnerEnsMinted(
+        (details[7] as string) || `winner-round${raffleId}.wld5050.eth`,
+        details[1] as Address,
+      ),
       creSteps: [],
     }
     settlementCache.set(key, fallback)

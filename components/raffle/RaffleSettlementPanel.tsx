@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import ENSName from '@/components/ens/ENSName'
+import WinnerEnsLink from '@/components/ens/WinnerEnsLink'
 import PaymentTokenBadge from '@/components/raffle/PaymentTokenBadge'
 import VerifiedBadge from '@/components/ui/VerifiedBadge'
 import { formatTokenAmount } from '@/lib/pricing'
@@ -133,10 +134,12 @@ export default function RaffleSettlementPanel({
         </div>
 
         {settlement.winnerSubname ? (
-          <div className="rounded-[8px] border border-gray-100 px-4 py-3">
-            <p className="mb-1 text-[10px] uppercase tracking-widest text-gray-400">Winner ENS</p>
-            <p className="font-mono text-[12px] font-bold text-black">{settlement.winnerSubname}</p>
-          </div>
+          <WinnerEnsLink
+            raffleId={settlement.raffleId}
+            winner={settlement.winner as `0x${string}`}
+            winnerSubname={settlement.winnerSubname}
+            ensMinted={settlement.ensMinted}
+          />
         ) : null}
 
         {txHash ? (

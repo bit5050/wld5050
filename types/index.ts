@@ -28,6 +28,7 @@ export interface Settlement {
   paymentToken: PaymentToken
   txHash: string
   blockNumber: number
+  ensMinted: boolean
   creSteps: CREStep[]
 }
 

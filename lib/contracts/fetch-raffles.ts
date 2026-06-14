@@ -159,6 +159,7 @@ export async function fetchRafflesFromContract(
         creatorPayout,
         txHash: settlement?.txHash ?? '',
         blockNumber: settlement?.blockNumber ?? 0,
+        ensMinted: settlement?.ensMinted ?? false,
         creSteps: buildCreSteps(
           id,
           settlement?.blockNumber ?? 0,
@@ -282,6 +283,7 @@ export function toSettlement(raffle: CompletedRaffle): Settlement {
     paymentToken: raffle.paymentToken,
     txHash: raffle.txHash,
     blockNumber: raffle.blockNumber,
+    ensMinted: raffle.ensMinted,
     creSteps: raffle.creSteps,
   }
 }

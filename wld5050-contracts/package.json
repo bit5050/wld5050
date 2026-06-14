@@ -8,6 +8,8 @@
     "deploy:mainnet": "npx hardhat run scripts/deploy.ts --network worldchain-mainnet",
     "verify:mainnet": "npx hardhat run scripts/verify.ts --network worldchain-mainnet",
     "resolve:ens": "npx ts-node scripts/resolveEns.ts",
+    "ens-claim:deploy": "npx hardhat run scripts/deployWinnerEnsClaimRegistrar.ts --network mainnet",
+    "ens-claim:approve": "npx ts-node scripts/approveEnsClaimRegistrar.ts",
     "workflow:simulate": "cre workflow simulate workflow --target production-settings --non-interactive --trigger-index 0",
     "workflow:settle": "cre workflow simulate workflow --target production-settings --non-interactive --trigger-index 0 --broadcast -e .env"
   },
