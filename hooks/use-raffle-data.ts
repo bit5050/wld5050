@@ -1,12 +1,16 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
-import { usePublicClient } from 'wagmi'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { usePublicClient, useWatchContractEvent } from 'wagmi'
 import type { Address, PublicClient } from 'viem'
 import { publicEnv } from '@/lib/env.public'
-import { fetchRaffleById, fetchRafflesFromContract } from '@/lib/contracts/fetch-raffles'
+import {
+  fetchRaffleById,
+  fetchRaffleTicketsSold,
+  fetchRafflesFromContract,
+} from '@/lib/contracts/fetch-raffles'
 import { getPublicClient } from '@/lib/contracts/public-client'
-import { isValidContractAddress } from '@/lib/contracts/wld5050'
+import { isValidContractAddress, wld5050Abi } from '@/lib/contracts/wld5050'
 import type { CompletedRaffle, Raffle } from '@/types'
 
 function resolvePublicClient(wagmiClient: PublicClient | undefined): PublicClient {
@@ -94,6 +98,32 @@ export function useRaffle(raffleId: number) {
     }
   }, [publicClient, contractAddress, hasContract, raffleId])
 
+  const refreshStats = useCallback(async () => {
+    if (!hasContract || !Number.isFinite(raffleId) || raffleId < 1) return
+
+    try {
+      const ticketsSold = await fetchRaffleTicketsSold(raffleId, publicClient, contractAddress)
+      if (ticketsSold === null) return
+      setRaffle((prev) => (prev ? { ...prev, ticketsSold } : prev))
+    } catch (err) {
+      console.error('Raffle stats refresh failed:', err)
+    }
+  }, [publicClient, contractAddress, hasContract, raffleId])
+
+  const refreshStatsRef = useRef(refreshStats)
+  refreshStatsRef.current = refreshStats
+
+  useWatchContractEvent({
+    address: hasContract ? contractAddress : undefined,
+    abi: wld5050Abi,
+    eventName: 'TicketPurchased',
+    args: Number.isFinite(raffleId) && raffleId >= 1 ? { raffleId: BigInt(raffleId) } : undefined,
+    enabled: hasContract && Number.isFinite(raffleId) && raffleId >= 1 && raffle?.status === 'ACTIVE',
+    onLogs() {
+      void refreshStatsRef.current()
+    },
+  })
+
   useEffect(() => {
     refresh()
   }, [refresh])
@@ -111,5 +141,5 @@ export function useRaffle(raffleId: number) {
     return () => clearInterval(interval)
   }, [raffle, refresh])
 
-  return { raffle, isLoading, error, refresh, hasContract }
+  return { raffle, isLoading, error, refresh, refreshStats, hasContract }
 }

@@ -39,7 +39,7 @@ export default function RafflePage() {
     [raffleId],
   )
 
-  const { raffle, isLoading, error } = useRaffle(raffleId)
+  const { raffle, isLoading, error, refreshStats } = useRaffle(raffleId)
   const [worldIdResult, setWorldIdResult] = useState<IDKitResult | null>(null)
   const [entered, setEntered] = useState(false)
 
@@ -63,8 +63,11 @@ export default function RafflePage() {
   const badgeLabel = getRaffleBadgeLabel(phase, raffle?.status ?? 'ACTIVE')
 
   useEffect(() => {
-    if (isSuccess) setEntered(true)
-  }, [isSuccess])
+    if (!isSuccess) return
+    setEntered(true)
+    void refreshStats()
+    toast.success("Ticket confirmed — you're in!")
+  }, [isSuccess, refreshStats])
 
   if (isLoading) {
     return (

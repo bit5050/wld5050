@@ -70,6 +70,15 @@ export const wld5050Abi = [
   },
   {
     type: 'event',
+    name: 'TicketPurchased',
+    inputs: [
+      { name: 'raffleId', type: 'uint256', indexed: true },
+      { name: 'buyer', type: 'address', indexed: true },
+      { name: 'ticketIndex', type: 'uint256', indexed: false },
+    ],
+  },
+  {
+    type: 'event',
     name: 'RaffleSettled',
     inputs: [
       { name: 'raffleId', type: 'uint256', indexed: true },

@@ -241,6 +241,24 @@ export async function fetchRaffleById(
   }
 }
 
+/** Single readContract — used after ticket purchases to refresh stats without log scans. */
+export async function fetchRaffleTicketsSold(
+  raffleId: number,
+  publicClient: PublicClient,
+  contractAddress: Address,
+): Promise<number | null> {
+  if (!Number.isFinite(raffleId) || raffleId < 1) return null
+
+  const details = await publicClient.readContract({
+    address: contractAddress,
+    abi: wld5050Abi,
+    functionName: 'getRaffleDetails',
+    args: [BigInt(raffleId)],
+  })
+
+  return Number(details[3])
+}
+
 export function toSettlement(raffle: CompletedRaffle): Settlement {
   return {
     raffleId: raffle.raffleId,
