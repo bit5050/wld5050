@@ -12,6 +12,7 @@ import PaymentTokenSelector from '@/components/raffle/PaymentTokenSelector'
 import ContractAddressLink from '@/components/raffle/ContractAddressLink'
 import { useCreateRaffleTx, type CreateRaffleResult } from '@/hooks/use-raffle-transactions'
 import type { PaymentToken } from '@/lib/contracts/wld5050'
+import { getWld5050WorldscanUrl } from '@/lib/contracts/contract-address'
 import { platformFeeLabel, ticketPriceLabel } from '@/lib/pricing'
 import { AGENT_ENS, PLATFORM_WALLET } from '@/types'
 
@@ -310,9 +311,18 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
 
       {/* Important information */}
       <div className="mb-6 rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] p-4">
-        <p className="font-display text-[14px] font-semibold text-black mb-3">
+        <p className="font-display text-[14px] font-semibold text-black mb-1">
           WLD5050 Important Information:
         </p>
+        <a
+          href={getWld5050WorldscanUrl('#code')}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mb-3 inline-flex items-center gap-1 font-mono text-[11px] text-[#616161] transition-colors hover:text-black"
+        >
+          WLD5050 Verified Contract
+          <span aria-hidden>↗</span>
+        </a>
         <ul className="space-y-2 font-body text-[12px] leading-relaxed text-[#616161]">
           <li>
             <strong className="text-black">Platform Creation Fee:</strong>{' '}
