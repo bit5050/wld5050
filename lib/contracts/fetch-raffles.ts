@@ -9,7 +9,7 @@ import {
   type PaymentToken,
 } from '@/lib/contracts/wld5050'
 import { getPublicClient } from '@/lib/contracts/public-client'
-import { fetchRaffleStartTime } from '@/lib/contracts/fetch-raffle-start'
+import { fetchRaffleStartTime, fallbackRaffleStartTime } from '@/lib/contracts/fetch-raffle-start'
 import type { CompletedRaffle, CREStep, Raffle, RaffleStatus, Settlement } from '@/types'
 
 const ZERO_HASH = '0x0000000000000000000000000000000000000000000000000000000000000000'
@@ -163,16 +163,13 @@ export async function fetchRafflesFromContract(
     }
 
     if (statusCode === 0 && !isEnded) {
-      const startTime =
-        (await fetchRaffleStartTime(id, publicClient, contractAddress)) ?? endTime
-
       active.push({
         id,
         name,
         creator,
         creatorEns: null,
         ticketsSold,
-        startTime,
+        startTime: fallbackRaffleStartTime(),
         endTime,
         status,
         aiAttestationHash: aiAttestationHash !== ZERO_HASH ? aiAttestationHash : undefined,
@@ -224,7 +221,8 @@ export async function fetchRaffleById(
   const isEnded = state[6]
   const endTime = Number(details[4])
   const startTime =
-    (await fetchRaffleStartTime(raffleId, publicClient, contractAddress)) ?? endTime
+    (await fetchRaffleStartTime(raffleId, publicClient, contractAddress)) ??
+    fallbackRaffleStartTime()
 
   return {
     id: raffleId,
