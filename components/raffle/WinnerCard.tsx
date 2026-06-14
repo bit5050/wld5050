@@ -2,6 +2,8 @@ import { Settlement } from '@/types'
 import ENSName from '@/components/ens/ENSName'
 import VerifiedBadge from '@/components/ui/VerifiedBadge'
 import CREPanel from '@/components/chainlink/CREPanel'
+import PaymentTokenBadge from '@/components/raffle/PaymentTokenBadge'
+import { formatTokenAmount } from '@/lib/pricing'
 
 interface Props { settlement: Settlement }
 
@@ -11,9 +13,12 @@ export default function WinnerCard({ settlement: s }: Props) {
   return (
     <div className="space-y-3">
       <div className="border border-gray-200 rounded-[10px] overflow-hidden">
-        <div className="px-4 py-3.5 bg-black flex items-center justify-between">
+        <div className="px-4 py-3.5 bg-black flex items-center justify-between gap-3">
           <span className="font-mono text-[10px] text-white/50 uppercase tracking-widest">Winner</span>
-          <span className="font-mono text-[10px] text-white/40">Round #{s.raffleId}</span>
+          <div className="flex items-center gap-2">
+            <PaymentTokenBadge token={s.paymentToken} className="border-white/20 bg-white/10 text-white" />
+            <span className="font-mono text-[10px] text-white/40">Round #{s.raffleId}</span>
+          </div>
         </div>
         <div className="px-4 py-4">
           <div className="flex items-center gap-3 mb-4">
@@ -29,8 +34,8 @@ export default function WinnerCard({ settlement: s }: Props) {
           </div>
           <div className="grid grid-cols-3 gap-3 mb-4">
             {[
-              { label: 'Winner received', value: `$${s.winnerPrize.toFixed(2)}` },
-              { label: 'Creator received', value: `$${s.creatorPayout.toFixed(2)}` },
+              { label: 'Winner received', value: formatTokenAmount(s.winnerPrize, s.paymentToken) },
+              { label: 'Creator received', value: formatTokenAmount(s.creatorPayout, s.paymentToken) },
               { label: 'Tickets sold', value: String(s.ticketsSold) },
             ].map(({ label, value }) => (
               <div key={label} className="bg-gray-50 rounded-[7px] border border-gray-100 px-3 py-3">

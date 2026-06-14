@@ -5,13 +5,21 @@ import type { IDKitResult } from '@worldcoin/idkit'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { toast } from 'sonner'
-import { TICKET_PRICE, TICKET_PRICE_DUAL_LONG, TICKET_PRICE_USDC_LABEL } from '@/types'
+import {
+  buyTicketStepText,
+  formatPrizePool,
+  formatWinnerShare,
+  ticketPriceLabel,
+  winStepText,
+  winnerPayoutMessage,
+} from '@/lib/pricing'
 import VerifiedBadge from '@/components/ui/VerifiedBadge'
 import ConnectWalletButton from '@/components/wallet/connect-wallet-button'
 import WorldIdVerifyButton from '@/components/worldid/world-id-verify-button'
 import ENSName from '@/components/ens/ENSName'
 import ShareRaffleButtons from '@/components/raffle/ShareRaffleButtons'
 import RaffleCountdown from '@/components/raffle/RaffleCountdown'
+import PaymentTokenBadge from '@/components/raffle/PaymentTokenBadge'
 import { useBuyTicketTx } from '@/hooks/use-raffle-transactions'
 import { useRaffleCountdown } from '@/hooks/use-raffle-countdown'
 import { useRaffle } from '@/hooks/use-raffle-data'
@@ -30,16 +38,17 @@ export default function RafflePage() {
   const [entered, setEntered] = useState(false)
 
   const { address, contractAddress, buyTicket, isPending, isSuccess, txHash } =
-    useBuyTicketTx(raffleId)
+    useBuyTicketTx(raffleId, raffle?.paymentToken)
 
   const startTime = raffle?.startTime ?? 0
   const endTime = raffle?.endTime ?? 0
+  const paymentToken = raffle?.paymentToken ?? 'USDC'
   const { phase, startsIn, endsIn } = useRaffleCountdown(startTime, endTime)
 
   const verified = worldIdResult !== null
   const tickets = raffle?.ticketsSold ?? 0
-  const prizePool = (tickets * TICKET_PRICE).toFixed(2)
-  const yourShare = ((tickets * TICKET_PRICE) / 2).toFixed(2)
+  const prizePool = formatPrizePool(tickets, paymentToken)
+  const yourShare = formatWinnerShare(tickets, paymentToken)
   const isUpcoming = phase === 'upcoming'
   const isLive = raffle?.status === 'ACTIVE' && phase === 'live'
   const canEnter = isLive && !entered
@@ -89,13 +98,16 @@ export default function RafflePage() {
         ← All raffles
       </Link>
 
-      <div className="mb-2 flex items-start justify-between">
+      <div className="mb-2 flex items-start justify-between gap-3">
         <h1 className="font-display text-[26px] font-semibold leading-tight tracking-tight">
           {raffle.name}
         </h1>
-        <span className="ml-4 mt-1 flex-none rounded-full border border-black px-2.5 py-1 font-mono text-[10px]">
-          {isUpcoming ? '● Starting soon' : isLive ? '● Live' : `● ${raffle.status}`}
-        </span>
+        <div className="flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:items-center">
+          <PaymentTokenBadge token={raffle.paymentToken} size="md" />
+          <span className="rounded-full border border-black px-2.5 py-1 font-mono text-[10px]">
+            {isUpcoming ? '● Starting soon' : isLive ? '● Live' : `● ${raffle.status}`}
+          </span>
+        </div>
       </div>
       <div className="mb-2 flex items-center gap-2 text-[12px] text-gray-600">
         <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-500" />
@@ -105,6 +117,8 @@ export default function RafflePage() {
             <ENSName address={raffle.creator} fallback={raffle.creatorEns ?? undefined} />
           </span>
         </span>
+        <span className="text-gray-300">·</span>
+        <span>Tickets sold in {raffle.paymentToken}</span>
       </div>
 
       <RaffleCountdown phase={phase} startsIn={startsIn} endsIn={endsIn} />
@@ -112,8 +126,8 @@ export default function RafflePage() {
       <div className="mb-8 grid grid-cols-3 gap-4 border-b border-gray-100 pb-8">
         {[
           { label: 'Tickets sold', value: String(tickets), green: false },
-          { label: 'Prize pool', value: `$${prizePool}`, green: true },
-          { label: 'Winner gets', value: `$${yourShare}`, green: false },
+          { label: 'Prize pool', value: prizePool, green: true },
+          { label: 'Winner gets', value: yourShare, green: false },
         ].map(({ label, value, green }) => (
           <div key={label}>
             <p className="mb-1.5 text-[10px] uppercase tracking-widest text-gray-400">{label}</p>
@@ -136,8 +150,8 @@ export default function RafflePage() {
           {[
             { step: '01', text: 'Connect wallet with Privy' },
             { step: '02', text: 'Verify with World ID — proves you are a unique human' },
-            { step: '03', text: `Buy 1 ticket for ${TICKET_PRICE_DUAL_LONG} — one per verified human per raffle` },
-            { step: '04', text: 'If you win, USDC arrives automatically — no claiming needed' },
+            { step: '03', text: buyTicketStepText(raffle.paymentToken) },
+            { step: '04', text: winStepText(raffle.paymentToken) },
           ].map(({ step, text }) => (
             <div
               key={step}
@@ -170,7 +184,7 @@ export default function RafflePage() {
             <p className="mt-3 break-all font-mono text-[11px] text-gray-500">{txHash}</p>
           ) : null}
           <p className="mt-3 text-[12px] text-gray-600">
-            You will receive USDC automatically if you win. No action needed.
+            {winnerPayoutMessage(raffle.paymentToken)}
           </p>
         </div>
       ) : (
@@ -207,7 +221,7 @@ export default function RafflePage() {
               </div>
               <button
                 type="button"
-                disabled={!contractAddress || isPending}
+                disabled={!contractAddress || isPending || !raffle.paymentToken}
                 onClick={async () => {
                   if (!worldIdResult) return
                   try {
@@ -217,12 +231,23 @@ export default function RafflePage() {
                     toast.error(error instanceof Error ? error.message : 'Failed to buy ticket')
                   }
                 }}
-                className="w-full rounded-[7px] bg-black py-3.5 text-[14px] font-medium text-white transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex w-full items-center justify-center gap-2 rounded-[7px] bg-black py-3.5 text-[14px] font-medium text-white transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {isPending ? 'Confirm in wallet…' : 'Buy ticket — '}
-                {!isPending ? (
-                  <span className="font-mono text-[13px] opacity-70">{TICKET_PRICE_USDC_LABEL}</span>
-                ) : null}
+                {isPending ? (
+                  'Confirm in wallet…'
+                ) : (
+                  <>
+                    Buy ticket
+                    <span className="inline-flex items-center gap-1.5 font-mono text-[13px] opacity-90">
+                      <PaymentTokenBadge
+                        token={raffle.paymentToken}
+                        showLabel={false}
+                        className="border-white/20 bg-white/10"
+                      />
+                      {ticketPriceLabel(raffle.paymentToken)}
+                    </span>
+                  </>
+                )}
               </button>
             </>
           )}

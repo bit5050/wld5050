@@ -1,3 +1,5 @@
+import type { PaymentToken } from '@/lib/contracts/wld5050'
+
 export type RaffleStatus = 'ACTIVE' | 'SETTLED' | 'EXPIRED' | 'REFUNDED'
 
 export interface Raffle {
@@ -6,6 +8,7 @@ export interface Raffle {
   creator: string
   creatorEns: string | null
   ticketsSold: number
+  paymentToken: PaymentToken
   startTime: number
   endTime: number
   status: RaffleStatus
@@ -20,6 +23,7 @@ export interface Settlement {
   winnerPrize: number
   creatorPayout: number
   ticketsSold: number
+  paymentToken: PaymentToken
   txHash: string
   blockNumber: number
   creSteps: CREStep[]

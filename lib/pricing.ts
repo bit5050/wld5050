@@ -34,3 +34,40 @@ export function platformFeeLabel(token: PaymentToken): string {
 export function ticketPriceLabel(token: PaymentToken): string {
   return token === 'USDC' ? TICKET_PRICE_USDC_LABEL : TICKET_PRICE_WLD_LABEL
 }
+
+export function ticketUnitPrice(token: PaymentToken): number {
+  return token === 'USDC' ? TICKET_PRICE_USDC : TICKET_PRICE_WLD
+}
+
+export function formatTokenAmount(amount: number, token: PaymentToken): string {
+  if (token === 'USDC') return `$${amount.toFixed(2)}`
+  return `${amount.toFixed(2)} WLD`
+}
+
+export function formatPrizePool(ticketsSold: number, token: PaymentToken): string {
+  const total = ticketsSold * ticketUnitPrice(token)
+  if (token === 'USDC') return `$${total.toFixed(2)}`
+  return `${total.toFixed(2)} WLD`
+}
+
+export function formatWinnerShare(ticketsSold: number, token: PaymentToken): string {
+  const share = (ticketsSold * ticketUnitPrice(token)) / 2
+  if (token === 'USDC') return `$${share.toFixed(2)}`
+  return `${share.toFixed(2)} WLD`
+}
+
+export function winnerPayoutMessage(token: PaymentToken): string {
+  return token === 'USDC'
+    ? 'You will receive USDC automatically if you win. No action needed.'
+    : 'You will receive WLD automatically if you win. No action needed.'
+}
+
+export function buyTicketStepText(token: PaymentToken): string {
+  return `Buy 1 ticket for ${ticketPriceLabel(token)} — one per verified human per raffle`
+}
+
+export function winStepText(token: PaymentToken): string {
+  return token === 'USDC'
+    ? 'If you win, USDC arrives automatically — no claiming needed'
+    : 'If you win, WLD arrives automatically — no claiming needed'
+}

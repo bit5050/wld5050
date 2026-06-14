@@ -1,11 +1,12 @@
 'use client'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Raffle, TICKET_PRICE_USDC_LABEL, TICKET_PRICE_WLD_LABEL } from '@/types'
-import { TICKET_PRICE_USDC } from '@/lib/pricing'
+import { Raffle } from '@/types'
 import { formatCountdown } from '@/lib/format'
+import { formatPrizePool, formatWinnerShare, ticketPriceLabel } from '@/lib/pricing'
 import ENSName from '@/components/ens/ENSName'
 import ShareRaffleDialog from '@/components/raffle/ShareRaffleDialog'
+import PaymentTokenBadge from '@/components/raffle/PaymentTokenBadge'
 
 interface Props {
   raffle: Raffle
@@ -16,8 +17,8 @@ export default function RaffleCard({ raffle, compact = false }: Props) {
   const [countdown, setCountdown] = useState<string | null>(null)
 
   const tickets = raffle.ticketsSold
-  const prizePool = (tickets * TICKET_PRICE_USDC).toFixed(2)
-  const yourShare = (tickets * TICKET_PRICE_USDC / 2).toFixed(2)
+  const prizePool = formatPrizePool(tickets, raffle.paymentToken)
+  const yourShare = formatWinnerShare(tickets, raffle.paymentToken)
 
   useEffect(() => {
     const update = () => setCountdown(formatCountdown(raffle.endTime))
@@ -32,9 +33,12 @@ export default function RaffleCard({ raffle, compact = false }: Props) {
         <span className={`font-display font-medium tracking-tight text-black ${compact ? 'text-[14px] leading-snug line-clamp-2' : 'text-[15px]'}`}>
           {raffle.name}
         </span>
-        <span className="font-mono text-[10px] tracking-wide px-2 py-0.5 rounded-full border border-black text-black flex-none">
-          ● Live
-        </span>
+        <div className="flex shrink-0 flex-col items-end gap-1.5">
+          <PaymentTokenBadge token={raffle.paymentToken} />
+          <span className="font-mono text-[10px] tracking-wide px-2 py-0.5 rounded-full border border-black text-black">
+            ● Live
+          </span>
+        </div>
       </div>
       <div className={`px-4 flex flex-col flex-1 ${compact ? 'py-3' : 'py-4'}`}>
         <div className={`text-[#616161] mb-3 ${compact ? 'text-[11px] leading-relaxed space-y-1' : 'flex items-center gap-1.5 text-[12px] mb-4'}`}>
@@ -67,8 +71,8 @@ export default function RaffleCard({ raffle, compact = false }: Props) {
         <div className={`grid gap-2 mb-3 ${compact ? 'grid-cols-3' : 'grid-cols-3 gap-3 mb-4'}`}>
           {[
             { label: 'Tickets sold', value: <span className={`font-mono font-bold tracking-tight text-black ${compact ? 'text-[14px]' : 'text-[16px]'}`}>{tickets}</span> },
-            { label: 'Prize pool',   value: <span className={`font-mono font-bold tracking-tight text-black ${compact ? 'text-[14px]' : 'text-[16px]'}`}>${prizePool}</span> },
-            { label: 'Your share',   value: <span className={`font-mono font-bold tracking-tight ${compact ? 'text-[14px]' : 'text-[16px]'}`}>${yourShare}</span> },
+            { label: 'Prize pool',   value: <span className={`font-mono font-bold tracking-tight text-black ${compact ? 'text-[14px]' : 'text-[16px]'}`}>{prizePool}</span> },
+            { label: 'Your share',   value: <span className={`font-mono font-bold tracking-tight ${compact ? 'text-[14px]' : 'text-[16px]'}`}>{yourShare}</span> },
           ].map(({ label, value }) => (
             <div key={label} className="flex flex-col gap-0.5">
               <span className="text-[9px] text-[#9E9E9E] uppercase tracking-widest leading-tight">{label}</span>
@@ -88,9 +92,12 @@ export default function RaffleCard({ raffle, compact = false }: Props) {
         </div>
         <div className="mt-auto space-y-2">
           <Link href={`/raffle/${raffle.id}`}>
-            <button className={`w-full font-medium bg-black text-white rounded-[7px] hover:opacity-80 transition-opacity ${compact ? 'text-[13px] py-2.5' : 'text-[14px] py-3'}`}>
-              Buy ticket{' '}
-              <span className="font-mono opacity-70">{TICKET_PRICE_USDC_LABEL} · {TICKET_PRICE_WLD_LABEL}</span>
+            <button className={`flex w-full items-center justify-center gap-2 font-medium bg-black text-white rounded-[7px] hover:opacity-80 transition-opacity ${compact ? 'text-[13px] py-2.5' : 'text-[14px] py-3'}`}>
+              Buy ticket
+              <span className="inline-flex items-center gap-1.5 font-mono opacity-90">
+                <PaymentTokenBadge token={raffle.paymentToken} showLabel={false} className="border-white/20 bg-white/10" />
+                {ticketPriceLabel(raffle.paymentToken)}
+              </span>
             </button>
           </Link>
           <ShareRaffleDialog

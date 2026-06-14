@@ -11,6 +11,7 @@ import {
   PLATFORM_FEE_USDC_RAW,
   PLATFORM_FEE_WLD_RAW,
   TICKET_PRICE_USDC_RAW,
+  TICKET_PRICE_WLD_RAW,
   USDC_ADDRESS,
   WLD_TOKEN_ADDRESS,
   wld5050WriteAbi,
@@ -31,10 +32,20 @@ export type CreateRaffleResult = {
 
 const TOKEN_CONFIG: Record<
   PaymentToken,
-  { address: typeof USDC_ADDRESS; feeRaw: bigint; index: number }
+  { address: typeof USDC_ADDRESS; feeRaw: bigint; ticketRaw: bigint; index: number }
 > = {
-  USDC: { address: USDC_ADDRESS, feeRaw: PLATFORM_FEE_USDC_RAW, index: PAYMENT_TOKEN_USDC },
-  WLD: { address: WLD_TOKEN_ADDRESS, feeRaw: PLATFORM_FEE_WLD_RAW, index: PAYMENT_TOKEN_WLD },
+  USDC: {
+    address: USDC_ADDRESS,
+    feeRaw: PLATFORM_FEE_USDC_RAW,
+    ticketRaw: TICKET_PRICE_USDC_RAW,
+    index: PAYMENT_TOKEN_USDC,
+  },
+  WLD: {
+    address: WLD_TOKEN_ADDRESS,
+    feeRaw: PLATFORM_FEE_WLD_RAW,
+    ticketRaw: TICKET_PRICE_WLD_RAW,
+    index: PAYMENT_TOKEN_WLD,
+  },
 }
 
 async function ensureTokenAllowance(
@@ -152,7 +163,7 @@ export function useCreateRaffleTx() {
   }
 }
 
-export function useBuyTicketTx(raffleId: number) {
+export function useBuyTicketTx(raffleId: number, paymentToken?: PaymentToken) {
   const { wallets } = useWallets()
   const publicClient = usePublicClient()
   const address = wallets[0]?.address as `0x${string}` | undefined
@@ -168,19 +179,21 @@ export function useBuyTicketTx(raffleId: number) {
     async (worldIdResult: IDKitResult) => {
       if (!address) throw new Error('Connect your wallet first.')
       if (!contractAddress) throw new Error('WLD5050 contract address is not configured.')
+      if (!paymentToken) throw new Error('Raffle payment token is not loaded yet.')
 
       const { root, nullifierHash, proof } = extractLegacyOrbProof(worldIdResult)
+      const { ticketRaw } = TOKEN_CONFIG[paymentToken]
 
       await ensureTokenAllowance(
         publicClient,
-        'USDC',
+        paymentToken,
         address,
         contractAddress,
-        TICKET_PRICE_USDC_RAW,
+        ticketRaw,
         writeContractAsync,
       )
 
-      toast.message('Buying ticket on World Chain…')
+      toast.message(`Buying ticket with ${paymentToken}…`)
       try {
         const hash = await writeContractAsync({
           address: contractAddress,
@@ -194,7 +207,7 @@ export function useBuyTicketTx(raffleId: number) {
         throw new Error(friendlyTxError(error))
       }
     },
-    [address, contractAddress, publicClient, raffleId, writeContractAsync],
+    [address, contractAddress, paymentToken, publicClient, raffleId, writeContractAsync],
   )
 
   return {

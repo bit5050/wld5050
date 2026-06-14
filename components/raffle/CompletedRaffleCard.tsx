@@ -1,7 +1,9 @@
 import Link from 'next/link'
 import ENSName from '@/components/ens/ENSName'
 import ShareRaffleDialog from '@/components/raffle/ShareRaffleDialog'
+import PaymentTokenBadge from '@/components/raffle/PaymentTokenBadge'
 import VerifiedBadge from '@/components/ui/VerifiedBadge'
+import { formatTokenAmount } from '@/lib/pricing'
 import type { CompletedRaffle } from '@/types'
 
 type Props = {
@@ -22,9 +24,12 @@ export default function CompletedRaffleCard({ raffle, compact = false }: Props) 
         >
           {raffle.raffleName}
         </span>
-        <span className="shrink-0 rounded-full border border-[#E0E0E0] px-2 py-0.5 font-mono text-[10px] tracking-wide text-[#616161]">
-          ● Settled
-        </span>
+        <div className="flex shrink-0 flex-col items-end gap-1.5">
+          <PaymentTokenBadge token={raffle.paymentToken} />
+          <span className="rounded-full border border-[#E0E0E0] px-2 py-0.5 font-mono text-[10px] tracking-wide text-[#616161]">
+            ● Settled
+          </span>
+        </div>
       </div>
 
       <div className={`flex flex-1 flex-col px-4 ${compact ? 'py-3' : 'py-4'}`}>
@@ -48,8 +53,8 @@ export default function CompletedRaffleCard({ raffle, compact = false }: Props) 
 
         <div className={`mb-3 grid grid-cols-3 gap-2 ${compact ? '' : 'gap-3 mb-4'}`}>
           {[
-            { label: 'Winner paid', value: `$${raffle.winnerPrize.toFixed(2)}` },
-            { label: 'Creator paid', value: `$${raffle.creatorPayout.toFixed(2)}` },
+            { label: 'Winner paid', value: formatTokenAmount(raffle.winnerPrize, raffle.paymentToken) },
+            { label: 'Creator paid', value: formatTokenAmount(raffle.creatorPayout, raffle.paymentToken) },
             { label: 'Tickets sold', value: String(raffle.ticketsSold) },
           ].map(({ label, value }) => (
             <div key={label} className="flex flex-col gap-0.5">

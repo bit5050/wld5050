@@ -143,6 +143,7 @@ export async function fetchRafflesFromContract(
         raffleId: id,
         raffleName: name,
         ticketsSold,
+        paymentToken: token,
         winner,
         winnerEns: null,
         winnerSubname: winnerSubname || `winner-round${id}.wld5050.eth`,
@@ -169,6 +170,7 @@ export async function fetchRafflesFromContract(
         creator,
         creatorEns: null,
         ticketsSold,
+        paymentToken: token,
         startTime: fallbackRaffleStartTime(),
         endTime,
         status,
@@ -220,6 +222,7 @@ export async function fetchRaffleById(
   const statusCode = Number(details[5])
   const isEnded = state[6]
   const endTime = Number(details[4])
+  const paymentToken = paymentTokenFromIndex(Number(details[2]))
   const startTime =
     (await fetchRaffleStartTime(raffleId, publicClient, contractAddress)) ??
     fallbackRaffleStartTime()
@@ -230,6 +233,7 @@ export async function fetchRaffleById(
     creator: details[1] as Address,
     creatorEns: null,
     ticketsSold: Number(details[3]),
+    paymentToken,
     startTime,
     endTime,
     status: mapRaffleStatus(statusCode, isEnded),
@@ -247,6 +251,7 @@ export function toSettlement(raffle: CompletedRaffle): Settlement {
     winnerPrize: raffle.winnerPrize,
     creatorPayout: raffle.creatorPayout,
     ticketsSold: raffle.ticketsSold,
+    paymentToken: raffle.paymentToken,
     txHash: raffle.txHash,
     blockNumber: raffle.blockNumber,
     creSteps: raffle.creSteps,
