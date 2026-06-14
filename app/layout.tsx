@@ -9,6 +9,7 @@ import AppProviders from '@/components/providers/app-providers'
 import MotionProviders from '@/components/providers/motion-providers'
 import TermsAgreementModal from '@/components/legal/TermsAgreementModal'
 import { Toaster } from '@/components/ui/sonner'
+import { siteShareImage, SITE_SHARE_IMAGE_PATH } from '@/lib/seo/share-image'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.wld5050.com'),
@@ -24,12 +25,14 @@ export const metadata: Metadata = {
     title: 'WLD5050 | Human-Verified 50/50 Raffles On World Chain | WorldID Raffle',
     description:
       'WLD5050 , Human-Verified 50/50 Raffles On World Chain , World ID Raffle , World ID 50/50 Raffle Platform',
+    images: siteShareImage,
   },
   twitter: {
     card: 'summary_large_image',
     title: 'WLD5050 | Human-Verified 50/50 Raffles On World Chain | WorldID Raffle',
     description:
       'WLD5050 , Human-Verified 50/50 Raffles On World Chain , World ID Raffle , World ID 50/50 Raffle Platform',
+    images: [SITE_SHARE_IMAGE_PATH],
   },
   manifest: '/manifest.webmanifest',
   icons: {

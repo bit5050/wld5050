@@ -7,6 +7,7 @@ import CompletedRafflesSection from '@/components/sections/CompletedRafflesSecti
 import TrustSection from '@/components/sections/TrustSection'
 import FairEntrySection from '@/components/sections/FairEntrySection'
 import { fetchRafflesFromContract } from '@/lib/contracts/fetch-raffles'
+import { siteShareImage, SITE_SHARE_IMAGE_PATH } from '@/lib/seo/share-image'
 
 export const metadata: Metadata = {
   title: 'WLD5050 | Human-Verified 50/50 Raffles On World Chain | WorldID Raffle',
@@ -16,11 +17,13 @@ export const metadata: Metadata = {
     title: 'WLD5050 | Human-Verified 50/50 Raffles On World Chain | WorldID Raffle',
     description:
       'WLD5050 , Human-Verified 50/50 Raffles On World Chain , World ID Raffle , World ID 50/50 Raffle Platform',
+    images: siteShareImage,
   },
   twitter: {
     title: 'WLD5050 | Human-Verified 50/50 Raffles On World Chain | WorldID Raffle',
     description:
       'WLD5050 , Human-Verified 50/50 Raffles On World Chain , World ID Raffle , World ID 50/50 Raffle Platform',
+    images: [SITE_SHARE_IMAGE_PATH],
   },
 }
 

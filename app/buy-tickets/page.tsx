@@ -3,6 +3,7 @@ import Link from 'next/link'
 import RaffleCard from '@/components/raffle/RaffleCard'
 import ContractAddressLink from '@/components/raffle/ContractAddressLink'
 import { fetchRafflesFromContract } from '@/lib/contracts/fetch-raffles'
+import { siteShareImage, SITE_SHARE_IMAGE_PATH } from '@/lib/seo/share-image'
 
 export const metadata: Metadata = {
   title: 'Buy Tickets World Chain WLD Raffle',
@@ -10,10 +11,12 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Buy Tickets World Chain WLD Raffle',
     description: 'Buy Tickets World Chain WLD Raffle , Create World ID 50/50 Raffle',
+    images: siteShareImage,
   },
   twitter: {
     title: 'Buy Tickets World Chain WLD Raffle',
     description: 'Buy Tickets World Chain WLD Raffle , Create World ID 50/50 Raffle',
+    images: [SITE_SHARE_IMAGE_PATH],
   },
 }
 
