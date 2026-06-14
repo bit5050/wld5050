@@ -1,3 +1,5 @@
+import { getWld5050ContractAddress } from '@/lib/contracts/contract-address'
+
 const MIN_DURATION_SECONDS = 1
 
 function parseDateTime(date: string, time: string): Date {
@@ -19,8 +21,5 @@ export function computeRaffleDurationSeconds(endDate: string, endTime: string): 
 }
 
 export function getContractAddress(): `0x${string}` | null {
-  const address = process.env.NEXT_PUBLIC_WLD5050_CONTRACT ?? ''
-  if (!/^0x[a-fA-F0-9]{40}$/.test(address)) return null
-  if (address === '0x0000000000000000000000000000000000000000') return null
-  return address as `0x${string}`
+  return getWld5050ContractAddress()
 }

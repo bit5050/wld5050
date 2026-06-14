@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import WinnerCard from '@/components/raffle/WinnerCard'
+import ContractAddressLink from '@/components/raffle/ContractAddressLink'
 import { fetchRafflesFromContract, toSettlement } from '@/lib/contracts/fetch-raffles'
 
 export const revalidate = 30
@@ -10,8 +11,11 @@ export default async function ResultsPage() {
   return (
     <div className="px-6 py-10">
       <h1 className="font-display text-[28px] font-semibold tracking-tight mb-1">Results</h1>
-      <p className="text-[13px] text-gray-600 mb-8 max-w-[480px]">
+      <p className="text-[13px] text-gray-600 mb-2 max-w-[480px]">
         Past raffle settlements verified and paid automatically by Chainlink CRE.
+      </p>
+      <p className="mb-8">
+        <ContractAddressLink />
       </p>
       {completed.length === 0 ? (
         <div className="rounded-[10px] border border-gray-200 px-5 py-8 text-center">

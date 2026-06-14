@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { BlurFade } from '@/components/ui/blur-fade'
 import CompletedRaffleCard from '@/components/raffle/CompletedRaffleCard'
+import ContractAddressLink from '@/components/raffle/ContractAddressLink'
 import type { CompletedRaffle } from '@/types'
 
 type Props = {
@@ -22,6 +23,9 @@ export default function CompletedRafflesSection({ raffles }: Props) {
               <h2 className="font-display text-[28px] font-semibold tracking-tight sm:text-[32px]">
                 Completed Raffle Results
               </h2>
+              <p className="mt-2">
+                <ContractAddressLink />
+              </p>
             </div>
             <Link
               href="/results"

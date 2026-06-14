@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { BlurFade } from '@/components/ui/blur-fade'
 import RaffleCard from '@/components/raffle/RaffleCard'
+import ContractAddressLink from '@/components/raffle/ContractAddressLink'
 import type { Raffle } from '@/types'
 
 type Props = {
@@ -25,6 +26,9 @@ export default function ActiveRafflesSection({ raffles }: Props) {
               <h2 className="font-display text-[28px] font-semibold tracking-tight sm:text-[32px]">
                 Active raffles
               </h2>
+              <p className="mt-2">
+                <ContractAddressLink />
+              </p>
             </div>
             <Link
               href="/buy-tickets"

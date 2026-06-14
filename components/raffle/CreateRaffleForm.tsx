@@ -9,6 +9,7 @@ import ConnectWalletButton from '@/components/wallet/connect-wallet-button'
 import WorldIdVerifyButton from '@/components/worldid/world-id-verify-button'
 import RaffleCreatedSuccessDialog from '@/components/raffle/RaffleCreatedSuccessDialog'
 import PaymentTokenSelector from '@/components/raffle/PaymentTokenSelector'
+import ContractAddressLink from '@/components/raffle/ContractAddressLink'
 import { useCreateRaffleTx, type CreateRaffleResult } from '@/hooks/use-raffle-transactions'
 import type { PaymentToken } from '@/lib/contracts/wld5050'
 import { platformFeeLabel, ticketPriceLabel } from '@/lib/pricing'
@@ -129,6 +130,9 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
           Choose USDC or WLD for the creation fee and ticket payouts. Fee goes to{' '}
           <span className="text-black">{PLATFORM_WALLET}</span>.
         </p>
+        <p className="mt-2">
+          <ContractAddressLink />
+        </p>
       </div>
 
       {/* Payment token */}
@@ -194,15 +198,6 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
               Connect your wallet with Privy before creating a raffle.
             </p>
             <ConnectWalletButton />
-          </div>
-        ) : null}
-
-        {!contractAddress ? (
-          <div className="rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] px-4 py-4">
-            <p className="font-body text-[13px] text-[#616161]">
-              Set <span className="font-mono">NEXT_PUBLIC_WLD5050_CONTRACT</span> to submit on-chain
-              raffles.
-            </p>
           </div>
         ) : null}
       </div>

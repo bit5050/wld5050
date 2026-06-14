@@ -1,5 +1,7 @@
 import type { Address } from 'viem'
 
+export { WLD5050_CONTRACT_ADDRESS, WLD5050_DEPLOY_BLOCK } from '@/lib/contracts/contract-address'
+
 export const USDC_ADDRESS = '0x79A02482A880bCE3F13e09Da970dC34db4CD24d1' as Address
 export const WLD_TOKEN_ADDRESS = '0x2cFc85d8E48F8EAB294be644d9E25C3030863003' as Address
 

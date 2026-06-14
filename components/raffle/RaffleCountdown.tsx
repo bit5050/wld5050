@@ -4,6 +4,8 @@ type Props = {
   phase: 'upcoming' | 'live' | 'ended'
   startsIn: string
   endsIn: string
+  settled?: boolean
+  paymentToken?: 'USDC' | 'WLD'
 }
 
 function TimerCell({
@@ -40,12 +42,34 @@ function TimerCell({
   )
 }
 
-export default function RaffleCountdown({ phase, startsIn, endsIn }: Props) {
+export default function RaffleCountdown({
+  phase,
+  startsIn,
+  endsIn,
+  settled = false,
+  paymentToken = 'USDC',
+}: Props) {
+  if (phase === 'ended' && settled) {
+    return (
+      <div className="mb-8 rounded-[10px] border-[0.5px] border-black bg-black px-4 py-4 text-white">
+        <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-white/50">Raffle settled</p>
+        <p className="mt-1 font-mono text-[18px] font-bold">Winner paid in {paymentToken}</p>
+        <p className="mt-2 text-[12px] text-white/70">
+          Chainlink CRE completed the draw and payouts. See full results below.
+        </p>
+      </div>
+    )
+  }
+
   if (phase === 'ended') {
     return (
-      <div className="mb-8 rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] px-4 py-3">
+      <div className="mb-8 rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] px-4 py-4">
         <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#9E9E9E]">Raffle ended</p>
         <p className="mt-1 font-mono text-[18px] font-bold text-black">Waiting for CRE settlement</p>
+        <p className="mt-2 text-[12px] leading-relaxed text-[#616161]">
+          Ticket sales are closed. Chainlink CRE will draw a verifiable random winner and pay out{' '}
+          {paymentToken} automatically — usually within a minute of the deadline.
+        </p>
       </div>
     )
   }

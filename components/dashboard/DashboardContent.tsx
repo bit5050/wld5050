@@ -14,6 +14,7 @@ import { BlurFade } from '@/components/ui/blur-fade'
 import HeroBackground from '@/components/sections/hero-background'
 import ConnectWalletButton from '@/components/wallet/connect-wallet-button'
 import ShareRaffleDialog from '@/components/raffle/ShareRaffleDialog'
+import ContractAddressLink from '@/components/raffle/ContractAddressLink'
 import { useDashboardData } from '@/hooks/use-dashboard-data'
 import { formatUSDC } from '@/lib/format'
 import type { DashboardRaffleItem } from '@/lib/dashboard/types'
@@ -151,7 +152,7 @@ export default function DashboardContent() {
   const { wallets } = useWallets()
   const address = wallets[0]?.address as `0x${string}` | undefined
 
-  const { data, isLoading, error, refresh, hasContract } = useDashboardData(address)
+  const { data, isLoading, error, refresh } = useDashboardData(address)
 
   const showConnect = ready && !authenticated
 
@@ -177,6 +178,9 @@ export default function DashboardContent() {
                 World Chain.
               </p>
             )}
+            <p className="mb-6">
+              <ContractAddressLink />
+            </p>
 
             <div className="flex flex-wrap items-center gap-3">
               {address && (
@@ -244,14 +248,6 @@ export default function DashboardContent() {
                       Refresh
                     </button>
                   </div>
-
-                  {!hasContract && (
-                    <p className="font-body text-[13px] text-[#616161] mb-6 rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-[#FAFAFA] px-4 py-3">
-                      Contract address not configured. Set{' '}
-                      <span className="font-mono text-[12px]">NEXT_PUBLIC_WLD5050_CONTRACT</span> to
-                      load live stats.
-                    </p>
-                  )}
 
                   {error && (
                     <p className="font-body text-[13px] text-[#616161] mb-6">{error}</p>

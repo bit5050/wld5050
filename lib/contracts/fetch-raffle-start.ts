@@ -1,14 +1,8 @@
 import { parseAbiItem, type Address, type PublicClient } from 'viem'
-import { publicEnv } from '@/lib/env.public'
+import { WLD5050_DEPLOY_BLOCK } from '@/lib/contracts/contract-address'
 
 /** World Chain RPC limits eth_getLogs to 100 blocks per request. */
 const LOG_BLOCK_RANGE = BigInt(100)
-
-/** Known deploy blocks — bounds getLogs scans per contract. */
-const DEPLOY_BLOCKS: Record<string, bigint> = {
-  '0x787c5b5b464cea2d1482e3f0e605171b1f0d322e': BigInt(31_029_803),
-  '0x98cb5b000f557c9a07fd724bb7a846486bd24c5c': BigInt(30_500_000),
-}
 
 const raffleCreatedEvent = parseAbiItem(
   'event RaffleCreated(uint256 indexed raffleId, address indexed creator, uint8 token, uint256 endTime, string name)',
@@ -31,7 +25,7 @@ export async function fetchRaffleStartTime(
   }
 
   try {
-    const deployFrom = DEPLOY_BLOCKS[contractAddress.toLowerCase()] ?? BigInt(0)
+    const deployFrom = WLD5050_DEPLOY_BLOCK
     const latest = await publicClient.getBlockNumber()
     let toBlock = latest
 
@@ -69,8 +63,7 @@ export async function fetchRaffleStartTime(
 }
 
 export function getRaffleDeployFromBlock(): bigint {
-  const address = publicEnv.contractAddress.toLowerCase()
-  return DEPLOY_BLOCKS[address] ?? BigInt(0)
+  return WLD5050_DEPLOY_BLOCK
 }
 
 /** When start time is unknown, treat raffle as already open until endTime. */

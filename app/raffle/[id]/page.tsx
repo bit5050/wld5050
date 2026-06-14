@@ -20,10 +20,16 @@ import ENSName from '@/components/ens/ENSName'
 import ShareRaffleButtons from '@/components/raffle/ShareRaffleButtons'
 import RaffleCountdown from '@/components/raffle/RaffleCountdown'
 import PaymentTokenBadge from '@/components/raffle/PaymentTokenBadge'
+import ContractAddressLink from '@/components/raffle/ContractAddressLink'
 import { useBuyTicketTx } from '@/hooks/use-raffle-transactions'
 import { useRaffleCountdown } from '@/hooks/use-raffle-countdown'
 import { useRaffle } from '@/hooks/use-raffle-data'
 import { worldIdEnterRaffleAction } from '@/lib/worldid/actions'
+import {
+  getRaffleBadgeLabel,
+  isAwaitingCreSettlement,
+  isRaffleSettled,
+} from '@/lib/raffle-display'
 
 export default function RafflePage() {
   const params = useParams()
@@ -33,7 +39,7 @@ export default function RafflePage() {
     [raffleId],
   )
 
-  const { raffle, isLoading, error, hasContract } = useRaffle(raffleId)
+  const { raffle, isLoading, error } = useRaffle(raffleId)
   const [worldIdResult, setWorldIdResult] = useState<IDKitResult | null>(null)
   const [entered, setEntered] = useState(false)
 
@@ -51,7 +57,10 @@ export default function RafflePage() {
   const yourShare = formatWinnerShare(tickets, paymentToken)
   const isUpcoming = phase === 'upcoming'
   const isLive = raffle?.status === 'ACTIVE' && phase === 'live'
+  const isSettled = isRaffleSettled(raffle?.status ?? 'ACTIVE')
+  const awaitingCre = isAwaitingCreSettlement(phase, raffle?.status ?? 'ACTIVE')
   const canEnter = isLive && !entered
+  const badgeLabel = getRaffleBadgeLabel(phase, raffle?.status ?? 'ACTIVE')
 
   useEffect(() => {
     if (isSuccess) setEntered(true)
@@ -61,16 +70,6 @@ export default function RafflePage() {
     return (
       <div className="px-6 py-10">
         <p className="text-[13px] text-gray-500">Loading raffle from contract…</p>
-      </div>
-    )
-  }
-
-  if (!hasContract) {
-    return (
-      <div className="px-6 py-10">
-        <p className="text-[13px] text-gray-500">
-          Set NEXT_PUBLIC_WLD5050_CONTRACT to view raffles on-chain.
-        </p>
       </div>
     )
   }
@@ -105,12 +104,17 @@ export default function RafflePage() {
         <div className="flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:items-center">
           <PaymentTokenBadge token={raffle.paymentToken} size="md" />
           <span className="rounded-full border border-black px-2.5 py-1 font-mono text-[10px]">
-            {isUpcoming ? '● Starting soon' : isLive ? '● Live' : `● ${raffle.status}`}
+            ● {badgeLabel}
           </span>
         </div>
       </div>
       <div className="mb-2 flex items-center gap-2 text-[12px] text-gray-600">
-        <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-500" />
+        <span
+          className={[
+            'inline-block h-1.5 w-1.5 rounded-full',
+            isLive ? 'bg-green-500' : awaitingCre ? 'bg-amber-500' : isSettled ? 'bg-black' : 'bg-gray-400',
+          ].join(' ')}
+        />
         <span>
           Created by{' '}
           <span className="font-medium text-black">
@@ -119,9 +123,17 @@ export default function RafflePage() {
         </span>
         <span className="text-gray-300">·</span>
         <span>Tickets sold in {raffle.paymentToken}</span>
+        <span className="text-gray-300">·</span>
+        <ContractAddressLink />
       </div>
 
-      <RaffleCountdown phase={phase} startsIn={startsIn} endsIn={endsIn} />
+      <RaffleCountdown
+        phase={phase}
+        startsIn={startsIn}
+        endsIn={endsIn}
+        settled={isSettled}
+        paymentToken={raffle.paymentToken}
+      />
 
       <div className="mb-8 grid grid-cols-3 gap-4 border-b border-gray-100 pb-8">
         {[
@@ -166,20 +178,45 @@ export default function RafflePage() {
 
       {!canEnter && !entered ? (
         <div className="rounded-[10px] border border-gray-200 p-5 text-center">
-          <p className="text-[13px] text-gray-600">
-            {isUpcoming
-              ? 'This raffle has not started yet. The countdown above shows when entries open.'
-              : 'This raffle is no longer active. '}
-            {!isUpcoming ? (
+          {isSettled ? (
+            <p className="text-[13px] text-gray-600">
+              This raffle has been settled.{' '}
               <Link href="/results" className="text-black underline underline-offset-2">
                 View results
               </Link>
-            ) : null}
-          </p>
+            </p>
+          ) : awaitingCre ? (
+            <div className="space-y-2">
+              <p className="text-[13px] text-gray-600">
+                Entries are closed. Chainlink CRE is selecting a random winner and sending{' '}
+                {raffle.paymentToken} payouts automatically.
+              </p>
+              <p className="font-mono text-[11px] text-gray-400">
+                This page refreshes every 30 seconds until settlement completes.
+              </p>
+            </div>
+          ) : (
+            <p className="text-[13px] text-gray-600">
+              {isUpcoming
+                ? 'This raffle has not started yet. The countdown above shows when entries open.'
+                : 'This raffle is no longer active. '}
+              {!isUpcoming ? (
+                <Link href="/results" className="text-black underline underline-offset-2">
+                  View results
+                </Link>
+              ) : null}
+            </p>
+          )}
         </div>
       ) : entered ? (
         <div className="rounded-[10px] border border-gray-200 p-5 text-center">
-          <VerifiedBadge label="You're entered — good luck" />
+          <VerifiedBadge
+            label={
+              awaitingCre
+                ? "You're entered — waiting for CRE draw"
+                : "You're entered — good luck"
+            }
+          />
           {txHash ? (
             <p className="mt-3 break-all font-mono text-[11px] text-gray-500">{txHash}</p>
           ) : null}
@@ -194,12 +231,6 @@ export default function RafflePage() {
               <p className="mb-3 text-[13px] text-gray-600">Connect your wallet to enter this raffle.</p>
               <ConnectWalletButton />
             </div>
-          ) : null}
-
-          {!contractAddress ? (
-            <p className="text-[12px] text-gray-500">
-              Set NEXT_PUBLIC_WLD5050_CONTRACT to buy tickets on-chain.
-            </p>
           ) : null}
 
           {!verified ? (

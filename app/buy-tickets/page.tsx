@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import RaffleCard from '@/components/raffle/RaffleCard'
+import ContractAddressLink from '@/components/raffle/ContractAddressLink'
 import { fetchRafflesFromContract } from '@/lib/contracts/fetch-raffles'
 
 export const revalidate = 30
@@ -12,8 +13,11 @@ export default async function BuyTicketsPage() {
   return (
     <div className="px-6 py-10">
       <h1 className="font-display text-[28px] font-semibold tracking-tight mb-1">Buy Tickets</h1>
-      <p className="text-[13px] text-gray-600 mb-8 max-w-[480px]">
+      <p className="text-[13px] text-gray-600 mb-2 max-w-[480px]">
         One ticket per verified human. Pick an active raffle below to enter.
+      </p>
+      <p className="mb-8">
+        <ContractAddressLink />
       </p>
       {active.length === 0 ? (
         <div className="rounded-[10px] border border-gray-200 px-5 py-8 text-center">

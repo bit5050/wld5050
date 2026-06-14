@@ -66,7 +66,7 @@ export function useRaffle(raffleId: number) {
   const contractAddress = publicEnv.contractAddress as Address
   const hasContract = isValidContractAddress(contractAddress)
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (options?: { silent?: boolean }) => {
     if (!hasContract || !Number.isFinite(raffleId) || raffleId < 1) {
       setRaffle(null)
       setError(Number.isFinite(raffleId) && raffleId >= 1 ? null : 'Invalid raffle id.')
@@ -74,7 +74,9 @@ export function useRaffle(raffleId: number) {
       return
     }
 
-    setIsLoading(true)
+    if (!options?.silent) {
+      setIsLoading(true)
+    }
     setError(null)
 
     try {
@@ -86,13 +88,28 @@ export function useRaffle(raffleId: number) {
       setError('Could not load raffle from contract.')
       setRaffle(null)
     } finally {
-      setIsLoading(false)
+      if (!options?.silent) {
+        setIsLoading(false)
+      }
     }
   }, [publicClient, contractAddress, hasContract, raffleId])
 
   useEffect(() => {
     refresh()
   }, [refresh])
+
+  useEffect(() => {
+    if (!raffle || raffle.status === 'SETTLED') return
+
+    const endTimeMs = raffle.endTime * 1000
+    if (Date.now() < endTimeMs - 60_000) return
+
+    const interval = setInterval(() => {
+      refresh({ silent: true })
+    }, 30_000)
+
+    return () => clearInterval(interval)
+  }, [raffle, refresh])
 
   return { raffle, isLoading, error, refresh, hasContract }
 }

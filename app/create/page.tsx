@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import CreateRaffleForm from '@/components/raffle/CreateRaffleForm'
+import ContractAddressLink from '@/components/raffle/ContractAddressLink'
 
 export default function CreatePage() {
   return (
@@ -12,6 +13,9 @@ export default function CreatePage() {
       >
         ← Back to home
       </Link>
+      <p className="mb-6">
+        <ContractAddressLink />
+      </p>
       <CreateRaffleForm variant="page" />
     </div>
   )

@@ -1,14 +1,13 @@
 import type { Address, PublicClient } from 'viem'
-import { publicEnv } from '@/lib/env.public'
 import { resolveEnsToAddress } from '@/lib/ens/resolve'
 import {
   formatRawTokenAmount,
-  isValidContractAddress,
   paymentTokenFromIndex,
   wld5050Abi,
   type PaymentToken,
 } from '@/lib/contracts/wld5050'
 import { getPublicClient } from '@/lib/contracts/public-client'
+import { getWld5050ContractAddress } from '@/lib/contracts/contract-address'
 import { fetchRaffleStartTime, fallbackRaffleStartTime } from '@/lib/contracts/fetch-raffle-start'
 import type { CompletedRaffle, CREStep, Raffle, RaffleStatus, Settlement } from '@/types'
 
@@ -22,6 +21,7 @@ export type RaffleListData = {
 function mapRaffleStatus(statusCode: number, isEnded: boolean): RaffleStatus {
   if (statusCode === 1) return 'SETTLED'
   if (statusCode === 2) return 'EXPIRED'
+  if (isEnded && statusCode === 0) return 'ACTIVE'
   if (isEnded) return 'EXPIRED'
   return 'ACTIVE'
 }
@@ -63,8 +63,7 @@ function buildCreSteps(
 }
 
 function getContractAddress(): Address | null {
-  const address = publicEnv.contractAddress
-  return isValidContractAddress(address) ? (address as Address) : null
+  return getWld5050ContractAddress()
 }
 
 async function resolveWinnerAddress(
