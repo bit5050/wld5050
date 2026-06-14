@@ -8,18 +8,11 @@ import VerifiedBadge from '@/components/ui/VerifiedBadge'
 import ConnectWalletButton from '@/components/wallet/connect-wallet-button'
 import WorldIdVerifyButton from '@/components/worldid/world-id-verify-button'
 import RaffleCreatedSuccessDialog from '@/components/raffle/RaffleCreatedSuccessDialog'
+import PaymentTokenSelector from '@/components/raffle/PaymentTokenSelector'
 import { useCreateRaffleTx, type CreateRaffleResult } from '@/hooks/use-raffle-transactions'
-import {
-  AGENT_ENS,
-  PLATFORM_FEE_DUAL_LABEL,
-  PLATFORM_FEE_DUAL_LONG,
-  PLATFORM_FEE_USDC_LABEL,
-  PLATFORM_FEE_WLD_LABEL,
-  PLATFORM_WALLET,
-  TICKET_PRICE_DUAL_LONG,
-  TICKET_PRICE_USDC_LABEL,
-  TICKET_PRICE_WLD_LABEL,
-} from '@/types'
+import type { PaymentToken } from '@/lib/contracts/wld5050'
+import { platformFeeLabel, ticketPriceLabel } from '@/lib/pricing'
+import { AGENT_ENS, PLATFORM_WALLET } from '@/types'
 
 type Props = {
   variant?: 'section' | 'page'
@@ -52,19 +45,35 @@ function formatDateTime(date: string, time: string) {
   })
 }
 
+function applyDurationFromNow(minutes: number) {
+  const start = new Date()
+  const end = new Date(start.getTime() + minutes * 60_000)
+  return {
+    startDate: toDateValue(start),
+    startTime: toTimeValue(start),
+    endDate: toDateValue(end),
+    endTime: toTimeValue(end),
+  }
+}
+
+const DURATION_PRESETS = [
+  { label: '1 min', minutes: 1 },
+  { label: '5 min', minutes: 5 },
+  { label: '1 hour', minutes: 60 },
+  { label: '1 day', minutes: 24 * 60 },
+] as const
+
 export default function CreateRaffleForm({ variant = 'section' }: Props) {
   const router = useRouter()
-  const defaultEnd = useMemo(() => {
-    const d = new Date()
-    d.setMinutes(d.getMinutes() + 5)
-    return d
-  }, [])
+  const defaultSchedule = useMemo(() => applyDurationFromNow(5), [])
 
   const [name, setName] = useState('')
-  const [startDate, setStartDate] = useState(toDateValue(defaultEnd))
-  const [startTime, setStartTime] = useState(toTimeValue(defaultEnd))
-  const [endDate, setEndDate] = useState(toDateValue(defaultEnd))
-  const [endTime, setEndTime] = useState(toTimeValue(defaultEnd))
+  const [paymentToken, setPaymentToken] = useState<PaymentToken>('USDC')
+  const [startDate, setStartDate] = useState(defaultSchedule.startDate)
+  const [startTime, setStartTime] = useState(defaultSchedule.startTime)
+  const [endDate, setEndDate] = useState(defaultSchedule.endDate)
+  const [endTime, setEndTime] = useState(defaultSchedule.endTime)
+  const [durationPreset, setDurationPreset] = useState<number | null>(5)
   const [worldIdResult, setWorldIdResult] = useState<IDKitResult | null>(null)
   const [verifiedAt, setVerifiedAt] = useState<number | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -91,6 +100,19 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
     if (created) router.refresh()
   }, [created, router])
 
+  function applyPreset(minutes: number) {
+    const schedule = applyDurationFromNow(minutes)
+    setStartDate(schedule.startDate)
+    setStartTime(schedule.startTime)
+    setEndDate(schedule.endDate)
+    setEndTime(schedule.endTime)
+    setDurationPreset(minutes)
+  }
+
+  function clearPreset() {
+    setDurationPreset(null)
+  }
+
   return (
     <div
       className={
@@ -104,10 +126,21 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
           Create Your 50/50 Raffle
         </h3>
         <p className="mt-2 font-mono text-[13px] text-[#616161]">
-          Creation payment:{' '}
-          <span className="font-bold text-black">{PLATFORM_FEE_DUAL_LABEL}</span>
-          <span className="text-[#9E9E9E]"> → {PLATFORM_WALLET}</span>
+          Choose USDC or WLD for the creation fee and ticket payouts. Fee goes to{' '}
+          <span className="text-black">{PLATFORM_WALLET}</span>.
         </p>
+      </div>
+
+      {/* Payment token */}
+      <div className="mb-6">
+        <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.2em] text-[#9E9E9E]">
+          Payment token
+        </p>
+        <PaymentTokenSelector
+          value={paymentToken}
+          onChange={setPaymentToken}
+          disabled={submitting || isPending || created}
+        />
       </div>
 
       {/* Fee breakdown */}
@@ -117,39 +150,40 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
         </p>
         <p className="font-body text-[13px] text-black mb-2">
           Creator pays:{' '}
-          <span className="font-mono font-bold">{PLATFORM_FEE_DUAL_LABEL}</span>
+          <span className="font-mono font-bold">{platformFeeLabel(paymentToken)}</span>
         </p>
         <ul className="space-y-1.5 font-mono text-[12px] text-[#616161]">
-          <li>{PLATFORM_FEE_USDC_LABEL} or {PLATFORM_FEE_WLD_LABEL} → {PLATFORM_WALLET}</li>
+          <li>
+            {platformFeeLabel(paymentToken)} → {PLATFORM_WALLET}
+          </li>
+          <li>Ticket price: {ticketPriceLabel(paymentToken)}</li>
         </ul>
       </div>
 
-      <p className="mb-6 font-body text-[12px] leading-relaxed text-[#616161]">
-        Raffles can run for any length — 1 minute for a quick demo, or months for a long campaign.
+      <p className="mb-4 font-body text-[12px] leading-relaxed text-[#616161]">
+        Raffles can run for any length. 1 minute for a quick demo, or months for a long campaign.
         End time is measured from when the transaction confirms on World Chain.
       </p>
 
       <div className="mb-6 flex flex-wrap gap-2">
-        {[
-          { label: '1 min', minutes: 1 },
-          { label: '5 min', minutes: 5 },
-          { label: '1 hour', minutes: 60 },
-          { label: '1 day', minutes: 24 * 60 },
-        ].map(({ label, minutes }) => (
-          <button
-            key={label}
-            type="button"
-            onClick={() => {
-              const now = new Date()
-              now.setMinutes(now.getMinutes() + minutes)
-              setEndDate(toDateValue(now))
-              setEndTime(toTimeValue(now))
-            }}
-            className="rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-white px-3 py-2 font-mono text-[11px] uppercase tracking-widest text-[#616161] transition-colors hover:border-black hover:text-black"
-          >
-            {label}
-          </button>
-        ))}
+        {DURATION_PRESETS.map(({ label, minutes }) => {
+          const selected = durationPreset === minutes
+          return (
+            <button
+              key={label}
+              type="button"
+              onClick={() => applyPreset(minutes)}
+              className={[
+                'rounded-[10px] border-[0.5px] px-3 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors',
+                selected
+                  ? 'border-black bg-black text-white'
+                  : 'border-[#E0E0E0] bg-white text-[#616161] hover:border-black hover:text-black',
+              ].join(' ')}
+            >
+              {label}
+            </button>
+          )
+        })}
       </div>
 
       {/* Wallet */}
@@ -204,7 +238,10 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
               id="start-date"
               type="date"
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              onChange={(e) => {
+                setStartDate(e.target.value)
+                clearPreset()
+              }}
               className="w-full rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-white px-4 py-3 font-mono text-[13px] text-black outline-none focus:border-black"
             />
           </div>
@@ -219,7 +256,10 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
               id="start-time"
               type="time"
               value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
+              onChange={(e) => {
+                setStartTime(e.target.value)
+                clearPreset()
+              }}
               className="w-full rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-white px-4 py-3 font-mono text-[13px] text-black outline-none focus:border-black"
             />
           </div>
@@ -234,7 +274,10 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
               id="end-date"
               type="date"
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              onChange={(e) => {
+                setEndDate(e.target.value)
+                clearPreset()
+              }}
               className="w-full rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-white px-4 py-3 font-mono text-[13px] text-black outline-none focus:border-black"
             />
           </div>
@@ -249,7 +292,10 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
               id="end-time"
               type="time"
               value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
+              onChange={(e) => {
+                setEndTime(e.target.value)
+                clearPreset()
+              }}
               className="w-full rounded-[10px] border-[0.5px] border-[#E0E0E0] bg-white px-4 py-3 font-mono text-[13px] text-black outline-none focus:border-black"
             />
           </div>
@@ -261,6 +307,7 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
         <p className="font-display text-[14px] font-semibold text-black mb-3">Your Raffle Details:</p>
         <ul className="space-y-1.5 font-body text-[13px] text-[#616161]">
           <li>• Raffle Name: {name.trim() || 'Not set'}</li>
+          <li>• Payment token: {paymentToken}</li>
           <li>• Start: {formatDateTime(startDate, startTime)}</li>
           <li>• End: {formatDateTime(endDate, endTime)}</li>
         </ul>
@@ -274,11 +321,11 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
         <ul className="space-y-2 font-body text-[12px] leading-relaxed text-[#616161]">
           <li>
             <strong className="text-black">Platform Creation Fee:</strong>{' '}
-            <span className="font-mono">{PLATFORM_FEE_DUAL_LONG}</span> → {PLATFORM_WALLET}
+            <span className="font-mono">{platformFeeLabel(paymentToken)}</span> → {PLATFORM_WALLET}
           </li>
           <li>
             <strong className="text-black">Ticket Cost:</strong>{' '}
-            <span className="font-mono">{TICKET_PRICE_DUAL_LONG}</span>
+            <span className="font-mono">{ticketPriceLabel(paymentToken)}</span>
           </li>
           <li>
             <strong className="text-black">Prize Distribution:</strong> 50% to winner, 50% to
@@ -373,6 +420,7 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
                 name,
                 endDate,
                 endTime,
+                paymentToken,
                 worldIdResult,
               })
               setCreatedRaffle(result)
@@ -388,7 +436,7 @@ export default function CreateRaffleForm({ variant = 'section' }: Props) {
         >
           {isPending || submitting
             ? 'Confirm in wallet…'
-            : `Pay ${PLATFORM_FEE_USDC_LABEL} & create raffle`}
+            : `Pay ${platformFeeLabel(paymentToken)} & create raffle`}
         </button>
       ) : null}
 

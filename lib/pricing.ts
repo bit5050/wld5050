@@ -1,3 +1,5 @@
+import type { PaymentToken } from '@/lib/contracts/wld5050'
+
 /** On-chain fee amounts (USDC ≈ USD; WLD uses matching nominal amounts). */
 export const TICKET_PRICE_USDC = 2.5
 export const TICKET_PRICE_WLD = 2.5
@@ -24,3 +26,11 @@ export const PLATFORM_FEE_DUAL_LONG = '$10.00 USDC or 10.00 WLD'
 export const TICKET_PRICE_DUAL_LONG = '$2.50 USDC or 2.50 WLD per ticket'
 
 export const PLATFORM_FEE_TO_WALLET = `${PLATFORM_FEE_DUAL_LABEL} → wld5050.eth`
+
+export function platformFeeLabel(token: PaymentToken): string {
+  return token === 'USDC' ? PLATFORM_FEE_USDC_LABEL : PLATFORM_FEE_WLD_LABEL
+}
+
+export function ticketPriceLabel(token: PaymentToken): string {
+  return token === 'USDC' ? TICKET_PRICE_USDC_LABEL : TICKET_PRICE_WLD_LABEL
+}

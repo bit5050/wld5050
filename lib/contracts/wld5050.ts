@@ -142,7 +142,9 @@ export const wld5050WriteAbi = [
 ] as const
 
 export const PLATFORM_FEE_USDC_RAW = BigInt(10_000_000)
+export const PLATFORM_FEE_WLD_RAW = BigInt(10) * BigInt(10 ** 18)
 export const TICKET_PRICE_USDC_RAW = BigInt(2_500_000)
+export const TICKET_PRICE_WLD_RAW = BigInt(25) * BigInt(10 ** 17)
 export const PAYMENT_TOKEN_USDC = 0
 export const PAYMENT_TOKEN_WLD = 1
 

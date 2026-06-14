@@ -7,11 +7,15 @@ import { usePublicClient, useWriteContract, useWaitForTransactionReceipt } from 
 import { toast } from 'sonner'
 import {
   PAYMENT_TOKEN_USDC,
+  PAYMENT_TOKEN_WLD,
   PLATFORM_FEE_USDC_RAW,
+  PLATFORM_FEE_WLD_RAW,
   TICKET_PRICE_USDC_RAW,
   USDC_ADDRESS,
+  WLD_TOKEN_ADDRESS,
   wld5050WriteAbi,
   wld5050Abi,
+  type PaymentToken,
 } from '@/lib/contracts/wld5050'
 import { computeRaffleDurationSeconds, getContractAddress } from '@/lib/contracts/raffle-tx'
 import { parseRaffleIdFromReceipt } from '@/lib/contracts/parse-raffle-created'
@@ -25,8 +29,17 @@ export type CreateRaffleResult = {
   raffleId: number
 }
 
-async function ensureUsdcAllowance(
+const TOKEN_CONFIG: Record<
+  PaymentToken,
+  { address: typeof USDC_ADDRESS; feeRaw: bigint; index: number }
+> = {
+  USDC: { address: USDC_ADDRESS, feeRaw: PLATFORM_FEE_USDC_RAW, index: PAYMENT_TOKEN_USDC },
+  WLD: { address: WLD_TOKEN_ADDRESS, feeRaw: PLATFORM_FEE_WLD_RAW, index: PAYMENT_TOKEN_WLD },
+}
+
+async function ensureTokenAllowance(
   publicClient: ReturnType<typeof usePublicClient>,
+  token: PaymentToken,
   owner: `0x${string}`,
   spender: `0x${string}`,
   required: bigint,
@@ -39,8 +52,10 @@ async function ensureUsdcAllowance(
 ) {
   if (!publicClient) return
 
+  const { address } = TOKEN_CONFIG[token]
+
   const allowance = await publicClient.readContract({
-    address: USDC_ADDRESS,
+    address,
     abi: erc20Abi,
     functionName: 'allowance',
     args: [owner, spender],
@@ -48,9 +63,9 @@ async function ensureUsdcAllowance(
 
   if (allowance >= required) return
 
-  toast.message('Approve USDC…')
+  toast.message(`Approve ${token}…`)
   const approveHash = await writeContractAsync({
-    address: USDC_ADDRESS,
+    address,
     abi: erc20Abi,
     functionName: 'approve',
     args: [spender, required],
@@ -75,6 +90,7 @@ export function useCreateRaffleTx() {
       name: string
       endDate: string
       endTime: string
+      paymentToken: PaymentToken
       worldIdResult: IDKitResult
     }): Promise<CreateRaffleResult> => {
       if (!address) throw new Error('Connect your wallet first.')
@@ -83,12 +99,14 @@ export function useCreateRaffleTx() {
 
       const duration = computeRaffleDurationSeconds(params.endDate, params.endTime)
       const { root, nullifierHash, proof } = extractLegacyOrbProof(params.worldIdResult)
+      const { feeRaw, index } = TOKEN_CONFIG[params.paymentToken]
 
-      await ensureUsdcAllowance(
+      await ensureTokenAllowance(
         publicClient,
+        params.paymentToken,
         address,
         contractAddress,
-        PLATFORM_FEE_USDC_RAW,
+        feeRaw,
         writeContractAsync,
       )
 
@@ -98,7 +116,7 @@ export function useCreateRaffleTx() {
           address: contractAddress,
           abi: wld5050WriteAbi,
           functionName: 'createRaffle',
-          args: [params.name.trim(), duration, PAYMENT_TOKEN_USDC, root, nullifierHash, [...proof]],
+          args: [params.name.trim(), duration, index, root, nullifierHash, [...proof]],
         })
         setPendingHash(hash)
 
@@ -153,8 +171,9 @@ export function useBuyTicketTx(raffleId: number) {
 
       const { root, nullifierHash, proof } = extractLegacyOrbProof(worldIdResult)
 
-      await ensureUsdcAllowance(
+      await ensureTokenAllowance(
         publicClient,
+        'USDC',
         address,
         contractAddress,
         TICKET_PRICE_USDC_RAW,
