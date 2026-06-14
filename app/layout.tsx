@@ -14,7 +14,7 @@ import { siteShareImage, SITE_SHARE_IMAGE_PATH } from '@/lib/seo/share-image'
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.wld5050.com'),
   title: {
-    default: 'WLD5050 | Human-Verified 50/50 Raffles On World Chain | WorldID Raffle',
+    default: 'WLD5050 | Human-Verified 50/50 Raffles On World Chain | World ID Raffle',
     template: '%s',
   },
   description:
@@ -22,14 +22,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: 'WLD5050',
-    title: 'WLD5050 | Human-Verified 50/50 Raffles On World Chain | WorldID Raffle',
+    title: 'WLD5050 | Human-Verified 50/50 Raffles On World Chain | World ID Raffle',
     description:
       'WLD5050 , Human-Verified 50/50 Raffles On World Chain , World ID Raffle , World ID 50/50 Raffle Platform',
     images: siteShareImage,
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'WLD5050 | Human-Verified 50/50 Raffles On World Chain | WorldID Raffle',
+    title: 'WLD5050 | Human-Verified 50/50 Raffles On World Chain | World ID Raffle',
     description:
       'WLD5050 , Human-Verified 50/50 Raffles On World Chain , World ID Raffle , World ID 50/50 Raffle Platform',
     images: [SITE_SHARE_IMAGE_PATH],

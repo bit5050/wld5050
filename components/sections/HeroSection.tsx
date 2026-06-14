@@ -55,7 +55,7 @@ export default function HeroSection() {
 
           <BlurFade blur="0px" delay={0.06} inView>
             <h1 className="font-display text-[40px] font-bold leading-[1.12] tracking-tight mb-5 sm:text-[44px] lg:text-[48px]">
-              Human-Only 50/50 Raffles on World Chain.
+              Human-Verified 50/50 Raffles On World Coin
               <br />
               <span className="text-[#9E9E9E]">
                 Verified by World ID. Powered by Chainlink. Readable by ENS.
