@@ -7,7 +7,6 @@ export const navLinks = [
   { label: 'Results', href: '/results' },
   { label: 'How It Works', href: '/how-it-works' },
   { label: 'Contact', href: '/contact' },
-  { label: 'Terms', href: '/terms' },
 ] as const
 
 export function isNavActive(href: string, pathname: string) {
